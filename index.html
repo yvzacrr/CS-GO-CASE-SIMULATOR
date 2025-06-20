@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasa Açma Simülasyonu</title>
+    <!-- Tailwind CSS CDN - Modern ve kullanımı kolay bir CSS kütüphanesi -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter yazı tipini Google Fonts'tan yüklüyoruz -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Genel stil ayarları */
+        body {
+            font-family: 'Inter', sans-serif; /* Inter yazı tipini kullan */
+            /* Arka plan resmi - BURAYI KENDİ DİREKT ARKA PLAN RESİM URL'İNLE DEĞİŞTİR! */
+            /* URL'nin .jpg, .png gibi bir uzantıyla bittiğinden emin ol! */
+            background-image: url('https://i.imgur.com/f4SkInb.jpeg'); /* Lütfen bu URL'nin doğru ve doğrudan bir resim URL'si olduğundan emin olun */
+            background-size: cover; /* Resmi tüm ekranı kaplayacak şekilde ayarla */
+            background-position: center; /* Resmi ortala */
+            background-attachment: fixed; /* Arka planı sabit tut, kaydırma yaparken hareket etmez */
+            display: flex;
+            flex-direction: column; /* İçeriği dikey olarak sırala */
+            align-items: center; /* İçeriği yatayda ortala */
+            min-height: 100vh; /* Ekranın tamamını kapla, ancak içerik taşarsa esne */
+            margin: 0;
+            overflow-y: auto; /* Dikeyde içerik taşarsa kaydırma çubuğu göster */
+            padding: 0; /* body'den padding'i kaldır, içerik divleri kendi padding'ini yönetecek */
+            box-sizing: border-box; /* Padding'in genişliğe dahil olmasını sağla */
+        }
+
+        /* En üstteki sabit panel */
+        #topPanel {
+            position: sticky; /* Panelin kaydırınca bizi takip etmesini sağlar */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px; /* Panelin yüksekliği */
+            background-color: rgba(0, 0, 0, 0.4); /* Menü ile aynı saydamlık */
+            backdrop-filter: blur(5px); /* Menünün üzerine gelince bulanıklaştırma */
+            -webkit-backdrop-filter: blur(5px); /* Safari desteği */
+            z-index: 1000; /* Diğer içeriklerin üzerinde kalmasını sağlar */
+            display: flex;
+            justify-content: space-between; /* Öğeleri iki yana yasla */
+            align-items: center; /* Öğeleri dikeyde ortala */
+            padding: 0 20px; /* Yanlarda boşluk bırak */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Hafif gölge */
+            border-radius: 0; /* Köşeleri yuvarlama yok */
+        }
+
+        #topPanel > div {
+            background-color: rgba(30, 41, 59, 0.7); /* Menüdeki kutularla aynı saydamlık */
+            padding: 8px 15px;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #topPanel > div:hover {
+            background-color: rgba(30, 41, 59, 0.9);
+        }
+        #topPanel .balance-text {
+            background-color: transparent; /* Balance yazısı için arka plan yok */
+            cursor: default; /* İmleç değişmesin */
+            padding: 0; /* Padding olmasın */
+        }
+
+        /* Ana içerik kutusu (Kasa Menüsü veya Kasa Açma Alanı) - Ayarlanan saydamlık ve daraltma */
+        .main-content-wrapper {
+            max-width: 900px; /* Daha dar bir genişlik */
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* Menü arka planı: %60 saydam */
+            border-radius: 1.5rem; /* Köşeleri daha fazla yuvarla */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* Daha belirgin gölge */
+            padding: 20px; /* Padding'i küçült */
+            backdrop-filter: blur(5px); /* Arka planı hafif bulanıklaştır */
+            -webkit-backdrop-filter: blur(5px); /* Safari desteği */
+            margin-top: 20px; /* Üst panel ile arasında boşluk */
+            margin-bottom: 20px; /* Alt boşluk */
+            flex-grow: 1; /* İçeriğin dikeyde yayılmasını sağlar */
+            box-sizing: border-box; /* Padding'in genişliğe dahil olmasını sağla */
+        }
+
+        /* Kasa menüsündeki her bir kasa kutusu - Küçültülmüş ve ayarlanmış saydamlık */
+        .case-item {
+            background-color: rgba(30, 41, 59, 0.7); /* Kasa kutusu arka planı: %30 saydam */
+            border-radius: 0.75rem; /* Köşeleri yuvarla */
+            padding: 5px; /* Padding'i daha da küçült */
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column; /* İçeriği dikey sırala */
+            align-items: center; /* İçeriği yatayda ortala */
+            justify-content: flex-start; /* İçeriği yukarıdan hizala */
+            width: 120px; /* Kutuyu daraltmak için sabit genişlik */
+            height: 170px; /* Kutuyu daraltmak için sabit yükseklik */
+        }
+
+        .case-item:hover {
+            transform: translateY(-5px); /* Üzerine gelince hafifçe yukarı kaydır */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Daha belirgin gölge */
+        }
+
+        .case-item img {
+            width: 90px; /* Kasa resimlerinin boyutunu ayarla, kutuya daha yakın */
+            height: 90px;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            margin-bottom: 5px; /* Resim ile fiyat kutusu arası boşluk */
+        }
+
+        /* Fiyat kutusu */
+        .price-container {
+            background-color: rgba(0, 0, 0, 0.6); /* Fiyat kutusu arka planı: %40 saydam */
+            color: #fff;
+            padding: 2px 5px; /* Padding'i küçült */
+            border-radius: 0.5rem;
+            font-size: 0.75rem; /* Yazı boyutunu küçült */
+            font-weight: bold;
+            margin-bottom: 5px; /* Fiyat kutusu ile isim arası boşluk */
+            width: fit-content; /* İçeriğe göre genişle */
+            align-self: flex-end; /* Sağ tarafa hizala */
+            margin-right: 3px; /* Kutu kenarına daha yakın durması için */
+        }
+
+        .case-item p {
+            font-size: 0.85rem; /* Yazı boyutunu küçült */
+            font-weight: bold;
+            color: #e2e8f0; /* Açık gri metin */
+            margin-top: 0; /* Üstteki boşluğu sıfırla */
+            line-height: 1.2; /* Satır yüksekliğini ayarla */
+            overflow: hidden; /* Taşmayı engelle */
+            text-overflow: ellipsis; /* Taşarsa üç nokta göster */
+            white-space: nowrap; /* Tek satırda kalmasını sağla */
+            width: 100%; /* Tam genişliği kullan */
+        }
+
+        /* Kasa açma alanındaki büyük resim ve kutu - Ayarlanan saydamlık */
+        .large-case-display-container {
+            width: 250px; /* Küçült */
+            height: 250px; /* Küçült */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7); /* Büyük kasa alanı arka planı: %30 saydam */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .large-case-display-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 1.5rem;
+        }
+
+        /* Butonlar için özel stil */
+        .custom-button {
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .custom-button:hover {
+            transform: translateY(-2px);
+        }
+        .custom-button:active {
+            transform: translateY(0);
+        }
+
+        /* FAQ bölümüne özel stil */
+        #faqSection {
+            max-width: 900px; /* main-content-wrapper ile aynı boyut */
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* main-content-wrapper ile aynı saydamlık */
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            margin-top: 20px; /* Ana içerik ile arasında boşluk */
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .faq-item {
+            background-color: rgba(30, 41, 59, 0.7);
+            padding: 15px;
+            border-radius: 0.75rem;
+            margin-bottom: 10px;
+        }
+        .faq-item h3 {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+        .faq-item p {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        .faq-item .small-italic {
+            font-size: 0.75rem;
+            font-style: italic;
+            color: #a0aec0; /* Daha açık bir gri tonu */
+            margin-top: 5px;
+        }
+
+        /* Olası Düşmeler Bölümü için özel stil */
+        #possibleDropsContainer {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        #possibleDropsContainer .skin-item-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(45, 55, 72, 0.8); /* Slightly darker, more opaque */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        #possibleDropsContainer .skin-item-preview img {
+            width: 80px; /* Smaller images for preview */
+            height: 80px;
+            object-fit: contain;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        #possibleDropsContainer .skin-item-preview p {
+            font-size: 0.75rem; /* Smaller text for preview */
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.25rem;
+            line-height: 1.1;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words */
+            width: 100%;
+        }
+        #possibleDropsContainer .rarity-bar {
+            width: 80%; /* Thin bar width */
+            height: 3px; /* Thin bar height */
+            border-radius: 9999px; /* Fully rounded */
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- En üstteki panel -->
+    <div id="topPanel">
+        <div id="homeButton">Home</div>
+        <div class="balance-text">Balance: <span id="balanceDisplay">0.00</span> $</div>
+        <div id="inventoryButton">Inventory</div>
+    </div>
+
+    <!-- Ana içerik kutusu (Kasa Seçim veya Kasa Açma) -->
+    <div id="mainContent" class="main-content-wrapper">
+        <h1 class="text-4xl font-bold mb-8 text-yellow-400 text-center">Kasa Açma Simülasyonu</h1>
+
+        <!-- KASA SEÇİM MENÜSÜ -->
+        <div id="caseSelectionMenu" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 p-2">
+            <!-- KASALAR BURAYA JAVASCRIPT İLE EKLENECEK -->
+        </div>
+
+        <!-- KASA AÇMA BÖLÜMÜ (Başlangıçta gizli) -->
+        <div id="caseOpeningSection" class="hidden flex flex-col items-center justify-center p-4">
+            <h2 id="selectedCaseName" class="text-3xl font-bold mb-6 text-indigo-400"></h2>
+
+            <!-- Seçilen kasa veya çıkan eşyanın gösterileceği alan -->
+            <div class="large-case-display-container mx-auto mb-8 relative">
+                <img id="displayImage" src="" alt="Seçilen Kasa Resmi" class="case-image">
+                <div id="loadingText" class="hidden absolute text-3xl font-bold text-white">Açılıyor...</div>
+            </div>
+
+            <!-- Çıkan eşyanın adının gösterileceği alan -->
+            <p id="resultText" class="text-2xl font-bold mt-4 mb-8 h-8"></p>
+
+            <!-- Kasa açma ve tekrar deneme butonları -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
+                <button id="openCaseButton" class="custom-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg flex-1">
+                    Kasa Aç
+                </button>
+                <button id="resetButton" class="custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hidden flex-1">
+                    Tekrar Dene
+                </button>
+            </div>
+
+            <!-- Bu kasadan çıkabilecekler listesi -->
+            <div id="possibleDropsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full">
+                <h3 class="col-span-full text-xl font-bold text-yellow-300 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>
+                <!-- Skins will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Sıkça Sorulan Sorular bölümü -->
+    <div id="faqSection">
+        <h2 class="text-3xl font-bold mb-6 text-yellow-400 text-center">Sıkça Sorulan Sorular</h2>
+
+        <div class="faq-item">
+            <h3>Bu simülatör gerçek mi?</h3>
+            <p>Hayır, bu sadece bir simülasyon uygulamasıdır. Gerçek parayla işlem yapılmaz ve hiçbir eşya kazanılamaz veya kaybedilemez.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Kasa fiyatları güncel mi?</h3>
+            <p>Kasa fiyatları her zaman güncel olmayabilir. Ben elimden geldiğince kasa fiyatlarını yenileyeceğim.</p>
+            <p class="small-italic">En son yenilenen tarih: 20.06.2025 20:32</p>
+        </div>
+        <div class="faq-item">
+            <h3>Site bakiyesi nasıl eksiye düşer?</h3>
+            <p>Bakiyenizin eksiye düşmesine izin vermemin sebebi, siz paranız yokken bile kasa açmaya devam edip şansınızı denemenizi istememdir. Hem belkide paranız eksiyken açtığınız bir kasadan pahalı bir desen çıkartıp tekrar kara geçebilirsiniz.</p>
+        </div>
+    </div>
+
+    <script>
+        // HTML elements are selected
+        const mainContent = document.getElementById('mainContent'); // Ana içerik wrapper'ı
+        const caseSelectionMenu = document.getElementById('caseSelectionMenu');
+        const caseOpeningSection = document.getElementById('caseOpeningSection');
+        const selectedCaseNameDisplay = document.getElementById('selectedCaseName');
+        const displayImage = document.getElementById('displayImage');
+        const openCaseButton = document.getElementById('openCaseButton');
+        const resetButton = document.getElementById('resetButton');
+        const resultText = document.getElementById('resultText');
+        const loadingText = document.getElementById('loadingText');
+        const homeButton = document.getElementById('homeButton');
+        const inventoryButton = document.getElementById('inventoryButton');
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const faqSection = document.getElementById('faqSection'); // FAQ bölümü
+        const possibleDropsContainer = document.getElementById('possibleDropsContainer'); // Yeni eklenen olası düşmeler container'ı
+
+        let currentlySelectedCase = null;
+        let userBalance = 100.00; // Başlangıç bakiyesi 100 USD olarak ayarlandı
+
+        // Nadirlik seviyeleri ve onlara karşılık gelen Tailwind CSS renk sınıfları ile düşme oranları
+        const skinRarities = {
+            'Mil-Spec Grade': { color: 'text-blue-400', odds: 0.7992, name: 'Efsanevi Desen (Mavi)', barColor: 'bg-blue-400', imageColor: '3498DB' }, // Mil-Spec (Mavi)
+            'Restricted': { color: 'text-purple-400', odds: 0.1598, name: 'Destansı Desen (Mor)', barColor: 'bg-purple-400', imageColor: '9B59B6' },   // Restricted (Mor)
+            'Classified': { color: 'text-red-400', odds: 0.032, name: 'Mistik Desen (Kırmızı)', barColor: 'bg-red-400', imageColor: 'E74C3C' },      // Classified (Kırmızı)
+            'Covert': { color: 'text-red-400', odds: 0.0064, name: 'Gizemli Desen (Kırmızı)', barColor: 'bg-red-400', imageColor: 'E74C3C' },     // Covert (Kırmızı)
+            'Rare Special Item': { color: 'text-yellow-400', odds: 0.0026, name: 'Nadir Özel Öğe (Altın)', barColor: 'bg-yellow-400', imageColor: 'F1C40F' } // Bıçaklar vb. (Altın)
+        };
+
+        // Kasa ID'sine göre düşebilecek skinlerin listesi
+        // Placeholder görselleri, nadirlik rengine göre oluşturulmuştur.
+        const caseDrops = {
+            'case1': [ // Gallery Case
+                { name: 'Glock-18 | Gold Toof', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Glock-18%0AGold%0AToof' },
+                { name: 'M4A1-S | Vaporwave', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A1-S%0AVaporwave' },
+                { name: 'AK-47 | The Outsiders', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0AThe%0AOutsiders' },
+                { name: 'P250 | Epicenter', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=P250%0AEpicenter' },
+                { name: 'UMP-45 | Neo-Noir', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=UMP-45%0ANeo-Noir' },
+                { name: 'Dual Berettas | Hydro Strike', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Dual%0ABerettas%0AHydro%0AStrike' },
+                { name: 'MAC-10 | Saibā Oni', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MAC-10%0ASaib%C4%81%0AOni' },
+                { name: 'M4A4 | Turbine', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M4A4%0ATurbine' },
+                { name: 'P90 | Randy Rush', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=P90%0ARandy%0ARush' },
+                { name: 'SSG 08 | Rapid Transit', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=SSG+08%0ARapid%0ATransit' },
+                { name: 'AUG | Luxe Trim', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=AUG%0ALuxe%0ATrim' },
+                { name: 'Desert Eagle | Calligraffiti', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Desert%0AEagle%0ACalligraffiti' },
+                { name: 'M249 | Hypnosis', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=M249%0AHypnosis' },
+                { name: 'MP5-SD | Statics', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP5-SD%0AStatics' },
+                { name: 'R8 Revolver | Tango', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=R8%0ARevolver%0ATango' },
+                { name: 'SCAR-20 | Trail Blazer', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SCAR-20%0ATrail%0ABlazer' },
+                { name: 'USP-S | 027', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=USP-S%0A027' },
+                { name: 'Kukri Knife', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Kukri%0AKnife' }
+            ],
+            'case2': [ // Fever Case
+                { name: 'AWP | Printstream', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AWP%0APrintstream' },
+                { name: 'FAMAS | Bad Trip', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=FAMAS%0ABad%0ATrip' },
+                { name: 'AK-47 | Searing Rage', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0ASearing%0ARage' },
+                { name: 'Glock-18 | Shinobu', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Glock-18%0AShinobu' },
+                { name: 'UMP-45 | K.O. Factory', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=UMP-45%0AK.O.%0AFactory' },
+                { name: 'Desert Eagle | Serpent Strike', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Desert%0AEagle%0ASerpent%0AStrike' },
+                { name: 'Galil AR | Control', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Galil%0AAR%0AControl' },
+                { name: 'Nova | Rising Sun', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Nova%0ARising%0ASun' },
+                { name: 'P90 | Wave Breaker', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=P90%0AWave%0ABreaker' },
+                { name: 'Zeus x27 | Tosai', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Zeus%0Ax27%0ATosai' },
+                { name: 'M4A4 | Choppa', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=M4A4%0AChoppa' },
+                { name: 'MAG-7 | Resupply', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MAG-7%0AResupply' },
+                { name: 'MP9 | Nexus', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP9%0ANexus' },
+                { name: 'P2000 | Sure Grip', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P2000%0ASure%0AGrip' },
+                { name: 'SSG 08 | Memorial', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SSG+08%0AMemorial' },
+                { name: 'USP-S | PC-GRN', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=USP-S%0APC-GRN' },
+                { name: 'XM1014 | Mockingbird', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=XM1014%0AMockingbird' },
+                { name: 'Nomad Knife', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Nomad%0AKnife' } // Fever Case has knives from Shattered Web, using Nomad as an example
+            ],
+            'case3': [ // Kilowatt Case
+                { name: 'AK-47 | Inheritance', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0AInheritance' },
+                { name: 'AWP | Chrome Cannon', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AWP%0AChrome+Cannon' },
+                { name: 'M4A1-S | Black Lotus', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A1-S%0ABlack+Lotus' },
+                { name: 'USP-S | Jawbreaker', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=USP-S%0AJawbreaker' },
+                { name: 'Zeus x27 | Olympus', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Zeus+x27%0AOlympus' },
+                { name: 'Glock-18 | Block-18', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Glock-18%0ABlock-18' },
+                { name: 'M4A4 | Etch Lord', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M4A4%0AEtch+Lord' },
+                { name: 'MP7 | Just Smile', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MP7%0AJust+Smile' },
+                { name: 'Five-SeveN | Hybrid', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Five-SeveN%0AHybrid' },
+                { name: 'Sawed-Off | Analog Input', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Sawed-Off%0AAnalog+Input' },
+                { name: 'MAC-10 | Light Box', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MAC-10%0ALight+Box' },
+                { name: 'SSG 08 | Dezastre', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SSG+08%0ADezastre' },
+                { name: 'UMP-45 | Motorized', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=UMP-45%0AMotorized' },
+                { name: 'Dual Berettas | Hideout', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Dual+Berettas%0AHideout' },
+                { name: 'XM1014 | Irezumi', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=XM1014%0AIrezumi' },
+                { name: 'Nova | Dark Sigil', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Nova%0ADark+Sigil' },
+                { name: 'Tec-9 | Slag', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Tec-9%0ASlag' },
+                { name: 'Kukri Knife', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Kukri%0AKnife' }
+            ],
+            'case4': [ // Revolution Case
+                { name: 'AK-47 | Head Shot', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0AHead%0AShot' },
+                { name: 'M4A4 | Temukau', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A4%0ATemukau' },
+                { name: 'AWP | Duality', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AWP%0ADuality' },
+                { name: 'UMP-45 | Wild Child', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=UMP-45%0AWild%0AChild' },
+                { name: 'P2000 | Wicked Sick', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=P2000%0AWicked%0ASick' },
+                { name: 'M4A1-S | Emphorosaur-S', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M4A1-S%0AEmphorosaur-S' },
+                { name: 'Glock-18 | Umbral Rabbit', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Glock-18%0AUmbral%0ARabbit' },
+                { name: 'MAC-10 | Sakkaku', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MAC-10%0ASakkaku' },
+                { name: 'P90 | Neoqueen', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=P90%0ANeoqueen' },
+                { name: 'R8 Revolver | Banana Cannon', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=R8%0ARevolver%0ABanana%0ACannon' },
+                { name: 'MP5-SD | Liquidation', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP5-SD%0ALiquidation' },
+                { name: 'MP9 | Featherweight', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP9%0AFeatherweight' },
+                { name: 'SG 553 | Cyberforce', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SG+553%0ACyberforce' },
+                { name: 'SCAR-20 | Fragments', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SCAR-20%0AFragments' },
+                { name: 'MAG-7 | Insomnia', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MAG-7%0AInsomnia' },
+                { name: 'Tec-9 | Rebel', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Tec-9%0ARebel' },
+                { name: 'P250 | Re.built', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P250%0ARebuilt' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Eldiven' }
+            ],
+            'case5': [ // Recoil Case
+                { name: 'USP-S | Printstream', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=USP-S%0APrintstream' },
+                { name: 'AWP | Chromatic Aberration', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AWP%0AChromatic%0AAberration' },
+                { name: 'AK-47 | Ice Coaled', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0AIce%0ACoaled' },
+                { name: 'P250 | Visions', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=P250%0AVisions' },
+                { name: 'Sawed-Off | Kiss♥Love', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Sawed-Off%0AKiss%E2%99%A5Love' },
+                { name: 'SG 553 | Dragon Tech', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=SG+553%0ADragon%0ATech' },
+                { name: 'M249 | Downtown', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M249%0ADowntown' },
+                { name: 'P90 | Vent Rush', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=P90%0AVent%0ARush' },
+                { name: 'R8 Revolver | Crazy 8', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=R8%0ARevolver%0ACrazy%0A8' },
+                { name: 'Dual Berettas | Flora Carnivora', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Dual%0ABerettas%0AFlora%0ACarnivora' },
+                { name: 'Glock-18 | Winterized', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Glock-18%0AWinterized' },
+                { name: 'M4A4 | Poly Mag', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=M4A4%0APoly%0AMag' },
+                { name: 'Galil AR | Destroyer', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Galil%0AAR%0ADestroyer' },
+                { name: 'FAMAS | Meow 36', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=FAMAS%0AMeow%0A36' },
+                { name: 'MAC-10 | Monkeyflage', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MAC-10%0AMonkeyflage' },
+                { name: 'Negev | Drop Me', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Negev%0ADrop%0AMe' },
+                { name: 'UMP-45 | Roadblock', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=UMP-45%0ARoadblock' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Eldiven' }
+            ],
+            'case6': [ // Dreams And Nightmares Case
+                { name: 'AK-47 | Nightwish', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0ANightwish' },
+                { name: 'MP9 | Starlight Protector', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=MP9%0AStarlight%0AProtector' },
+                { name: 'Dual Berettas | Melondrama', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Dual%0ABerettas%0AMelondrama' },
+                { name: 'FAMAS | Rapid Eye Movement', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=FAMAS%0ARapid%0AEye%0AMovement' },
+                { name: 'MP7 | Abyssal Apparition', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=MP7%0AAbyssal%0AApparition' },
+                { name: 'M4A1-S | Night Terror', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M4A1-S%0ANight%0ATerror' },
+                { name: 'USP-S | Ticket to Hell', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=USP-S%0ATicket%0Ato%0AHell' },
+                { name: 'G3SG1 | Dream Glade', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=G3SG1%0ADream%0AGlade' },
+                { name: 'PP-Bizon | Space Cat', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=PP-Bizon%0ASpace%0ACat' },
+                { name: 'XM1014 | Zombie Offensive', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=XM1014%0AZombie%0AOffensive' },
+                { name: 'Five-SeveN | Scrawl', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Five-SeveN%0AScrawl' },
+                { name: 'MAC-10 | Ensnared', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MAC-10%0AEnsnared' },
+                { name: 'SCAR-20 | Poultrygeist', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SCAR-20%0APoultrygeist' },
+                { name: 'Sawed-Off | Spirit Board', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Sawed-Off%0ASpirit%0ABoard' },
+                { name: 'MP5-SD | Necro Jr.', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP5-SD%0ANecro%0AJr.' },
+                { name: 'MAG-7 | Foresight', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MAG-7%0AForesight' },
+                { name: 'P2000 | Lifted Spirits', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P2000%0ALifted%0ASpirits' },
+                { name: 'Falchion Knife', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Falchion%0AKnife' }
+            ],
+            'case7': [ // Operation Riptide Case
+                { name: 'AK-47 | Leet Museo', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0ALeet%0AMuseo' },
+                { name: 'Desert Eagle | Ocean Drive', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Desert%0AEagle%0AOcean%0ADrive' },
+                { name: 'Glock-18 | Snack Attack', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Glock-18%0ASnack%0AAttack' },
+                { name: 'MAC-10 | Toybox', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=MAC-10%0AToybox' },
+                { name: 'SSG 08 | Turbo Peek', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=SSG+08%0ATurbo%0APeek' },
+                { name: 'FAMAS | ZX Spectron', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=FAMAS%0AZX%0ASpectron' },
+                { name: 'Five-SeveN | Boost Protocol', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Five-SeveN%0ABoost%0AProtocol' },
+                { name: 'M4A4 | Spider Lily', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M4A4%0ASpider%0ALily' },
+                { name: 'MAG-7 | BI83 Spectrum', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MAG-7%0ABI83%0ASpectrum' },
+                { name: 'MP9 | Mount Fuji', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MP9%0AMount%0AFuji' },
+                { name: 'AUG | Plague', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=AUG%0APlague' },
+                { name: 'Dual Berettas | Tread', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Dual%0ABerettas%0ATread' },
+                { name: 'G3SG1 | Keeping Tabs', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=G3SG1%0AKeeping%0ATabs' },
+                { name: 'MP7 | Guerrilla', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP7%0AGuerrilla' },
+                { name: 'PP-Bizon | Lumen', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=PP-Bizon%0ALumen' },
+                { name: 'USP-S | Black Lotus', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=USP-S%0ABlack%0ALotus' },
+                { name: 'XM1014 | Watchdog', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=XM1014%0AWatchdog' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=B%C4%B1%C3%A7ak' } // Riptide Case also has knives, generic 'Bıçak' for now
+            ],
+            'case8': [ // Snakebite Case
+                { name: 'M4A4 | In Living Color', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A4%0AIn%0ALiving%0AColor' },
+                { name: 'USP-S | The Traitor', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=USP-S%0AThe%0ATraitor' },
+                { name: 'Galil AR | Chromatic Aberration', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Galil%0AAR%0AChromatic%0AAberration' },
+                { name: 'MP9 | Food Chain', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=MP9%0AFood%0AChain' },
+                { name: 'XM1014 | XOXO', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=XM1014%0AXOXO' },
+                { name: 'AK-47 | Slate', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=AK-47%0ASlate' },
+                { name: 'Desert Eagle | Trigger Discipline', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Desert%0AEagle%0ATrigger%0ADiscipline' },
+                { name: 'MAC-10 | Button Masher', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MAC-10%0AButton%0AMasher' },
+                { name: 'Negev | dev_texture', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Negev%0Adev_texture' },
+                { name: 'P250 | Cyber Shell', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=P250%0ACyber%0AShell' },
+                { name: 'CZ75-Auto | Circaetus', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=CZ75-Auto%0ACircaetus' },
+                { name: 'Glock-18 | Clear Polymer', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Glock-18%0AClear%0APolymer' },
+                { name: 'M249 | O.S.I.P.R.', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=M249%0AO.S.I.P.R.' },
+                { name: 'Nova | Windblown', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Nova%0AWindblown' },
+                { name: 'R8 Revolver | Junk Yard', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=R8%0ARevolver%0AJunk%0AYard' },
+                { name: 'SG 553 | Heavy Metal', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SG+553%0AHeavy%0AMetal' },
+                { name: 'UMP-45 | Oscillator', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=UMP-45%0AOscillator' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Eldiven' }
+            ],
+            'case9': [ // Operation Broken Fang Case
+                { name: 'Glock-18 | Neo-Noir', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Glock-18%0ANeo-Noir' },
+                { name: 'M4A1-S | Printstream', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A1-S%0APrintstream' },
+                { name: 'Five-SeveN | Fairy Tale', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Five-SeveN%0AFairy%0ATale' },
+                { name: 'M4A4 | Cyber Security', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A4%0ACyber%0ASecurity' },
+                { name: 'USP-S | Monster Mashup', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=USP-S%0AMonster%0AMashup' },
+                { name: 'AWP | Exoskeleton', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=AWP%0AExoskeleton' },
+                { name: 'Dual Berettas | Dezastre', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Dual%0ABerettas%0ADezastre' },
+                { name: 'Nova | Clear Polymer', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Nova%0AClear%0APolymer' },
+                { name: 'SSG 08 | Parallax', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=SSG+08%0AParallax' },
+                { name: 'UMP-45 | Gold Bismuth', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=UMP-45%0AGold%0ABismuth' },
+                { name: 'CZ75-Auto | Vendetta', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=CZ75-Auto%0AVendetta' },
+                { name: 'G3SG1 | Digital Mesh', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=G3SG1%0ADigital%0AMesh' },
+                { name: 'Galil AR | Vandal', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Galil%0AAR%0AVandal' },
+                { name: 'M249 | Deep Relief', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=M249%0ADeep%0ARelief' },
+                { name: 'MP5-SD | Condition Zero', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP5-SD%0ACondition%0AZero' },
+                { name: 'P250 | Contaminant', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P250%0AContaminant' },
+                { name: 'P90 | Cocoa Rampage', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P90%0ACocoa%0ARampage' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Eldiven' }
+            ],
+            'case10': [ // Fracture Case
+                { name: 'Desert Eagle | Printstream', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Desert%0AEagle%0APrintstream' },
+                { name: 'AK-47 | Legion of Anubis', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0ALegion%0Aof%0AAnubis' },
+                { name: 'Glock-18 | Vogue', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Glock-18%0AVogue' },
+                { name: 'M4A4 | Tooth Fairy', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=M4A4%0ATooth%0AFairy' },
+                { name: 'XM1014 | Entombed', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=XM1014%0AEntombed' },
+                { name: 'MAC-10 | Allure', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MAC-10%0AAllure' },
+                { name: 'MAG-7 | Monster Call', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MAG-7%0AMonster%0ACall' },
+                { name: 'Tec-9 | Brother', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Tec-9%0ABrother' },
+                { name: 'Galil AR | Connexion', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Galil%0AAR%0AConnexion' },
+                { name: 'MP5-SD | Kitbash', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=MP5-SD%0AKitbash' },
+                { name: 'SSG 08 | Mainframe 001', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SSG+08%0AMainframe%0A001' },
+                { name: 'PP-Bizon | Runic', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=PP-Bizon%0ARunic' },
+                { name: 'P2000 | Gnarled', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P2000%0AGnarled' },
+                { name: 'P250 | Cassette', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P250%0ACassette' },
+                { name: 'P90 | Freight', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=P90%0AFreight' },
+                { name: 'SG 553 | Ol\' Rusty', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SG+553%0AOl%27%0ARusty' },
+                { name: 'Negev | Ultralight', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=Negev%0AUltralight' },
+                { name: 'Nomad Knife', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=Nomad%0AKnife' }
+            ],
+            'case42': [ // CS:GO Weapon Case
+                { name: 'AWP | Lightning Strike', rarity: 'Covert', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AWP%0ALightning+Strike' },
+                { name: 'AK-47 | Case Hardened', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=AK-47%0ACase+Hardened' },
+                { name: 'Desert Eagle | Hypnotic', rarity: 'Classified', image: 'https://placehold.co/200x200/E74C3C/ffffff?text=Desert+Eagle%0AHypnotic' },
+                { name: 'USP-S | Dark Water', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=USP-S%0ADark+Water' },
+                { name: 'M4A1-S | Dark Water', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=M4A1-S%0ADark+Water' },
+                { name: 'Glock-18 | Dragon Tattoo', rarity: 'Restricted', image: 'https://placehold.co/200x200/9B59B6/ffffff?text=Glock-18%0ADragon+Tattoo' },
+                { name: 'AUG | Wings', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=AUG%0AWings' },
+                { name: 'SG 553 | Ultraviolet', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=SG+553%0AUltraviolet' },
+                { name: 'MP7 | Skulls', rarity: 'Mil-Spec Grade', image: 'https://placehold.co/200x200/3498DB/ffffff?text=MP7%0ASkulls' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: 'https://placehold.co/200x200/F1C40F/ffffff?text=B%C4%B1%C3%A7ak' }
+            ]
+        };
+
+
+        // Varsayılan nadirlik düşüşleri (tüm kasalar için genel düşenler)
+        const defaultPatterns = [
+            { name: 'Sıradan Desen', rarity: 'Mil-Spec Grade' },
+            { name: 'Nadir Desen', rarity: 'Mil-Spec Grade' },
+            { name: 'Efsanevi Desen', rarity: 'Restricted' },
+            { name: 'Destansı Desen', rarity: 'Restricted' },
+            { name: 'Mistik Desen', rarity: 'Classified' },
+            { name: 'Gizemli Desen', rarity: 'Covert' },
+            { name: 'Özel Öğe', rarity: 'Rare Special Item' }
+        ];
+
+        // Updates the balance display and sets its color
+        function updateBalanceDisplay() {
+            balanceDisplay.textContent = userBalance.toFixed(2); // Show with 2 decimal places
+            balanceDisplay.classList.remove('text-red-500', 'text-green-500'); // Remove existing color classes
+
+            if (userBalance < 0) {
+                balanceDisplay.classList.add('text-red-500'); // Red for negative balance
+            } else {
+                balanceDisplay.classList.add('text-green-500'); // Green for positive/zero balance
+            }
+        }
+
+        // Function to control which section is displayed
+        function showSection(sectionName) {
+            // Ana içerik bölümlerini yönet
+            if (sectionName === 'selection') {
+                mainContent.classList.remove('hidden');
+                caseSelectionMenu.classList.remove('hidden');
+                caseOpeningSection.classList.add('hidden');
+                faqSection.classList.remove('hidden'); // SSS'yi göster
+            } else if (sectionName === 'opening') {
+                mainContent.classList.remove('hidden');
+                caseSelectionMenu.classList.add('hidden');
+                caseOpeningSection.classList.remove('hidden');
+                openCaseButton.classList.remove('hidden');
+                resetButton.classList.add('hidden');
+                faqSection.classList.remove('hidden'); // SSS'yi göstermeye devam et
+            }
+        }
+
+        // Tüm kasa çeşitlerinin listesi (42 adet)
+        const allCases = [
+            { id: 'case1', name: 'Gallery Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_34_png.png', price: '0.87 USD' },
+            { id: 'case2', name: 'Fever Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_35_png.png', price: '0.99 USD' },
+            { id: 'case3', name: 'Kilowatt Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_33_png.png', price: '0.60 USD' },
+            { id: 'case4', name: 'Revolution Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_32_png.png', price: '0.61 USD' },
+            { id: 'case5', name: 'Recoil Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_31_png.png', price: '0.34 USD' },
+            { id: 'case6', name: 'Dreams And Nightmares Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_30_png.png', price: '2.19 USD' },
+            { id: 'case7', name: 'Operation Riptide Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_29_png.png', price: '18.70 USD' },
+            { id: 'case8', name: 'Snakebite Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_28_png.png', price: '0.63 USD' },
+            { id: 'case9', name: 'Operation Broken Fang Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_27_png.png', price: '12.24 USD' },
+            { id: 'case10', name: 'Fracture Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_26_png.png', price: '0.46 USD' },
+            { id: 'case11', name: 'Prisma 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_25_png.png', price: '1.80 USD' },
+            { id: 'case12', name: 'CS20 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_24_png.png', price: '1.68 USD' },
+            { id: 'case13', name: 'Shattered Web Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_23_png.png', price: '9.20 USD' },
+            { id: 'case14', name: 'Prisma Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_22_png.png', price: '1.73 USD' },
+            { id: 'case15', name: 'Danger Zone Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_21_png.png', price: '1.93 USD' },
+            { id: 'case16', name: 'Horizon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_20_png.png', price: '2.25 USD' },
+            { id: 'case17', name: 'Clutch Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_19_png.png', price: '1.15 USD' },
+            { id: 'case18', name: 'Spectrum 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_18_png.png', price: '4.39 USD' },
+            { id: 'case19', name: 'Operation Hydra Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_17_png.png', price: '30.29 USD' },
+            { id: 'case20', name: 'Spectrum Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_16_png.png', price: '6.72 USD' },
+            { id: 'case21', name: 'Glove Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_15_png.png', price: '15.94 USD' },
+            { id: 'case22', name: 'Gamma 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_gamma_2_png.png', price: '5.24 USD' },
+            { id: 'case23', name: 'Gamma Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_13_png.png', price: '5.29 USD' },
+            { id: 'case24', name: 'Chroma 3 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_12_png.png', price: '5.06 USD' },
+            { id: 'case25', name: 'Operation Wildfire Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_11_png.png', price: '4.85 USD' },
+            { id: 'case26', name: 'Revolver Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_10_png.png', price: '3.87 USD' },
+            { id: 'case27', name: 'Shadow Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_9_png.png', price: '2.23 USD' },
+            { id: 'case28', name: 'Falchion Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_8_png.png', price: '2.22 USD' },
+            { id: 'case29', name: 'Chroma 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_7_png.png', price: '5.31 USD' },
+            { id: 'case30', name: 'Chroma Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_6_png.png', price: '6.09 USD' },
+            { id: 'case31', name: 'Operation Vanguard Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_5_png.png', price: '5.36 USD' },
+            { id: 'case32', name: 'eSports 2014 Summer Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_esports_2014_summer_png.png', price: '14.18 USD' },
+            { id: 'case33', name: 'Operation Breakout Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_4_png.png', price: '11.40 USD' },
+            { id: 'case34', name: 'Huntsman Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_3_png.png', price: '13.77 USD' },
+            { id: 'case35', name: 'Operation Phoenix Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_2_png.png', price: '6.79 USD' },
+            { id: 'case36', name: 'CS:GO Weapon Case 3', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_valve_3_png.png', price: '9.91 USD' },
+            { id: 'case37', name: 'Winter Offensive Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_1_png.png', price: '9.25 USD' },
+            { id: 'case38', name: 'eSports 2013 Winter Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_esports_2013_14_png.png', price: '15.53 USD' },
+            { id: 'case39', name: 'CS:GO Weapon Case 2', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_valve_2_png.png', price: '14.46 USD' },
+            { id: 'case40', name: 'Operation Bravo Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_operation_ii_png.png', price: '58.49 USD' },
+            { id: 'case41', name: 'eSports 2013 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_esports_2013_png.png', price: '85.53 USD' },
+            { id: 'case42', name: 'CS:GO Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_valve_1_png.png', price: '122.75 USD' }
+        ];
+
+        // Function to create the case menu
+        function createCaseMenu() {
+            caseSelectionMenu.innerHTML = ''; // Clear previous cases
+            allCases.forEach(caseData => {
+                const caseItemDiv = document.createElement('div');
+                caseItemDiv.classList.add('case-item');
+                caseItemDiv.innerHTML = `
+                    <img src="${caseData.image}" alt="${caseData.name}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/555555/ffffff?text=Resim+Yok';">
+                    <div class="price-container">${caseData.price}</div>
+                    <p>${caseData.name}</p>
+                `;
+                // Add click event to each case item
+                caseItemDiv.addEventListener('click', () => {
+                    console.log(`[DEBUG] Click event registered for case: ${caseData.name}`);
+                    selectCase(caseData);
+                });
+                caseSelectionMenu.appendChild(caseItemDiv);
+            });
+            showSection('selection'); // Show the case selection menu
+        }
+
+        // Function to run when a case is selected
+        function selectCase(caseData) {
+            currentlySelectedCase = caseData; // Save the selected case
+            selectedCaseNameDisplay.textContent = caseData.name; // Display selected case name
+            displayImage.src = caseData.image; // Place the selected case image in the large area
+            displayImage.alt = caseData.name;
+            openCaseButton.textContent = `Aç: ${caseData.name} (${caseData.price})`; // Update button text with price
+            resultText.textContent = ''; // Clear previous result
+            resultText.className = 'text-2xl font-bold mt-4 mb-8 h-8'; // Clear color class
+            showSection('opening'); // Show the case opening section
+
+            // Display possible drops for the selected case
+            displayPossibleDrops(caseData.id);
+        }
+
+        // Function to get a random skin based on rarity odds
+        function getRandomSkin(caseId) {
+            const caseSpecificDrops = caseDrops[caseId];
+            let possibleSkins = [];
+
+            // Calculate cumulative odds
+            let cumulativeOdds = 0;
+            const rarityDistribution = [];
+            for (const rarityKey in skinRarities) {
+                cumulativeOdds += skinRarities[rarityKey].odds;
+                rarityDistribution.push({ rarityKey: rarityKey, cumulativeOdds: cumulativeOdds });
+            }
+
+            // Choose a rarity based on odds
+            let rand = Math.random();
+            let chosenRarityKey = null;
+
+            for (let i = 0; i < rarityDistribution.length; i++) {
+                if (rand < rarityDistribution[i].cumulativeOdds) {
+                    chosenRarityKey = rarityDistribution[i].rarityKey;
+                    break;
+                }
+            }
+
+            // Fallback in case of floating point issues or if no rarity was chosen
+            if (!chosenRarityKey) {
+                chosenRarityKey = 'Mil-Spec Grade';
+            }
+
+            const chosenRarityInfo = skinRarities[chosenRarityKey];
+
+            // If case-specific skins are defined for this rarity, use them
+            if (caseSpecificDrops) {
+                const filteredByRarity = caseSpecificDrops.filter(skin => skin.rarity === chosenRarityKey);
+                if (filteredByRarity.length > 0) {
+                    possibleSkins = filteredByRarity;
+                }
+            }
+
+            // If no case-specific skin found for the chosen rarity, use a generic one
+            if (possibleSkins.length === 0) {
+                const genericPattern = defaultPatterns.find(p => p.rarity === chosenRarityKey);
+                // Fallback to a basic generic if for some reason chosenRarityKey doesn't match defaultPatterns
+                if (!genericPattern) {
+                    return {
+                        name: `Genel Desen`,
+                        rarity: chosenRarityKey,
+                        image: `https://placehold.co/200x200/555555/ffffff?text=Genel%0ADesen`,
+                        color: chosenRarityInfo.color
+                    };
+                }
+                 return {
+                    name: `${genericPattern.name} (${chosenRarityInfo.name.split(' ')[0]})`,
+                    rarity: chosenRarityKey,
+                    image: `https://placehold.co/200x200/${chosenRarityInfo.imageColor}/ffffff?text=${encodeURIComponent(genericPattern.name.replace(/\s/g, '%20'))}%0A(${encodeURIComponent(chosenRarityInfo.name.split(' ')[0])})`,
+                    color: chosenRarityInfo.color
+                 };
+            }
+
+            const randomIndex = Math.floor(Math.random() * possibleSkins.length);
+            const selectedSkin = possibleSkins[randomIndex];
+
+            return {
+                name: selectedSkin.name,
+                rarity: selectedSkin.rarity,
+                image: selectedSkin.image,
+                color: chosenRarityInfo.color // Get color class from rarity info
+            };
+        }
+
+        // Function to display all possible drops for a given case
+        function displayPossibleDrops(caseId) {
+            possibleDropsContainer.innerHTML = '<h3 class="col-span-full text-xl font-bold text-yellow-300 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>'; // Clear and add title
+            possibleDropsContainer.classList.remove('hidden'); // Ensure it's visible
+
+            // Get drops either from specific caseDrops or generate default ones
+            let dropsToDisplay = [];
+            if (caseDrops[caseId]) {
+                dropsToDisplay = [...caseDrops[caseId]]; // Use spread to create a new array
+            } else {
+                dropsToDisplay = defaultPatterns.map(p => ({
+                    name: `${p.name} (${skinRarities[p.rarity].name.split(' ')[0]})`,
+                    rarity: p.rarity,
+                    image: `https://placehold.co/200x200/${skinRarities[p.rarity].imageColor}/ffffff?text=${encodeURIComponent(p.name.replace(/\s/g, '%20'))}%0A(${encodeURIComponent(skinRarities[p.rarity].name.split(' ')[0])})`
+                }));
+            }
+
+            // Sort by rarity for consistent display (Mil-Spec, Restricted, Classified, Covert, Rare Special Item)
+            const rarityOrder = ['Mil-Spec Grade', 'Restricted', 'Classified', 'Covert', 'Rare Special Item'];
+            dropsToDisplay.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+
+
+            dropsToDisplay.forEach(skin => {
+                const rarityInfo = skinRarities[skin.rarity];
+                const skinDiv = document.createElement('div');
+                skinDiv.classList.add('skin-item-preview'); // Use the new specific class
+                skinDiv.innerHTML = `
+                    <img src="${skin.image}" alt="${skin.name}" onerror="this.onerror=null; this.src='https://placehold.co/80x80/555555/ffffff?text=Resim+Yok';">
+                    <p class="text-white">${skin.name}</p>
+                    <div class="rarity-bar ${rarityInfo.barColor}"></div>
+                `;
+                possibleDropsContainer.appendChild(skinDiv);
+            });
+        }
+
+
+        // Function to open the case
+        function openCase() {
+            if (!currentlySelectedCase) {
+                return;
+            }
+
+            const priceString = currentlySelectedCase.price;
+            const priceValue = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+
+            if (isNaN(priceValue)) {
+                resultText.textContent = 'Kasa fiyatı geçerli değil!';
+                resultText.className = 'text-2xl font-bold mt-4 mb-8 h-8 text-red-500';
+                return;
+            }
+
+            userBalance -= priceValue;
+            updateBalanceDisplay();
+
+            openCaseButton.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            displayImage.classList.add('hidden');
+            resultText.textContent = '';
+            resetButton.classList.add('hidden');
+            possibleDropsContainer.classList.add('hidden'); // Hide possible drops during animation
+
+            setTimeout(() => {
+                loadingText.classList.add('hidden');
+                displayImage.classList.remove('hidden');
+
+                const droppedSkin = getRandomSkin(currentlySelectedCase.id);
+
+                displayImage.src = droppedSkin.image;
+                displayImage.alt = droppedSkin.name;
+
+                resultText.textContent = `Tebrikler! ${droppedSkin.name} çıktı!`;
+                resultText.className = `text-2xl font-bold mt-4 mb-8 h-8 ${droppedSkin.color}`;
+
+                resetButton.classList.remove('hidden');
+                possibleDropsContainer.classList.remove('hidden'); // Show possible drops again after animation
+            }, 2000);
+        }
+
+        // "Tekrar Dene" or "Geri Dön" button (now returns to menu)
+        function resetToMenu() {
+            currentlySelectedCase = null; // Clear selected case
+            createCaseMenu(); // Recreate and show the case selection menu
+        }
+
+        // Add click events to buttons
+        openCaseButton.addEventListener('click', openCase); // Run openCase function when Open Case button is clicked
+        resetButton.addEventListener('click', resetToMenu); // Return to menu when Try Again button is clicked
+        homeButton.addEventListener('click', resetToMenu); // Home button returns to menu
+        inventoryButton.addEventListener('click', () => {
+            // Envanter sayfası henüz oluşturulmadığı için şimdilik bir mesaj gösterebiliriz
+            alert('Envanter sayfası henüz mevcut değil!');
+        });
+
+        // Sayfa yüklendiğinde kasa menüsünü oluştur ve bakiyeyi güncelle
+        window.onload = () => {
+            createCaseMenu();
+            updateBalanceDisplay(); // Initial balance display and color
+        };
+    </script>
+</body>
+</html>
