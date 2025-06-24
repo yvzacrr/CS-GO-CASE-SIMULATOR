@@ -89,7 +89,7 @@
             
             // Aktif kullanıcıyı oturum hafızasına kaydet ve yönlendir
             sessionStorage.setItem('active_user', username);
-            window.location.href = 'index.html';
+            window.location.href = 'simulator.html';
         });
 
         loginButton.addEventListener('click', () => {
@@ -112,13 +112,13 @@
             message.textContent = 'Giriş başarılı! Yönlendiriliyor...';
             // Aktif kullanıcıyı oturum hafızasına kaydet ve yönlendir
             sessionStorage.setItem('active_user', username);
-            window.location.href = 'index.html';
+            window.location.href = 'simulator.html';
         });
 
         guestButton.addEventListener('click', () => {
             // Misafir kullanıcısı için özel bir anahtar kullan
             sessionStorage.setItem('active_user', 'guest');
-            window.location.href = 'index.html';
+            window.location.href = 'simulator.html';
         });
     </script>
 </body>
