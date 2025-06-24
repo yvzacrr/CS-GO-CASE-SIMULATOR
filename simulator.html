@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasa Açma Simülasyonu</title>
+    <!-- Tailwind CSS CDN - Modern ve kullanımı kolay bir CSS kütüphanesi -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter yazı tipini Google Fonts'tan yüklüyoruz -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>   
+   
+/* İnceleme ekranındaki sütunlar için */
+.inspect-left, .inspect-right {
+    animation: fadeIn 0.4s ease-out; /* Animasyonla gelsinler */
+}
+
+/* Sağ sütundaki bilgilerin biraz aralıklı görünmesi için */
+.inspect-right .font-semibold {
+    letter-spacing: 0.5px;
+}
+    /* Bilgi kutusuna özel stil */
+    .info-plaque {
+        min-width: 300px; /* Kutunun çok küçülmesini engelle */
+    }
+
+    /* Modal içeriğinin animasyonla gelmesi için (isteğe bağlı ama şık) */
+    .modal-content {
+        animation: fadeIn 0.3s ease-out;
+    }
+.inspect-info-box {
+    /* 1. Yarı Saydam Arka Plan */
+    background-color: rgba(30, 41, 59, 0.4); /* Koyu ve %40 saydam bir arkaplan */
+
+    /* 2. Arkayı Bulanıklaştırma (İstediğin Efekt) */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px); /* Safari gibi tarayıcılar için destek */
+
+    /* 3. Daha Şık Görünüm İçin Ekstra Dokunuşlar */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Hafif, parlak bir kenar çizgisi */
+    border-radius: 1.25rem; /* 1.5rem de olabilir, köşeleri ana menü gibi yuvarla */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Kutuya derinlik hissi veren bir gölge */
+}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+        /* Genel stil ayarları */
+        body {
+            font-family: 'Inter', sans-serif; /* Inter yazı tipini kullan */
+            /* Arka plan resmi - BURAYI KENDİ DİREKT ARKA PLAN RESİM URL'İNLE DEĞİŞTİR! */
+            /* URL'nin .jpg, .png gibi bir uzantıyla bittiğinden emin ol! */
+            background-image: url('https://i.imgur.com/f4SkInb.jpeg'); /* Lütfen bu URL'nin doğru ve doğrudan bir resim URL'si olduğundan emin olun */
+            background-size: cover; /* Resmi tüm ekranı kaplayacak şekilde ayarla */
+            background-position: center; /* Resmi ortala */
+            background-attachment: fixed; /* Arka planı sabit tut, kaydırma yaparken hareket etmez */
+            display: flex;
+            flex-direction: column; /* İçeriği dikey olarak sırala */
+            align-items: center; /* İçeriği yatayda ortala */
+            min-height: 100vh; /* Ekranın tamamını kapla, ancak içerik taşarsa esne */
+            margin: 0;
+            overflow-y: auto; /* Dikeyde içerik taşarsa kaydırma çubuğu göster */
+            padding: 0; /* body'den padding'i kaldır, içerik divleri kendi padding'ini yönetecek */
+            box-sizing: border-box; /* Padding'in genişliğe dahil olmasını sağla */
+        }
+
+        /* En üstteki sabit panel */
+        #topPanel {
+            position: sticky; /* Panelin kaydırınca bizi takip etmesini sağlar */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px; /* Panelin yüksekliği */
+            background-color: rgba(0, 0, 0, 0.3); /* Menü ile aynı saydamlık */
+            backdrop-filter: blur(5px); /* Menünün üzerine gelince bulanıklaştırma */
+            -webkit-backdrop-filter: blur(5px); /* Safari desteği */
+            z-index: 1000; /* Diğer içeriklerin üzerinde kalmasını sağlar */
+            display: flex;
+            justify-content: space-between; /* Öğeleri iki yana yasla */
+            align-items: center; /* Öğeleri dikeyde ortala */
+            padding: 0 20px; /* Yanlarda boşluk bırak */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Hafif gölge */
+            border-radius: 0; /* Köşeleri yuvarlama yok */
+        }
+
+        #topPanel > div {
+            background-color: rgba(30, 41, 59, 0.6); /* Menüdeki kutularla aynı saydamlık */
+            padding: 8px 15px;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #topPanel > div:hover {
+            background-color: rgba(30, 41, 59, 0.9);
+        }
+        #topPanel .balance-text {
+            background-color: transparent; /* Balance yazısı için arka plan yok */
+            cursor: default; /* İmleç değişmesin */
+            padding: 0; /* Padding olmasın */
+        }
+
+        /* Ana içerik kutusu (Kasa Menüsü veya Kasa Açma Alanı) - Ayarlanan saydamlık ve daraltma */
+        .main-content-wrapper {
+            max-width: 980px; /* 7 kasaya uyacak şekilde genişletildi */
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.45); /* Menü arka planı saydamlığı artırıldı */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Hafif çerçeve eklendi */
+            border-radius: 1.5rem; /* Köşeleri daha fazla yuvarla */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* Daha belirgin gölge */
+            padding: 20px; /* Padding'i küçült */
+            backdrop-filter: blur(8px); /* Arka planı hafif bulanıklaştır */
+            -webkit-backdrop-filter: blur(8px); /* Safari desteği */
+            margin-top: 20px; /* Üst panel ile arasında boşluk */
+            margin-bottom: 20px; /* Alt boşluk */
+            flex-grow: 1; /* İçeriğin dikeyde yayılmasını sağlar */
+            box-sizing: border-box; /* Padding'in genişliğe dahil olmasını sağla */
+        }
+        
+        #searchBar {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+        }
+        #searchBar::placeholder {
+            color: #94a3b8;
+        }
+
+
+        /* Kasa menüsündeki her bir kasa kutusu */
+        .case-item-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .case-item {
+            background-color: rgba(30, 41, 59, 0.7); /* Kasa kutusu arka planı saydamlığı artırıldı */
+            border-radius: 0.75rem; /* Köşeleri yuvarla */
+            padding: 5px; /* Padding'i daha da küçült */
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column; /* İçeriği dikey sırala */
+            align-items: center; /* İçeriği yatayda ortala */
+            justify-content: space-between; /* İçeriği dikeyde yay */
+            width: 120px; /* Kutuyu daraltmak için sabit genişlik */
+            height: 125px; /* Yükseklik azaltıldı */
+        }
+
+        .case-item:hover {
+            transform: translateY(-5px); /* Üzerine gelince hafifçe yukarı kaydır */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Daha belirgin gölge */
+        }
+
+        .case-item img {
+            width: 90px; /* Kasa resimlerinin boyutunu ayarla, kutuya daha yakın */
+            height: 90px;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+
+        /* Fiyat kutusu */
+        .price-container {
+            background-color: rgba(0, 0, 0, 0.75); /* Kasa kutusundan hafif daha az saydam */
+            color: #fff;
+            padding: 2px 8px; /* Sağdaki boşluğu artır */
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            width: 100%;
+            text-align: right; /* Metni sağa hizala */
+        }
+
+        .case-name {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            margin-top: 8px;
+            line-height: 1.2;
+            width: 120px;
+            height: 45px; /* Sabit yükseklik ile hizalama sağlandı */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        /* Kasa açma alanındaki büyük resim ve kutu - Ayarlanan saydamlık */
+        .large-case-display-container {
+            width: 250px; /* Küçült */
+            height: 250px; /* Küçült */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.6); /* Büyük kasa alanı arka planı: %30 saydam */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .large-case-display-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 1.5rem;
+        }
+
+        /* Butonlar için özel stil */
+        .custom-button {
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .custom-button:hover {
+            transform: translateY(-2px);
+        }
+        .custom-button:active {
+            transform: translateY(0);
+        }
+
+        /* FAQ bölümüne özel stil */
+        #faqSection {
+            max-width: 980px; /* Ana içerik ile aynı genişlik */
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.45); /* main-content-wrapper ile aynı saydamlık */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            margin-top: 20px; /* Ana içerik ile arasında boşluk */
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .faq-item {
+            background-color: rgba(30, 41, 59, 0.7);
+            padding: 15px;
+            border-radius: 0.75rem;
+            margin-bottom: 10px;
+        }
+        .faq-item h3 {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+        .faq-item p {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        .faq-item .small-italic {
+            font-size: 0.75rem;
+            font-style: italic;
+            color: #a0aec0; /* Daha açık bir gri tonu */
+            margin-top: 5px;
+        }
+
+        /* Olası Düşmeler Bölümü için özel stil */
+        #possibleDropsContainer {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        #possibleDropsContainer .skin-item-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(45, 55, 72, 0.7); /* Slightly darker, more opaque */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        #possibleDropsContainer .skin-item-preview img {
+            width: 80px; /* Smaller images for preview */
+            height: 80px;
+            object-fit: contain;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        #possibleDropsContainer .skin-item-preview p {
+            font-size: 0.75rem; /* Smaller text for preview */
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.25rem;
+            line-height: 1.1;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words */
+            width: 100%;
+        }
+        #possibleDropsContainer .rarity-bar {
+            width: 80%; /* Thin bar width */
+            height: 3px; /* Thin bar height */
+            border-radius: 9999px; /* Fully rounded */
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    
+    <!-- En üstteki panel -->
+    <div id="topPanel">
+        <div id="homeButton">Home</div>
+        <div class="balance-text">Balance:  <span id="balanceDisplay">0.00</span> $</div>
+        <div id="inventoryButton">Inventory</div>
+    </div>
+
+    <!-- Ana içerik kutusu (Kasa Seçim veya Kasa Açma) -->
+    <div id="mainContent" class="main-content-wrapper">
+        <h1 class="text-4xl font-bold mb-4 text-white text-center">Counter Strike 2 Case Opening Simulator</h1>
+        
+        <!-- Arama Çubuğu -->
+        <input type="search" id="searchBar" placeholder="Kasa ara..." class="w-full max-w-md mx-auto p-2 rounded-lg mb-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 block">
+
+        <!-- KASA SEÇİM MENÜSÜ -->
+        <div id="caseSelectionMenu" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-x-3 gap-y-6 justify-items-center">
+            <!-- KASALAR BURAYA JAVASCRIPT İLE EKLENECEK -->
+        </div>
+
+        <!-- KASA AÇMA BÖLÜMÜ (Başlangıçta gizli) -->
+        <div id="caseOpeningSection" class="hidden flex flex-col items-center justify-center p-4">
+            <h2 id="selectedCaseName" class="text-3xl font-bold mb-6 text-indigo-400"></h2>
+
+<div class="large-case-display-container mx-auto mb-8 relative">
+    <img id="displayImage" src="" alt="Seçilen Kasa Resmi" class="case-image">
+    <div id="loadingText" class="hidden absolute text-3xl font-bold text-white">Açılıyor...</div>
+</div>
+
+<p id="resultText" class="text-2xl font-bold mt-4 mb-8 h-8"></p>
+
+<div class="flex flex-col items-center gap-4 w-full">
+    <button id="openCaseButton" class="custom-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg w-1/2">
+        Kasa Aç
+    </button>
+    <button id="resetButton" class="custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg w-1/3">
+        Menüye Dön
+    </button>
+</div>
+
+            <!-- Bu kasadan çıkabilecekler listesi -->
+            <div id="possibleDropsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full">
+                <h3 class="col-span-full text-xl font-bold text-white-400 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>
+                <!-- Skins will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+<div id="inventorySection" class="main-content-wrapper hidden">
+    <h1 class="text-4xl font-bold mb-8 text-white text-center">Envanter</h1>
+
+    <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-x-3 gap-y-6 justify-items-center">
+        </div>
+</div>
+    <!-- Sıkça Sorulan Sorular bölümü -->
+    <div id="faqSection">
+        <h2 class="text-3xl font-bold mb-6 text-white-400 text-center">Sıkça Sorulan Sorular</h2>
+
+        <div class="faq-item">
+            <h3>Bu simülatör gerçek mi?</h3>
+            <p>Hayır, bu sadece bir simülasyon uygulamasıdır. Gerçek parayla işlem yapılmaz ve hiçbir eşya kazanılamaz veya kaybedilemez.</p>
+        </div>
+        <div class="faq-item">
+            <h3>Kasa fiyatları güncel mi?</h3>
+            <p>Kasa fiyatları her zaman güncel olmayabilir. Ben elimden geldiğince kasa fiyatlarını yenileyeceğim.</p>
+            <p class="small-italic">En son yenilenen tarih: 21.06.2025 12:34</p>
+        </div>
+        <div class="faq-item">
+            <h3>Site bakiyesi nasıl eksiye düşer?</h3>
+            <p>Bakiyenizin eksiye düşmesine izin vermemin sebebi, siz paranız yokken bile kasa açmaya devam edip şansınızı denemenizi istememdir. Hem belkide paranız eksiyken açtığınız bir kasadan pahalı bir desen çıkartıp tekrar kara geçebilirsiniz.</p>
+        </div>
+    </div> <div id="itemWonModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[2000]" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div class="modal-content text-center p-6">
+            <img id="modalItemImage" src="" alt="Kazandığınız Eşya" class="max-w-md max-h-md mx-auto mb-4">
+
+            <div class="info-plaque bg-gray-800 bg-opacity-70 border border-gray-600 rounded-lg p-3 inline-block">
+                <h3 id="modalItemName" class="text-2xl font-bold"></h3>
+                <p id="modalItemWear" class="text-lg text-gray-300"></p>
+                <p id="modalItemFloat" class="text-sm text-gray-400 font-mono"></p>
+            </div>
+
+            <button id="closeModalButton" class="mt-6 custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl shadow-lg">
+                Devam Et
+            </button>
+        </div>
+    </div>
+    
+    <div id="inspectionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-[3000]">
+    <button id="inspectCloseButton" class="absolute top-5 right-8 text-white text-5xl font-bold hover:text-gray-400 transition-colors">&times;</button>
+
+    <div class="w-full max-w-6xl h-full max-h-[80vh] flex p-8 gap-8 inspect-info-box">
+        <div class="inspect-left flex-1 flex justify-center items-center bg-black bg-opacity-20 rounded-lg p-4">
+            <img id="inspectImage" src="" alt="İncelenen Eşya" class="max-w-full max-h-full">
+        </div>
+
+        <div class="inspect-right w-1/3 flex flex-col text-white p-4">
+            <h2 id="inspectItemName" class="text-5xl font-bold mb-4" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);"></h2>
+            <div class="bg-black bg-opacity-25 p-4 rounded-md">
+                <p class="mb-2"><span class="text-gray-400">Dış Görünüş:</span> <span id="inspectItemWear" class="font-semibold"></span></p>
+                <p><span class="text-gray-400">Float Değeri:</span> <span id="inspectItemFloat" class="font-mono font-semibold"></span></p>
+            </div>
+            <div class="bg-black bg-opacity-25 p-4 rounded-md mt-4">
+                 <p><span class="text-gray-400">Kaynak:</span> <span id="inspectCaseOrigin" class="font-semibold"></span></p>
+            </div>
+
+            <div class="mt-auto text-right">
+                <div id="inspectItemPrice" class="inline-block bg-black bg-opacity-40 p-2 rounded-md text-xl">
+                    Fiyat Bilgisi Yok
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <script>
+        // Tarayıcının oturum hafızasına bak, "active_user" diye bir not var mı?
+    // Senin kodun sessionStorage kullandığı için biz de onu kullanıyoruz.
+    const aktifKullanici = sessionStorage.getItem('active_user');
+
+    // Eğer böyle bir not YOKSA (yani kullanıcı giriş yapmamışsa)...
+    if (!aktifKullanici) {
+        // ...bir uyarı göster...
+        alert("Kasa açma sitemize bir hesap oluşturmadan giremezsiniz. Lütfen kayıt olun veya giriş yapın.");
+        // ...ve onu kayıt/giriş sayfasına geri yolla.
+        window.location.href = 'Geçiş.html';
+    }
+    const caseSelectionMenu = document.getElementById('caseSelectionMenu');
+    const caseOpeningSection = document.getElementById('caseOpeningSection');
+    const selectedCaseNameDisplay = document.getElementById('selectedCaseName');
+    const openCaseButton = document.getElementById('openCaseButton');
+    const resetButton = document.getElementById('resetButton');
+    const homeButton = document.getElementById('homeButton');
+    const inventoryButton = document.getElementById('inventoryButton');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const faqSection = document.getElementById('faqSection');
+    const possibleDropsContainer = document.getElementById('possibleDropsContainer');
+    const searchBar = document.getElementById('searchBar');
+    const inventorySection = document.getElementById('inventorySection');
+    const itemWonModal = document.getElementById('itemWonModal');
+    const modalItemImage = document.getElementById('modalItemImage');
+    const modalItemName = document.getElementById('modalItemName');
+    const modalItemWear = document.getElementById('modalItemWear');
+    const modalItemFloat = document.getElementById('modalItemFloat');
+    const closeModalButton = document.getElementById('closeModalButton');
+    const inspectionModal = document.getElementById('inspectionModal');
+    const inspectCloseButton = document.getElementById('inspectCloseButton');
+    const inspectImage = document.getElementById('inspectImage');
+    const inspectItemName = document.getElementById('inspectItemName');
+    const inspectItemWear = document.getElementById('inspectItemWear');
+    const inspectItemFloat = document.getElementById('inspectItemFloat');
+    const inspectCaseOrigin = document.getElementById('inspectCaseOrigin');
+    const inspectItemPrice = document.getElementById('inspectItemPrice');
+    const displayImage = document.getElementById('displayImage');
+    const resultText = document.getElementById('resultText');
+    const loadingText = document.getElementById('loadingText');    
+        
+        let currentlySelectedCase = null;
+// --- YUKARIDAKİ İKİ SATIRI SİLİP BUNU YAPIŞTIR ---
+
+// Aktif kullanıcının kim olduğunu oturum hafızasından alıyoruz.
+const activeUser = sessionStorage.getItem('active_user');
+
+// Kullanıcı veritabanını localStorage'dan çekiyoruz.
+const users = JSON.parse(localStorage.getItem('simulator_users')) || {};
+
+// Başlangıç için boş değişkenler tanımlıyoruz.
+let userBalance = 0;
+let userInventory = [];
+
+// Giriş yapan kullanıcı "guest" (misafir) DEĞİLSE, kayıtlı verilerini yüklüyoruz.
+if (activeUser && activeUser !== 'guest' && users[activeUser]) {
+    userBalance = users[activeUser].balance;
+    userInventory = users[activeUser].inventory;
+} 
+// Eğer misafir olarak girdiyse veya bir sorun varsa varsayılan değerleri kullan.
+else if (activeUser === 'guest') {
+    userBalance = 30.00; // Misafir bakiyesi
+    userInventory = [];
+}
+
+// --- DEĞİŞİMİN SONU ---
+        // Nadirlik seviyeleri ve onlara karşılık gelen Tailwind CSS renk sınıfları ile düşme oranları
+        const skinRarities = {
+            'Mil-Spec Grade': { color: 'text-blue-400', odds: 0.7992, name: 'Efsanevi Desen (Mavi)', barColor: 'bg-blue-400', imageColor: '3498DB' }, // Mil-Spec (Mavi)
+            'Restricted': { color: 'text-purple-400', odds: 0.1598, name: 'Destansı Desen (Mor)', barColor: 'bg-purple-400', imageColor: '9B59B6' },   // Restricted (Mor)
+            'Classified': { color: 'text-pink-400', odds: 0.032, name: 'Mistik Desen (Pembe)', barColor: 'bg-pink-400', imageColor: 'ff00ff' },     // Classified (Pembe)
+            'Covert': { color: 'text-red-400', odds: 0.0064, name: 'Gizemli Desen (Kırmızı)', barColor: 'bg-red-400', imageColor: 'E74C3C' },     // Covert (Kırmızı)
+            'Rare Special Item': { color: 'text-yellow-400', odds: 0.0026, name: 'Nadir Özel Öğe (Altın)', barColor: 'bg-yellow-400', imageColor: 'F1C40F' }, // Bıçaklar vb. (Altın)
+            'Contraband': { color: 'text-orange-500', odds: 0, name: 'Kaçak Mal (Turuncu)', barColor: 'bg-orange-500', imageColor: 'E67E22' } // Hata düzeltmesi için eklendi
+        };
+
+        // Kasa ID'sine göre düşebilecek skinlerin listesi
+        // ÖNEMLİ: Kendi resimlerinizi eklemek için 'image' özelliğini kullanın.
+        // Eğer 'image' özelliği boş bırakılırsa, yerine otomatik olarak bir placeholder resim oluşturulur.
+        const caseDrops = {
+            'case1': [ // Gallery Case
+                { name: 'M4A1-S | Vaporwave', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Vaporwave.webp' },
+                { name: 'UMP-45 | Neo Noir', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Neo-Noir.webp' },
+                { name: 'P250 | Epicenter', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Epicenter.webp' },
+                { name: 'Glock-18 | Gold Toof', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Gold_Toof.webp' },
+                { name: 'AK-47 | The Outsiders', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_The_Outsiders.webp' },
+                { name: 'SSG-08 | Rapid Transit', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Rapid_Transit.webp' },
+                { name: 'P90 | Randy Rush', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Randy_Rush.webp' },
+                { name: 'MAC-10 | Saiba Oni', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Saib%C4%81_Oni.webp' },
+                { name: 'M4A4 | Turbine', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Turbine.webp' },
+                { name: 'Dual Berettas | Hydro Strike', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Hydro_Strike.webp' },
+                { name: 'SCAR-20 | Trail Blazer', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Trail_Blazer.webp' },
+                { name: 'USP-S | 027', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_027.webp' },
+                { name: 'R8 Revolver | Tango', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Tango.webp' },
+                { name: 'MP5-SD | Statics', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Statics.webp' },
+                { name: 'M249 | Hypnosis', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Hypnosis.webp' },
+                { name: 'Desert Eagle | Calligraffiti', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Calligraffiti.webp' },
+                { name: 'AUG | Luxe Trim', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Luxe_Trim.webp' },
+                
+
+                
+            ],
+            'case2': [ // Fever Case
+                { name: 'AWP | Printstream', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Printstream.webp' },
+                { name: 'FAMAS | Bad Trip', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Bad_Trip.webp' },
+                { name: 'AK-47 | Searing Rage', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Searing_Rage.webp' },
+                { name: 'Glock-18 | Shinobu', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Shinobu.webp' },
+                { name: 'UMP-45 | K.O. Factory', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_K.O._Factory.webp' },
+                { name: 'Desert Eagle | Serpent Strike', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Serpent_Strike.webp' },
+                { name: 'Galil AR | Control', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Control.webp' },
+                { name: 'Nova | Rising Sun', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Rising_Sun.webp' },
+                { name: 'P90 | Wave Breaker', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Wave_Breaker.webp' },
+                { name: 'Zeus x27 | Tosai', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Zeus_x27_Tosai.webp' },
+                { name: 'M4A4 | Choppa', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Choppa.webp' },
+                { name: 'MAG-7 | Resupply', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Resupply.webp' },
+                { name: 'MP9 | Nexus', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Nexus.webp' },
+                { name: 'P2000 | Sure Grip', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Sure_Grip.webp' },
+                { name: 'SSG 08 | Memorial', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Memorial.webp' },
+                { name: 'USP-S | PC-GRN', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_PC-GRN.webp' },
+                { name: 'XM1014 | Mockingbird', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Mockingbird.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case3': [ // Kilowatt Case
+                { name: 'AK-47 | Inheritance', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Inheritance.webp' },
+                { name: 'AWP | Chrome Cannon', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Chrome_Cannon.webp' },
+                { name: 'M4A1-S | Black Lotus', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Black_Lotus.webp' },
+                { name: 'USP-S | Jawbreaker', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Jawbreaker.webp' },
+                { name: 'Zeus x27 | Olympus', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Zeus_x27_Olympus.webp' },
+                { name: 'Glock-18 | Block-18', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Block-18.webp' },
+                { name: 'M4A4 | Etch Lord', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Etch_Lord.webp' },
+                { name: 'MP7 | Just Smile', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Just_Smile.webp' },
+                { name: 'Five-SeveN | Hybrid', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Hybrid.webp' },
+                { name: 'Sawed-Off | Analog Input', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Analog_Input.webp' },
+                { name: 'MAC-10 | Light Box', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Light_Box.webp' },
+                { name: 'SSG 08 | Dezastre', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Dezastre.webp' },
+                { name: 'UMP-45 | Motorized', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Motorized.webp' },
+                { name: 'Dual Berettas | Hideout', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Hideout.webp' },
+                { name: 'XM1014 | Irezumi', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Irezumi.webp' },
+                { name: 'Nova | Dark Sigil', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Dark_Sigil.webp' },
+                { name: 'Tec-9 | Slag', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Slag.webp' },
+                { name: 'Kukri Knife', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case4': [ // Revolution Case
+                { name: 'AK-47 | Head Shot', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Head_Shot.webp' },
+                { name: 'M4A4 | Temukau', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Temukau.webp' },
+                { name: 'AWP | Duality', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Duality.webp' },
+                { name: 'P2000 | Wicked Sick', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Wicked_Sick.webp' },
+                { name: 'UMP-45 | Wild Child', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Wild_Child.webp' },
+                { name: 'Glock-18 | Umbral Rabbit', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Umbral_Rabbit.webp' },
+                { name: 'M4A1-S | Emphorosaur-S', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Emphorosaur-S.webp' },
+                { name: 'P90 | Neoqueen', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Neoqueen.webp' },
+                { name: 'R8 Revolver | Banana Cannon', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Banana_Cannon.webp' },
+                { name: 'MAC-10 | Sakkaku', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Sakkaku.webp' },
+                { name: 'P250 | Re.built', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Re.built.webp' },
+                { name: 'SCAR-20 | Fragments', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Fragments.webp' },
+                { name: 'MP9 | Featherweight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Featherweight.webp' },
+                { name: 'MP5-SD | Liquidation', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Liquidation.webp' },
+                { name: 'MAG-7 | Insomnia', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Insomnia.webp' },
+                { name: 'SG 553 | Cyberforce', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Cyberforce.webp' },
+                { name: 'Tec-9 | Rebel', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Rebel.webp' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case5': [ // Recoil Case
+                { name: 'USP-S | Printstream', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Printstream.webp' },
+                { name: 'AWP | Chromatic Aberration', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Chromatic_Aberration.webp' },
+                { name: 'AK-47 | Ice Coaled', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Ice_Coaled.webp' },
+                { name: 'P250 | Visions', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Visions.webp' },
+                { name: 'Sawed-Off | Kiss♥Love', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Kiss%E2%99%A5Love.webp' },
+                { name: 'SG 553 | Dragon Tech', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Dragon_Tech.webp' },
+                { name: 'M249 | Downtown', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Downtown.webp' },
+                { name: 'P90 | Vent Rush', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Vent_Rush.webp' },
+                { name: 'R8 Revolver | Crazy 8', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Crazy_8.webp' },
+                { name: 'Dual Berettas | Flora Carnivora', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Flora_Carnivora.webp' },
+                { name: 'Glock-18 | Winterized', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Winterized.webp' },
+                { name: 'M4A4 | Poly Mag', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Poly_Mag.webp' },
+                { name: 'Galil AR | Destroyer', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Destroyer.webp' },
+                { name: 'FAMAS | Meow 36', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Meow_36.webp' },
+                { name: 'MAC-10 | Monkeyflage', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Monkeyflage.webp' },
+                { name: 'Negev | Drop Me', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Drop_Me.webp' },
+                { name: 'UMP-45 | Roadblock', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Roadblock.webp' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case6': [ // Dreams & Nightmares Case
+                { name: 'AK-47 | Nightwish', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Nightwish.webp' },
+                { name: 'MP9 | Starlight Protector', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Starlight_Protector.webp' },
+                { name: 'Dual Berettas | Melondrama', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Melondrama.webp' },
+                { name: 'FAMAS | Rapid Eye Movement', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Rapid_Eye_Movement.webp' },
+                { name: 'MP7 | Abyssal Apparition', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Abyssal_Apparition.webp' },
+                { name: 'M4A1-S | Night Terror', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Night_Terror.webp' },
+                { name: 'USP-S | Ticket to Hell', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Ticket_to_Hell.webp' },
+                { name: 'G3SG1 | Dream Glade', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Dream_Glade.webp' },
+                { name: 'PP-Bizon | Space Cat', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Space_Cat.webp' },
+                { name: 'XM1014 | Zombie Offensive', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Zombie_Offensive.webp' },
+                { name: 'Five-SeveN | Scrawl', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Scrawl.webp' },
+                { name: 'MAC-10 | Ensnared', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Ensnared.webp' },
+                { name: 'SCAR-20 | Poultrygeist', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Poultrygeist.webp' },
+                { name: 'Sawed-Off | Spirit Board', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Spirit_Board.webp' },
+                { name: 'MP5-SD | Necro Jr.', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Necro_Jr..webp' },
+                { name: 'MAG-7 | Foresight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Foresight.webp' },
+                { name: 'P2000 | Lifted Spirits', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Lifted_Spirits.webp' },
+                { name: 'Falchion Knife', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case7': [ // Operation Riptide Case
+                { name: 'AK-47 | Leet Museo', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Leet_Museo.webp' },
+                { name: 'Desert Eagle | Ocean Drive', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Ocean_Drive.webp' },
+                { name: 'Glock-18 | Snack Attack', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Snack_Attack.webp' },
+                { name: 'MAC-10 | Toybox', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Toybox.webp' },
+                { name: 'SSG 08 | Turbo Peek', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Turbo_Peek.webp' },
+                { name: 'FAMAS | ZX Spectron', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_ZX_Spectron.webp' },
+                { name: 'Five-SeveN | Boost Protocol', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Boost_Protocol.webp' },
+                { name: 'M4A4 | Spider Lily', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Spider_Lily.webp' },
+                { name: 'MAG-7 | BI83 Spectrum', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_BI83_Spectrum.webp' },
+                { name: 'MP9 | Mount Fuji', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Mount_Fuji.webp' },
+                { name: 'AUG | Plague', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Plague.webp' },
+                { name: 'Dual Berettas | Tread', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Tread.webp' },
+                { name: 'G3SG1 | Keeping Tabs', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Keeping_Tabs.webp' },
+                { name: 'MP7 | Guerrilla', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Guerrilla.webp' },
+                { name: 'PP-Bizon | Lumen', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Lumen.webp' },
+                { name: 'USP-S | Black Lotus', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Black_Lotus.webp' },
+                { name: 'XM1014 | Watchdog', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Watchdog.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case8': [ // Snakebite Case
+                { name: 'M4A4 | In Living Color', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_In_Living_Color.webp' },
+                { name: 'USP-S | The Traitor', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_The_Traitor.webp' },
+                { name: 'Galil AR | Chromatic Aberration', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Chromatic_Aberration.webp' },
+                { name: 'MP9 | Food Chain', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Food_Chain.webp' },
+                { name: 'XM1014 | XOXO', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_XOXO.webp' },
+                { name: 'AK-47 | Slate', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Slate.webp' },
+                { name: 'Desert Eagle | Trigger Discipline', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Trigger_Discipline.webp' },
+                { name: 'MAC-10 | Button Masher', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Button_Masher.webp' },
+                { name: 'Negev | dev_texture', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_dev_texture.webp' },
+                { name: 'P250 | Cyber Shell', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Cyber_Shell.webp' },
+                { name: 'CZ75-Auto | Circaetus', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Circaetus.webp' },
+                { name: 'Glock-18 | Clear Polymer', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Clear_Polymer.webp' },
+                { name: 'M249 | O.S.I.P.R.', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_O.S.I.P.R..webp' },
+                { name: 'Nova | Windblown', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Windblown.webp' },
+                { name: 'R8 Revolver | Junk Yard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Junk_Yard.webp' },
+                { name: 'SG 553 | Heavy Metal', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Heavy_Metal.webp' },
+                { name: 'UMP-45 | Oscillator', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Oscillator.webp' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case9': [ // Operation Broken Fang Case
+                { name: 'Glock-18 | Neo-Noir', rarity: 'Covert', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_glock_cu_glock_noir_light.png' },
+                { name: 'M4A1-S | Printstream', rarity: 'Covert', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_m4a1_silencer_cu_m4a1s_printstream_light.png' },
+                { name: 'Five-SeveN | Fairy Tale', rarity: 'Classified', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_fiveseven_cu_five_seven_diary_light.png' },
+                { name: 'M4A4 | Cyber Security', rarity: 'Classified', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_m4a1_cu_m4a4_cyberpunk_light.png' },
+                { name: 'USP-S | Monster Mashup', rarity: 'Classified', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_usp_silencer_cu_usp_krokos_light.png' },
+                { name: 'AWP | Exoskeleton', rarity: 'Restricted', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_awp_gs_awp_exoskeleton_light.png' },
+                { name: 'Dual Berettas | Dezastre', rarity: 'Restricted', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_elite_gs_dual_elites_dezastre_light.png' },
+                { name: 'Nova | Clear Polymer', rarity: 'Restricted', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_nova_cu_nova_polymer_light.png' },
+                { name: 'SSG 08 | Parallax', rarity: 'Restricted', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_ssg08_cu_ssg08_chromatic_light.png' },
+                { name: 'UMP-45 | Gold Bismuth', rarity: 'Restricted', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_ump45_gs_ump_gold_bismuth_light.png' },
+                { name: 'CZ75-Auto | Vendetta', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_cz75a_gs_cz75_vendetta_light.png' },
+                { name: 'G3SG1 | Digital Mesh', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_g3sg1_gs_g3sg1_disrupt_light.png' },
+                { name: 'Galil AR | Vandal', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_galilar_gs_galil_vandal_light.png' },
+                { name: 'M249 | Deep Relief', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_m249_cu_m249_deep_relief_light.png' },
+                { name: 'MP5-SD | Condition Zero', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_mp5sd_gs_mp5_conditionzero_light.png' },
+                { name: 'P250 | Contaminant', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_p250_cu_p250_infect_light.png' },
+                { name: 'P90 | Cocoa Rampage', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_p90_hy_p90_dino_rampage_light.png' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case10': [ // Fracture Case
+                { name: 'Desert Eagle | Printstream', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Printstream.webp' },
+                { name: 'AK-47 | Legion of Anubis', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Legion_of_Anubis.webp' },
+                { name: 'Glock-18 | Vogue', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Vogue.webp' },
+                { name: 'M4A4 | Tooth Fairy', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Tooth_Fairy.webp' },
+                { name: 'XM1014 | Entombed', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Entombed.webp' },
+                { name: 'MAC-10 | Allure', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Allure.webp' },
+                { name: 'MAG-7 | Monster Call', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Monster_Call.webp' },
+                { name: 'Tec-9 | Brother', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Brother.webp' },
+                { name: 'Galil AR | Connexion', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Connexion.webp' },
+                { name: 'MP5-SD | Kitbash', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Kitbash.webp' },
+                { name: 'SSG 08 | Mainframe 001', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Mainframe_001.webp' },
+                { name: 'PP-Bizon | Runic', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Runic.webp' },
+                { name: 'P2000 | Gnarled', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Gnarled.webp' },
+                { name: 'P250 | Cassette', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Cassette.webp' },
+                { name: 'P90 | Freight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Freight.webp' },
+                { name: 'SG 553 | Ol\' Rusty', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_sg556_gs_sg553_rusty_light.png' },
+                { name: 'Negev | Ultralight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Ultralight.webp' },
+                { name: 'Nomad Knife', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case11': [ // Prisma 2 Case
+                { name: 'M4A1-S | Player Two', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Player_Two.webp' },
+                { name: 'Glock-18 | Bullet Queen', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Bullet_Queen.webp' },
+                { name: 'AK-47 | Phantom Disruptor', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Phantom_Disruptor.webp' },
+                { name: 'MAC-10 | Disco Tech', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Disco_Tech.webp' },
+                { name: 'MAG-7 | Justice', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Justice.webp' },
+                { name: 'SSG 08 | Fever Dream', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Fever_Dream.webp' },
+                { name: 'SG 553 | Darkwing', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Darkwing.webp' },
+                { name: 'P2000 | Acid Etched', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Acid_Etched.webp' },
+                { name: 'Sawed-Off | Apocalypto', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Apocalypto.webp' },
+                { name: 'SCAR-20 | Enforcer', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Enforcer.webp' },
+                { name: 'AWP | Capillary', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Capillary.webp' },
+                { name: 'Desert Eagle | Blue Ply', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Blue_Ply.webp' },
+                { name: 'AUG | Tom Cat', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Tom_Cat.webp' },
+                { name: 'Negev | Prototype', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Prototype.webp' },
+                { name: 'R8 Revolver | Bone Forged', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Bone_Forged.webp' },
+                { name: 'MP5-SD | Desert Strike', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Desert_Strike.webp' },
+                { name: 'CZ75-Auto | Distressed', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Distressed.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case12': [ // CS20 Case
+                { name: 'AWP | Wildfire', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Wildfire.webp' },
+                { name: 'FAMAS | Commemoration', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Commemoration.webp' },
+                { name: 'AUG | Death by Puppy', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Death_by_Puppy.webp' },
+                { name: 'MP9 | Hydra', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Hydra.webp' },
+                { name: 'P90 | Nostalgia', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Nostalgia.webp' },
+                { name: 'Five-SeveN | Buddy', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Buddy.webp' },
+                { name: 'M249 | Aztec', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Aztec.webp' },
+                { name: 'MP5-SD | Agent', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Agent.webp' },
+                { name: 'P250 | Inferno', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Inferno.webp' },
+                { name: 'UMP-45 | Plastique', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Plastique.webp' },
+                { name: 'Dual Berettas | Elite 1.6', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Elite_1.6.webp' },
+                { name: 'FAMAS | Decommissioned', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Decommissioned.webp' },
+                { name: 'Glock-18 | Sacrifice', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Sacrifice.webp' },
+                { name: 'MAC-10 | Classic Crate', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Classic_Crate.webp' },
+                { name: 'MAG-7 | Popdog', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Popdog.webp' },
+                { name: 'SCAR-20 | Assault', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Assault.webp' },
+                { name: 'Tec-9 | Flash Out', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Flash_Out.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case13': [ // Shattered Web Case
+                { name: 'AWP | Containment Breach', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Containment_Breach.webp' },
+                { name: 'MAC-10 | Stalker', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Stalker.webp' },
+                { name: 'SG 553 | Colony IV', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SG-553_Colony_IV.webp' },
+                { name: 'SSG 08 | Bloodshot', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Bloodshot.webp' },
+                { name: 'Tec-9 | Decimator', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Decimator.webp' },
+                { name: 'AK-47 | Rat Rod', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Rat_Rod.webp' },
+                { name: 'AUG | Arctic Wolf', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Arctic_Wolf.webp' },
+                { name: 'MP7 | Neon Ply', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Neon_Ply.webp' },
+                { name: 'PP-Bizon | Embargo', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Embargo.webp' },
+                { name: 'P2000 | Obsidian', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Obsidian.webp' },
+                { name: 'Dual Berettas | Balance', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Balance.webp' },
+                { name: 'G3SG1 | Black Sand', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Black_Sand.webp' },
+                { name: 'MP5-SD | Acid Wash', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Acid_Wash.webp' },
+                { name: 'Nova | Plume', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Plume.webp' },
+                { name: 'R8 Revolver | Memento', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Memento.webp' },
+                { name: 'M249 | Warbird', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Warbird.webp' },
+                { name: 'SCAR-20 | Torn', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Torn.webp' },
+                { name: 'Nomad Knife', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case14': [ // Prisma Case
+                { name: 'M4A4 | The Emperor', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_The_Emperor.webp' },
+                { name: 'Five-SeveN | Angry Mob', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Angry_Mob.webp' },
+                { name: 'AUG | Momentum', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Momentum.webp' },
+                { name: 'XM1014 | Incinegator', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Incinegator.webp' },
+                { name: 'R8 Revolver | Skull Crusher', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Skull_Crusher.webp' },
+                { name: 'AWP | Atheris', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Atheris.webp' },
+                { name: 'Desert Eagle | Light Rail', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Light_Rail.webp' },
+                { name: 'UMP-45 | Moonrise', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Moonrise.webp' },
+                { name: 'Tec-9 | Bamboozle', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Bamboozle.webp' },
+                { name: 'MP5-SD | Gauss', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Gauss.webp' },
+                { name: 'AK-47 | Uncharted', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Uncharted.webp' },
+                { name: 'Galil AR | Akoben', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Akoben.webp' },
+                { name: 'P250 | Verdigris', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Verdigris.webp' },
+                { name: 'FAMAS | Crypsis', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Crypsis.webp' },
+                { name: 'MAC-10 | Whitefish', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Whitefish.webp' },
+                { name: 'MP7 | Mischief', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Mischief.webp' },
+                { name: 'P90 | Off World', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Off_World.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case15': [ // Danger Zone Case
+                { name: 'AWP | Neo-Noir', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Neo-Noir.webp' },
+                { name: 'AK-47 | Asiimov', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Asiimov.webp' },
+                { name: 'Desert Eagle | Mecha Industries', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Mecha_Industries.webp' },
+                { name: 'MP5-SD | Phosphor', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Phosphor.webp' },
+                { name: 'UMP-45 | Momentum', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Momentum.webp' },
+                { name: 'USP-S | Flashback', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Flashback.webp' },
+                { name: 'P250 | Nevermore', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Nevermore.webp' },
+                { name: 'Galil AR | Signal', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Signal.webp' },
+                { name: 'MAC-10 | Pipe Down', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Pipe_Down.webp' },
+                { name: 'G3SG1 | Scavenger', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Scavenger.webp' },
+                { name: 'M4A4 | Magnesium', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Magnesium.webp' },
+                { name: 'Glock-18 | Oxide Blaze', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Oxide_Blaze.webp' },
+                { name: 'MP9 | Modest Threat', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Modest_Threat.webp' },
+                { name: 'Tec-9 | Fubar', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Fubar.webp' },
+                { name: 'Nova | Wood Fired', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Wood_Fired.webp' },
+                { name: 'SG 553 | Danger Close', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Danger_Close.webp' },
+                { name: 'Sawed-Off | Black Sand', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Black_Sand.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case16': [ // Horizon Case
+                { name: 'AK-47 | Neon Rider', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Neon_Rider.webp' },
+                { name: 'Desert Eagle | Code Red', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Code_Red.webp' },
+                { name: 'M4A1-S | Nightmare', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Nightmare.webp' },
+                { name: 'Sawed-Off | Devourer', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Devourer.webp' },
+                { name: 'FAMAS | Eye of Athena', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Eye_of_Athena.webp' },
+                { name: 'AWP | PAW', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_PAW.webp' },
+                { name: 'CZ75-Auto | Eco', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Eco.webp' },
+                { name: 'MP7 | Powercore', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Powercore.webp' },
+                { name: 'Nova | Toy Soldier', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Toy_Soldier.webp' },
+                { name: 'G3SG1 | High Seas', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_High_Seas.webp' },
+                { name: 'MP9 | Capillary', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Capillary.webp' },
+                { name: 'Glock-18 | Warhawk', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Warhawk.webp' },
+                { name: 'P90 | Traction', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Traction.webp' },
+                { name: 'Tec-9 | Snek-9', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Snek-9.webp' },
+                { name: 'Dual Berettas | Shred', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Shred.webp' },
+                { name: 'AUG | Amber Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Amber_Slipstream.webp' },
+                { name: 'R8 Revolver | Survivalist', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Survivalist.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case17': [ // Clutch Case
+                { name: 'M4A4 | Neo-Noir', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Neo-Noir.webp' },
+                { name: 'MP7 | Bloodsport', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Bloodsport.webp' },
+                { name: 'USP-S | Cortex', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Cortex.webp' },
+                { name: 'AWP | Mortis', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Mortis.webp' },
+                { name: 'AUG | Stymphalian', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Stymphalian.webp' },
+                { name: 'Glock-18 | Moonrise', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Moonrise.webp' },
+                { name: 'MAG-7 | SWAG-7', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_SWAG-7.webp' },
+                { name: 'UMP-45 | Arctic Wolf', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Arctic_Wolf.webp' },
+                { name: 'Negev | Lionfish', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Lionfish.webp' },
+                { name: 'Nova | Wild Six', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Wild_Six.webp' },
+                { name: 'Five-SeveN | Flame Test', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Flame_Test.webp' },
+                { name: 'SG 553 | Aloha', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Aloha.webp' },
+                { name: 'R8 Revolver | Grip', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Grip.webp' },
+                { name: 'P2000 | Urban Hazard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Urban_Hazard.webp' },
+                { name: 'XM1014 | Oxide Blaze', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Oxide_Blaze.webp' },
+                { name: 'MP9 | Black Sand', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Black_Sand.webp' },
+                { name: 'PP-Bizon | Night Riot', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Night_Riot.webp' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case18': [ // Spectrum 2 Case
+                { name: 'AK-47 | The Empress', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_The_Empress.webp' },
+                { name: 'P250 | See Ya Later', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/P250_See_Ya_Later.webp' },
+                { name: 'M4A1-S | Leaded Glass', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Leaded_Glass.webp' },
+                { name: 'PP-Bizon | High Roller', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_High_Roller.webp' },
+                { name: 'R8 Revolver | Llama Cannon', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Llama_Cannon.webp' },
+                { name: 'MP9 | Goo', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Goo.webp' },
+                { name: 'CZ75-Auto | Tacticat', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Tacticat.webp' },
+                { name: 'UMP-45 | Exposure', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Exposure.webp' },
+                { name: 'SG 553 | Phantom', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Phantom.webp' },
+                { name: 'XM1014 | Ziggy', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Ziggy.webp' },
+                { name: 'Glock-18 | Off World', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Off_World.webp' },
+                { name: 'MAC-10 | Oceanic', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Oceanic.webp' },
+                { name: 'Tec-9 | Cracked Opal', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Cracked_Opal.webp' },
+                { name: 'AUG | Triqua', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Triqua.webp' },
+                { name: 'SCAR-20 | Jungle Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Jungle_Slipstream.webp' },
+                { name: 'G3SG1 | Hunter', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Hunter.webp' },
+                { name: 'Sawed-Off | Morris', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Morris.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case19': [ // Operation Hydra Case
+                { name: 'AWP | Oni Taiji', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Oni_Taiji.webp' },
+                { name: 'Five-SeveN | Hyper Beast', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Hyper_Beast.webp' },
+                { name: 'M4A4 | Hellfire', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Hellfire.webp' },
+                { name: 'Dual Berettas | Cobra Strike', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Cobra_Strike.webp' },
+                { name: 'Galil AR | Sugar Rush', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Sugar_Rush.webp' },
+                { name: 'AK-47 | Orbit Mk01', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Orbit_Mk01.webp' },
+                { name: 'SSG 08 | Death\'s Head', rarity: 'Restricted', image:'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_ssg08_cu_ssg08_deathshead_light.png' },
+                { name: 'P250 | Red Rock', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Red_Rock.webp' },
+                { name: 'P90 | Death Grip', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Death_Grip.webp' },
+                { name: 'P2000 | Woodsman', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Woodsman.webp' },
+                { name: 'USP-S | Blueprint', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Blueprint.webp' },
+                { name: 'M4A1-S | Briefing', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Briefing.webp' },
+                { name: 'MAG-7 | Hard Water', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Hard_Water.webp' },
+                { name: 'UMP-45 | Metal Flowers', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Metal_Flowers.webp' },
+                { name: 'FAMAS | Macabre', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Macabre.webp' },
+                { name: 'Tec-9 | Cut Out', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Cut_Out.webp' },
+                { name: 'MAC-10 | Aloha', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Aloha.webp' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case20': [ // Spectrum Case
+                { name: 'AK-47 | Bloodsport', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Bloodsport.webp' },
+                { name: 'USP-S | Neo-Noir', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Neo-Noir.webp' },
+                { name: 'M4A1-S | Decimator', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Decimator.webp' },
+                { name: 'AWP | Fever Dream', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Fever_Dream.webp' },
+                { name: 'CZ75-Auto | Xiangliu', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Xiangliu.webp' },
+                { name: 'Galil AR | Crimson Tsunami', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Crimson_Tsunami.webp' },
+                { name: 'XM1014 | Seasons', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Seasons.webp' },
+                { name: 'MAC-10 | Last Dive', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Last_Dive.webp' },
+                { name: 'UMP-45 | Scaffold', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Scaffold.webp' },
+                { name: 'M249 | Emerald Poison Dart', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Emerald_Poison_Dart.webp' },
+                { name: 'Desert Eagle | Oxide Blaze', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Oxide_Blaze.webp' },
+                { name: 'Five-SeveN | Capillary', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Capillary.webp' },
+                { name: 'P250 | Ripple', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Ripple.webp' },
+                { name: 'SCAR-20 | Blueprint', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Blueprint.webp' },
+                { name: 'PP-Bizon | Jungle Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Jungle_Slipstream.webp' },
+                { name: 'MP7 | Akoben', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Akoben.webp' },
+                { name: 'Sawed-Off | Zander', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Zander.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case21': [ // Glove Case
+                { name: 'M4A4 | Buzz Kill', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Buzz_Kill.webp' },
+                { name: 'SSG 08 | Dragonfire', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Dragonfire.webp' },
+                { name: 'FAMAS | Mecha Industries', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Mecha_Industries.webp' },
+                { name: 'P90 | Shallow Grave', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Shallow_Grave.webp' },
+                { name: 'Sawed-Off | Wasteland Princess', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Wasteland_Princess.webp' },
+                { name: 'USP-S | Cyrex', rarity: 'Restricted', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_usp_silencer_cu_usp_cyrex_light.png' },
+                { name: 'M4A1-S | Flashback', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Flashback.webp' },
+                { name: 'Dual Berettas | Royal Consorts', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Royal_Consorts.webp' },
+                { name: 'Nova | Gila', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Gila.webp' },
+                { name: 'G3SG1 | Stinger', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Stinger.webp' },
+                { name: 'Glock-18 | Ironwork', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Ironwork.webp' },
+                { name: 'MP7 | Cirrus', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Cirrus.webp' },
+                { name: 'P2000 | Turf', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Turf.webp' },
+                { name: 'Galil AR | Black Sand', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Black_Sand.webp' },
+                { name: 'CZ75-Auto | Polymer', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Polymer.webp' },
+                { name: 'MAG-7 | Sonar', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Sonar.webp' },
+                { name: 'MP9 | Sand Scale', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Sand_Scale.webp' },
+                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case22': [ // Gamma 2 Case
+                { name: 'AK-47 | Neon Revolution', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Neon_Revolution.webp' },
+                { name: 'FAMAS | Roll Cage', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Roll_Cage.webp' },
+                { name: 'Tec-9 | Fuel Injector', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Fuel_Injector.webp' },
+                { name: 'MP9 | Airlock', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Airlock.webp' },
+                { name: 'AUG | Syd Mead', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Syd_Mead.webp' },
+                { name: 'Glock-18 | Weasel', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Weasel.webp' },
+                { name: 'P90 | Grim', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Grim.webp' },
+                { name: 'SCAR-20 | Powercore', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Powercore.webp' },
+                { name: 'SG 553 | Triarch', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Triarch.webp' },
+                { name: 'XM1014 | Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Triarch.webp' },
+                { name: 'Desert Eagle | Directive', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Directive.webp' },
+                { name: 'UMP-45 | Briefing', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Briefing.webp' },
+                { name: 'Five-SeveN | Scumbria', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Scumbria.webp' },
+                { name: 'CZ75-Auto | Imprint', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Imprint.webp' },
+                { name: 'MAG-7 | Petroglyph', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Petroglyph.webp' },
+                { name: 'Negev | Dazzle', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Dazzle.webp' },
+                { name: 'P250 | Iron Clad', rarity: 'Mil-Spec Grade', image: '' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case23': [ // Gamma Case
+                { name: 'M4A1-S | Mecha Industries', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Mecha_Industries.webp' },
+                { name: 'Glock-18 | Wasteland Rebel', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Wasteland_Rebel.webp' },
+                { name: 'P2000 | Imperial Dragon', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Imperial_Dragon.webp' },
+                { name: 'SCAR-20 | Bloodsport', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Bloodsport.webp' },
+                { name: 'AWP | Phobos', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Phobos.webp' },
+                { name: 'R8 Revolver | Reboot', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Reboot.webp' },
+                { name: 'P90 | Chopper', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Chopper.webp' },
+                { name: 'Sawed-Off | Limelight', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Limelight.webp' },
+                { name: 'Five-SeveN | Violent Daimyo', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Violent_Daimyo.webp' },
+                { name: 'MAC-10 | Carnivore', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Carnivore.webp' },
+                { name: 'Nova | Exo', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Exo.webp' },
+                { name: 'PP-Bizon | Harvester', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Harvester.webp' },
+                { name: 'Tec-9 | Ice Cap', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Ice_Cap.webp' },
+                { name: 'SG 553 | Aerial', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Aerial.webp' },
+                { name: 'AUG | Aristocrat', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Aristocrat.webp' },
+                { name: 'M4A4 | Desolate Space', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Desolate_Space.webp' },
+                
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case24': [ // Chroma 3 Case
+                { name: 'M4A1-S | Chantico\'s Fire', rarity: 'Covert', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_m4a1_silencer_cu_m4a1s_soultaker_light.png' },
+                { name: 'PP-Bizon | Judgement of Anubis', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Judgement_of_Anubis.webp' },
+                { name: 'P250 | Asiimov', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Asiimov.webp' },
+                { name: 'UMP-45 | Primal Saber', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Primal_Saber.webp' },
+                { name: 'XM1014 | Black Tie', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Black_Tie.webp' },
+                { name: 'SSG 08 | Ghost Crusader', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Ghost_Crusader.webp' },
+                { name: 'Galil AR | Firefight', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Firefight.webp' },
+                { name: 'Tec-9 | Re-Entry', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Re-Entry.webp' },
+                { name: 'CZ75-Auto | Red Astor', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Red_Astor.webp' },
+                { name: 'Dual Berettas | Ventilators', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Ventilators.webp' },
+                { name: 'M249 | Spectre', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Spectre.webp' },
+                { name: 'MP9 | Bioleak', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Bioleak.webp' },
+                { name: 'P2000 | Oceanic', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Oceanic.webp' },
+                { name: 'SG 553 | Atlas', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Atlas.webp' },
+                { name: 'G3SG1 | Orange Crash', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Orange_Crash.webp' },
+                { name: 'Sawed-Off | Fubar', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Fubar.webp' },
+                { name: 'AUG | Fleet Flock', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Fleet_Flock.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case25': [ // Operation Wildfire Case
+                { name: 'AK-47 | Fuel Injector', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Fuel_Injector.webp' },
+                { name: 'M4A4 | The Battlestar', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_The_Battlestar.webp' },
+                { name: 'AWP | Elite Build', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Elite_Build.webp' },
+                { name: 'Desert Eagle | Kumicho Dragon', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Kumicho_Dragon.webp' },
+                { name: 'Nova | Hyperbeast', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Hyper_Beast.webp' },
+                { name: 'Glock-18 | Royal Legion', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Royal_Legion.webp' },
+                { name: 'FAMAS | Valence', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Valence.webp' },
+                { name: 'MAG-7 | Praetorian', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Praetorian.webp' },
+                { name: 'MP7 | Impire', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Impire.webp' },
+                { name: 'Five-SeveN | Triumvirate', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Triumvirate.webp' },
+                { name: 'USP-S | Lead Conduit', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Lead_Conduit.webp' },
+                { name: 'PP-Bizon | Photic Zone', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Photic_Zone.webp' },
+                { name: 'Tec-9 | Jambiya', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Jambiya.webp' },
+                { name: 'Dual Berettas | Cartel', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Cartel.webp' },
+                { name: 'MAC-10 | Lapis Gator', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Lapis_Gator.webp' },
+                
+                { name: 'SSG 08 | Necropos', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Necropos.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case26': [ // Revolver Case
+                { name: 'R8 Revolver | Fade', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Fade.webp' },
+                { name: 'M4A4 | Royal Paladin', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Royal_Paladin.webp' },
+                { name: 'AK-47 | Point Disarray', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Point_Disarray.webp' },
+                { name: 'G3SG1 | The Executioner', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_The_Executioner.webp' },
+                { name: 'P90 | Shapewood', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Shapewood.webp' },
+                { name: 'Negev | Power Loader', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Power_Loader.webp' },
+                { name: 'Tec-9 | Avalanche', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Avalanche.webp' },
+                { name: 'SG 553 | Tiger Moth', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Tiger_Moth.webp' },
+                { name: 'Five-SeveN | Retrobution', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Retrobution.webp' },
+                { name: 'XM1014 | Teclu Burner', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Teclu_Burner.webp' },
+                { name: 'AUG | Ricochet', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Ricochet.webp' },
+                { name: 'Desert Eagle | Corinthian', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Corinthian.webp' },
+                { name: 'P2000 | Imperial', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Imperial.webp' },
+                { name: 'SCAR-20 | Outbreak', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Outbreak.webp' },
+                { name: 'PP-Bizon | Fuel Rod', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Fuel_Rod.webp' },
+                { name: 'Sawed-Off | Yorick', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Yorick.webp' },
+                { name: 'R8 Revolver | Crimson Web', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Crimson_Web.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case27': [ // Shadow Case
+                { name: 'USP-S | Kill Confirmed', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Kill_Confirmed.webp' },
+                { name: 'M4A1-S | Golden Coil', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Golden_Coil.webp' },
+                { name: 'AK-47 | Frontside Misty', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Frontside_Misty.webp' },
+                { name: 'G3SG1 | Flux', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Flux.webp' },
+                { name: 'SSG 08 | Big Iron', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Big_Iron.webp' },
+                { name: 'Galil AR | Stone Cold', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Stone_Cold.webp' },
+                { name: 'P250 | Wingshot', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Wingshot.webp' },
+                { name: 'M249 | Nebula Crusader', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Nebula_Crusader.webp' },
+                { name: 'MP7 | Special Delivery', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Special_Delivery.webp' },
+                { name: 'Glock-18 | Wraiths', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Wraiths.webp' },
+                { name: 'FAMAS | Survivor Z', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Survivor_Z.webp' },
+                { name: 'Dual Berettas | Dualing Dragons', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Dualing_Dragons.webp' },
+                { name: 'MAC-10 | Rangeen', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Rangeen.webp' },
+                { name: 'SCAR-20 | Green Marine', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Green_Marine.webp' },
+                { name: 'XM1014 | Scumbria', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Scumbria.webp' },
+                { name: 'MAG-7 | Cobalt Core', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Cobalt_Core.webp' },
+                
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case28': [ // Falchion Case
+                { name: 'AK-47 | Aquamarine Revenge', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Aquamarine_Revenge.webp' },
+                { name: 'AWP | Hyper Beast', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Hyper_Beast.webp' },
+                { name: 'MP7 | Nemesis', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Nemesis.webp' },
+                { name: 'CZ75-Auto | Yellow Jacket', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Yellow_Jacket.webp' },
+                { name: 'SG 553 | Cyrex', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Cyrex.webp' },
+                { name: 'M4A4 | Evil Daimyo', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Evil_Daimyo.webp' },
+                { name: 'Negev | Loudmouth', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Loudmouth.webp' },
+                { name: 'P2000 | Handgun', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Handgun.webp' },
+                { name: 'UMP-45 | Riot', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Riot.webp' },
+                { name: 'Glock-18 | Bunsen Burner', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Bunsen_Burner.webp' },
+                { name: 'FAMAS | Neural Net', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Neural_Net.webp' },
+                { name: 'MP9 | Ruby Poison Dart', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Ruby_Poison_Dart.webp' },
+                { name: 'P90 | Elite Build', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Elite_Build.webp' },
+                { name: 'USP-S | Torque', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Torque.webp' },
+                { name: 'Galil AR | Rocket Pop', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Rocket_Pop.webp' },
+                
+                { name: 'Nova | Ranger', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Ranger.webp' },
+                { name: 'Falchion Knife', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case29': [ // Chroma 2 Case
+                { name: 'M4A1-S | Hyper Beast', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Hyper_Beast.webp' },
+                { name: 'MAC-10 | Neon Rider', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Neon_Rider.webp' },
+                { name: 'Galil AR | Eco', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Eco.webp' },
+                { name: 'Five-SeveN | Monkey Business', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Monkey_Business.webp' },
+                { name: 'FAMAS | Djinn', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Djinn.webp' },
+                { name: 'AWP | Worm God', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Worm_God.webp' },
+                { name: 'MAG-7 | Heat', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Heat.webp' },
+                { name: 'CZ75-Auto | Pole Position', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Pole_Position.webp' },
+                { name: 'UMP-45 | Grand Prix', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Grand_Prix.webp' },
+                { name: 'AK-47 | Elite Build', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Elite_Build.webp' },
+                { name: 'Desert Eagle | Bronze Deco', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Bronze_Deco.webp' },
+                { name: 'P250 | Valence', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Valence.webp' },
+                { name: 'Sawed-Off | Origami', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Origami.webp' },
+                { name: 'Negev | Man-o\'-war', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_negev_am_negev_glory_light.png' },
+                { name: 'MP7 | Armor Core', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Armor_Core.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case30': [ // Chroma Case
+                { name: 'Galil AR | Chatterbox', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Chatterbox.webp' },
+                { name: 'AWP | Man-o\'-war', rarity: 'Covert', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_awp_am_awp_glory_light.png' },
+                { name: 'AK-47 | Cartel', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Cartel.webp' },
+                { name: 'M4A4 | Dragon King', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_%E9%BE%8D%E7%8E%8B_(Dragon_King).webp' },
+                { name: 'P250 | Muertos', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Muertos.webp' },
+                { name: 'Desert Eagle | Naga', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Naga.webp' },
+                { name: 'Dual Berettas | Urban Shock', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Urban_Shock.webp' },
+                { name: 'MAC-10 | Malachite', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Malachite.webp' },
+                { name: 'Sawed-Off | Serenity', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Serenity.webp' },
+                { name: 'Glock-18 | Catacombs', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Catacombs.webp' },
+                { name: 'M249 | System Lock', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_System_Lock.webp' },
+                { name: 'MP9 | Deadly Poison', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Deadly_Poison.webp' },
+                { name: 'SCAR-20 | Grotto', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Grotto.webp' },
+                { name: 'XM1014 | Quicksilver', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Quicksilver.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case31': [ // Operation Vanguard Weapon Case
+                { name: 'AK-47 | Wasteland Rebel', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Wasteland_Rebel.webp' },
+                { name: 'P2000 | Fire Elemental', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Fire_Elemental.webp' },
+                { name: 'P250 | Cartel', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Cartel.webp' },
+                { name: 'M4A1-S | Basilisk', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Basilisk.webp' },
+                { name: 'M4A4 | Griffin', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Griffin.webp' },
+                { name: 'Glock-18 | Grinder', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Grinder.webp' },
+                { name: 'SCAR-20 | Cardiac', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Cardiac.webp' },
+                { name: 'XM1014 | Tranquility', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Tranquility.webp' },
+                { name: 'UMP-45 | Delusion', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Delusion.webp' },
+                { name: 'Five-SeveN | Urban Hazard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Urban_Hazard.webp' },
+                { name: 'G3SG1 | Murky', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Murky.webp' },
+                { name: 'MAG-7 | Firestarter', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Firestarter.webp' },
+                { name: 'MP9 | Dart', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Dart.webp' },
+                { name: 'Sawed-Off | Highwayman', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Highwayman.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case32': [ // eSports 2014 Summer Case
+                { name: 'AK-47 | Jaguar', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Jaguar.webp' },
+                
+                { name: 'M4A4 | Bullet Rain', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Bullet_Rain.webp' },
+                { name: 'AUG | Bengal Tiger', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Bengal_Tiger.webp' },
+                { name: 'P2000 | Corticera', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Corticera.webp' },
+                { name: 'Nova | Bloomstick', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Bloomstick.webp' },
+                { name: 'AWP | Corticera', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Corticera.webp' },
+                { name: 'MP7 | Ocean Foam', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Ocean_Foam.webp' },
+                { name: 'Glock-18 | Steel Disruption', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Steel_Disruption.webp' },
+                { name: 'CZ75-Auto | Hexane', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Hexane.webp' },
+                { name: 'USP-S | Blood Tiger', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Blood_Tiger.webp' },
+                { name: 'PP-Bizon | Blue Streak', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Blue_Streak.webp' },
+                { name: 'XM1014 | Red Python', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Red_Python.webp' },
+                { name: 'MAC-10 | Ultraviolet', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Ultraviolet.webp' },
+                { name: 'Desert Eagle | Crimson Web', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Crimson_Web.webp' },
+                { name: 'Negev | Bratatat', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Bratatat.webp' },
+                { name: 'P90 | Virus', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Virus.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case33': [ // Operation Breakout Weapon Case
+                { name: 'M4A1-S | Cyrex', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Cyrex.webp' },
+                { name: 'P90 | Asiimov', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Asiimov.webp' },
+                { name: 'Glock-18 | Water Elemental', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Water_Elemental.webp' },
+                { name: 'Five-SeveN | Fowl Play', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Fowl_Play.webp' },
+                { name: 'MP7 | Urban Hazard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Urban_Hazard.webp' },
+                { name: 'PP-Bizon | Osiris', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Osiris.webp' },
+                { name: 'CZ75-Auto | Tigris', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Tigris.webp' },
+                { name: 'Nova | Koi', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Koi.webp' },
+                { name: 'P250 | Supernova', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Supernova.webp' },
+                { name: 'Desert Eagle | Conspiracy', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Conspiracy.webp' },
+                { name: 'SSG 08 | Abyss', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Abyss.webp' },
+                { name: 'P2000 | Ivory', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Ivory.webp' },
+                { name: 'UMP-45 | Labyrinth', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Labyrinth.webp' },
+                { name: 'Negev | Desert-Strike', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Desert-Strike.webp' },
+                
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case34': [ // Huntsman Weapon Case
+                { name: 'P90 | Desert Warfare', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Desert_Warfare.webp' }, 
+                { name: 'AK-47 | Vulcan', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Vulcan.webp' },
+                { name: 'M4A1-S | Atomic Alloy', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Atomic_Alloy.webp' },
+                { name: 'USP-S | Orion', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Orion.webp' },
+                { name: 'SCAR-20 | Cyrex', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Cyrex.webp' },
+                { name: 'USP-S | Caiman', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Caiman.webp' },
+                { name: 'MAC-10 | Curse', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Curse.webp' },
+                { name: 'MAC-10 | Tatter', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Tatter.webp' },
+                { name: 'CZ75-Auto | Twist', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Twist.webp' },
+                { name: 'M4A4 | Desert-Strike', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Desert-Strike.webp' },
+                { name: 'P90 | Module', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Module.webp' },
+                { name: 'P2000 | Pulse', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Pulse.webp' },
+                { name: 'AUG | Torque', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Torque.webp' },
+                { name: 'PP-Bizon | Antique', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Antique.webp' },
+                { name: 'XM1014 | Heaven Guard', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Heaven_Guard.webp' },
+                { name: 'Tec-9 | Isaac', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Isaac.webp' },
+                { name: 'Dual Berettas | Retribution', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Retribution.webp' },
+                { name: 'SSG 08 | Slashed', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Slashed.webp' },
+                { name: 'CZ75-Auto | Poison Dart', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Poison_Dart.webp' },
+                { name: 'Galil AR | Kami', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Kami.webp' },
+                { name: 'Huntsman Knife', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case35': [ // Operation Phoenix Weapon Case
+                { name: 'AWP | Asiimov', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Asiimov.webp', minFloat: 0.18, maxFloat: 1.00 },
+                { name: 'AK-47 | Redline', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Redline.webpv', minFloat: 0.10, maxFloat: 0.70 },
+                { name: 'P90 | Trigon', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Trigon.webp' },
+                { name: 'Nova | Antique', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Antique.webp' },
+                { name: 'USP-S | Guardian', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Guardian.webp' },
+                { name: 'MAC-10 | Heat', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Heat.webp' },
+                { name: 'SG 553 | Pulse', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Pulse.webp' },
+                { name: 'FAMAS | Sergeant', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Sergeant.webp' },
+                { name: 'AUG | Chameleon', rarity: 'Mil-Spec Grade', image: 'Covert' },
+                { name: 'UMP-45 | Corporal', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Corporal.webp' },
+                { name: 'Tec-9 | Sandstorm', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Sandstorm.webp' },
+                { name: 'MAG-7 | Heaven Guard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Heaven_Guard.webp' },
+                { name: 'Negev | Terrain', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Terrain.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case36': [ // CS:GO Weapon Case 3
+                { name: 'CZ75-Auto | Victoria', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Victoria.webp' },
+                { name: 'P250 | Undertow', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Undertow.webp' },
+                { name: 'CZ75-Auto | The Fuschia Is Now', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_The_Fuschia_Is_Now.webp' },
+                { name: 'Desert Eagle | Heirloom', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Heirloom.webp' },
+                { name: 'Five-SeveN | Copper Galaxy', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Copper_Galaxy.webp' },
+                { name: 'Tec-9 | Titanium Bit', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Titanium_Bit.webp' },
+                { name: 'CZ75-Auto | Tread Plate', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Tread_Plate.webp' },
+                { name: 'USP-S | Stainless', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Stainless.webp' },
+                { name: 'Glock-18 | Blue Fissure', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Blue_Fissure.webp' },
+                { name: 'CZ75-Auto | Crimson Web', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Crimson_Web.webp' },
+                { name: 'Dual Berettas | Panther', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Panther.webp' },
+                { name: 'P2000 | Red FragCam', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Red_FragCam.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case37': [ // Winter Offensive Weapon Case
+                { name: 'M4A4 | Asiimov', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Asiimov.webp' },
+                { name: 'Sawed-Off | The Kraken', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_The_Kraken.webp' },
+                { name: 'M4A1-S | Guardian', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Guardian.webp' },
+                { name: 'P250 | Mehndi', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Mehndi.webp' },
+                { name: 'AWP | Redline', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Redline.webp' },
+                { name: 'FAMAS | Pulse', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Pulse.webp' },
+                { name: 'Dual Berettas | Marina', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Marina.webp' },
+                { name: 'MP9 | Rose Iron', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Rose_Iron.webp' },
+                { name: 'Nova | Rising Skull', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Rising_Skull.webp' },
+                { name: 'M249 | Magma', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Magma.webp' },
+                { name: 'Five-SeveN | Kami', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Kami.webp' },
+                { name: 'Galil AR | Sandstorm', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Sandstorm.webp' },
+                { name: 'PP-Bizon | Cobalt Halftone', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Cobalt_Halftone.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case38': [ // eSports 2013 Winter Case
+                { name: 'M4A4 | X-Ray', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_X-Ray.webp' },
+                { name: 'AWP | Electric Hive', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Electric_Hive.webp' },
+                { name: 'Desert Eagle | Cobalt Disruption', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Cobalt_Disruption.webp' },
+                { name: 'FAMAS | Afterimage', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Afterimage.webp' },
+                { name: 'AK-47 | Blue Laminate', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Blue_Laminate.webp' },
+                { name: 'P90 | Blind Spot', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Blind_Spot.webp' },
+                { name: 'Galil AR | Blue Titanium', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Blue_Titanium.webp' },
+                { name: 'PP-Bizon | Water Sigil', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Water_Sigil.webp' },
+                { name: 'P250 | Steel Disruption', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Steel_Disruption.webp' },
+                { name: 'G3SG1 | Azure Zebra', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Azure_Zebra.webp' },
+                { name: 'Five-SeveN | Nightshade', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Nightshade.webp' },
+                { name: 'Nova | Ghost Camo', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Ghost_Camo.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case39': [ // CS:GO Weapon Case 2
+                { name: 'SSG 08 | Blood in the Water', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Blood_in_the_Water.webp' },
+                { name: 'USP-S | Serum', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Serum.webp' },
+                { name: 'P90 | Cold Blooded', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Cold_Blooded.webp' },
+                { name: 'Dual Berettas | Hemoglobin', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Hemoglobin.webp' },
+                { name: 'Nova | Graphite', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Graphite.webp' },
+                { name: 'MP9 | Hypnotic', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Hypnotic.webp' },
+                { name: 'Five-SeveN | Case Hardened', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Case_Hardened.webp' },
+                { name: 'M4A1-S | Blood Tiger', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Blood_Tiger.webp' },
+                { name: 'Tec-9 | Blue Titanium', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Blue_Titanium.webp' },
+                { name: 'P250 | Hive', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Hive.webp' },
+                { name: 'FAMAS | Hexane', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Hexane.webp' },
+                { name: 'SCAR-20 | Crimson Web', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Crimson_Web.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case40': [ // Operation Bravo Case
+                { name: 'AK-47 | Fire Serpent', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Fire_Serpent.webp' },
+                { name: 'AWP | Graphite', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Graphite.webp' },
+                { name: 'Desert Eagle | Golden Koi', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Golden_Koi.webp' },
+                { name: 'P2000 | Ocean Foam', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Ocean_Foam.webp' },
+                { name: 'P90 | Emerald Dragon', rarity: 'Clasiified', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Emerald_Dragon.webp' },
+                { name: 'USP-S | Overgrowth', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Overgrowth.webp' },
+                { name: 'M4A4 | Zirka', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Zirka.webp' },
+                { name: 'MAC-10 | Graven', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Graven.webp' },
+                { name: 'M4A1-S | Bright Water', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Bright_Water.webp' },
+                { name: 'Galil AR | Shattered', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Shattered.webp' },
+                { name: 'UMP-45 | Bone Pile', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Bone_Pile.webp' },
+                { name: 'G3SG1 | Demeter', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Demeter.webp' },
+                { name: 'SG 553 | Wave Spray', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Wave_Spray.webp' },
+                { name: 'Dual Berettas | Black Limba', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Black_Limba.webp' },
+                { name: 'Nova | Tempest', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Tempest.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case41': [ // eSports 2013 Case
+                { name: 'P90 | Death by Kitty', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Death_by_Kitty.webp' },
+                { name: 'AK-47 | Red Laminate', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Red_Laminate.webp' },
+                { name: 'AWP | BOOM', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_BOOM.webp' },
+                { name: 'P250 | Splash', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Splash.webp' },
+                { name: 'Galil AR | Orange DDPAT', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Orange_DDPAT.webp' },
+                { name: 'Sawed-Off | Orange DDPAT', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Orange_DDPAT.webp' },
+                { name: 'M4A4 | Faded Zebra', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Faded_Zebra.webp' },
+                { name: 'FAMAS | Doomkitty', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Doomkitty.webp' },
+                { name: 'MAG-7 | Memento', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Memento.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ],
+            'case42': [ // CS:GO Weapon Case
+                { name: 'AWP | Lightning Strike', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Lightning_Strike.webp' },
+                { name: 'AK-47 | Case Hardened', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Case_Hardened.webp' },
+                { name: 'Desert Eagle | Hypnotic', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Hypnotic.webp' },
+                { name: 'USP-S | Dark Water', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Dark_Water.webp' },
+                { name: 'M4A1-S | Dark Water', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Dark_Water.webp' },
+                { name: 'Glock-18 | Dragon Tattoo', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Glock-18_Dragon_Tattoo.webp' },
+                { name: 'AUG | Wings', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Wings.webp' },
+                { name: 'SG 553 | Ultraviolet', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Ultraviolet.webp' },
+                { name: 'MP7 | Skulls', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Skulls.webp' },
+                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+            ]
+        };
+        // *** BİTİŞ: DOĞRULANMIŞ VE DÜZELTİLMİŞ KASA VERİLERİ ***
+
+        // Bu fonksiyon, tüm kasalardaki skinler için resim URL'lerini dinamik olarak oluşturur.
+        // Sayfa yüklendiğinde bir kere çalışır ve 'caseDrops' nesnesini günceller.
+        function generateSkinImages() {
+            for (const caseId in caseDrops) {
+                if (caseDrops.hasOwnProperty(caseId)) {
+                    caseDrops[caseId].forEach(skin => {
+                        // Sadece 'image' özelliği boş olan desenler için placeholder oluştur
+                        if (!skin.image) {
+                            const rarityInfo = skinRarities[skin.rarity];
+                            if (rarityInfo) {
+                                // URL için metin oluştur: '|' karakterini yeni satır (%0A) ile değiştir.
+                                const textForUrl = encodeURIComponent(skin.name.replace(/ \| /g, '\n'));
+                                skin.image = `https://placehold.co/200x200/${rarityInfo.imageColor}/ffffff?text=${textForUrl}`;
+                            } else {
+                                // Nadirlik bulunamazsa varsayılan bir resim ata
+                                skin.image = 'https://placehold.co/200x200/555555/ffffff?text=Hata';
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+
+        // Varsayılan nadirlik düşüşleri (tüm kasalar için genel düşenler)
+        // Bu, eğer bir kasanın belirli skinleri tanımlı değilse kullanılacak genel desenler içindir.
+        const defaultPatterns = [
+            { name: 'Sıradan Desen', rarity: 'Mil-Spec Grade' },
+            { name: 'Nadir Desen', rarity: 'Mil-Spec Grade' },
+            { name: 'Efsanevi Desen', rarity: 'Restricted' },
+            { name: 'Destansı Desen', rarity: 'Restricted' },
+            { name: 'Mistik Desen', rarity: 'Classified' },
+            { name: 'Gizemli Desen', rarity: 'Covert' },
+            { name: 'Özel Öğe', rarity: 'Rare Special Item' }
+        ];
+
+        // Updates the balance display and sets its color
+    function updateBalanceDisplay() {
+        balanceDisplay.textContent = userBalance.toFixed(2);
+        balanceDisplay.classList.toggle('text-red-500', userBalance < 0);
+        balanceDisplay.classList.toggle('text-green-500', userBalance >= 0);
+    }
+
+        // Function to control which section is displayed
+        function showSection(sectionName) {
+            // Ana içerik bölümlerini yönet
+            if (sectionName === 'selection') {
+                mainContent.classList.remove('hidden');
+                caseSelectionMenu.classList.remove('hidden');
+                caseOpeningSection.classList.add('hidden');
+                faqSection.classList.remove('hidden'); // SSS'yi göster
+            } else if (sectionName === 'opening') {
+                mainContent.classList.remove('hidden');
+                caseSelectionMenu.classList.add('hidden');
+                caseOpeningSection.classList.remove('hidden');
+                openCaseButton.classList.remove('hidden');
+                resetButton.classList.add('hidden');
+                faqSection.classList.remove('hidden'); // SSS'yi göstermeye devam et
+            }
+        }
+
+        // Tüm kasa çeşitlerinin listesi (42 adet)
+        const allCases = [
+            { id: 'case1', name: 'Gallery Case', image: 'https://www.csgodatabase.com/images/containers/webp/Gallery_Case.webp', price: '0.87 $' },
+            { id: 'case2', name: 'Fever Case', image: 'https://www.csgodatabase.com/images/containers/webp/Fever_Case.webp', price: '0.99 $' }, // Image updated to Horizon for variety, content is Fever
+            { id: 'case3', name: 'Kilowatt Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_33_png.png', price: '0.60 $' },
+            { id: 'case4', name: 'Revolution Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_32_png.png', price: '0.61 $' },
+            { id: 'case5', name: 'Recoil Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_31_png.png', price: '0.34 $' },
+            { id: 'case6', name: 'Dreams And Nightmares Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_30_png.png', price: '2.19 $' },
+            { id: 'case7', name: 'Operation Riptide Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_29_png.png', price: '18.70 $' },
+            { id: 'case8', name: 'Snakebite Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_28_png.png', price: '0.63 $' },
+            { id: 'case9', name: 'Operation Broken Fang Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_27_png.png', price: '12.24 $' },
+            { id: 'case10', name: 'Fracture Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_26_png.png', price: '0.46 $' },
+            { id: 'case11', name: 'Prisma 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_25_png.png', price: '1.80 $' },
+            { id: 'case12', name: 'CS20 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_24_png.png', price: '1.68 $' },
+            { id: 'case13', name: 'Shattered Web Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_23_png.png', price: '9.20 $' },
+            { id: 'case14', name: 'Prisma Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_22_png.png', price: '1.73 $' },
+            { id: 'case15', name: 'Danger Zone Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_21_png.png', price: '1.93 $' },
+            { id: 'case16', name: 'Horizon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_20_png.png', price: '2.25 $' },
+            { id: 'case17', name: 'Clutch Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_19_png.png', price: '1.15 $' },
+            { id: 'case18', name: 'Spectrum 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_18_png.png', price: '4.39 $' },
+            { id: 'case19', name: 'Operation Hydra Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_17_png.png', price: '30.29 $' },
+            { id: 'case20', name: 'Spectrum Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_16_png.png', price: '6.72 $' },
+            { id: 'case21', name: 'Glove Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_15_png.png', price: '15.94 $' },
+            { id: 'case22', name: 'Gamma 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_gamma_2_png.png', price: '5.24 $' },
+            { id: 'case23', name: 'Gamma Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_13_png.png', price: '5.29 $' },
+            { id: 'case24', name: 'Chroma 3 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_12_png.png', price: '5.06 $' },
+            { id: 'case25', name: 'Operation Wildfire Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_11_png.png', price: '4.85 $' },
+            { id: 'case26', name: 'Revolver Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_10_png.png', price: '3.87 $' },
+            { id: 'case27', name: 'Shadow Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_9_png.png', price: '2.23 $' },
+            { id: 'case28', name: 'Falchion Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_8_png.png', price: '2.22 $' },
+            { id: 'case29', name: 'Chroma 2 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_7_png.png', price: '5.31 $' },
+            { id: 'case30', name: 'Chroma Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_6_png.png', price: '6.09 $' },
+            { id: 'case31', name: 'Operation Vanguard Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_5_png.png', price: '5.36 $' },
+            { id: 'case32', name: 'eSports 2014 Summer Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_esports_2014_summer_png.png', price: '14.18 $' },
+            { id: 'case33', name: 'Operation Breakout Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_4_png.png', price: '11.40 $' },
+            { id: 'case34', name: 'Huntsman Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_3_png.png', price: '13.77 $' },
+            { id: 'case35', name: 'Operation Phoenix Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_2_png.png', price: '6.79 $' },
+            { id: 'case36', name: 'CS:GO Weapon Case 3', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_valve_3_png.png', price: '9.91 $' },
+            { id: 'case37', name: 'Winter Offensive Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_1_png.png', price: '9.25 $' },
+            { id: 'case38', name: 'eSports 2013 Winter Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_esports_2013_14_png.png', price: '15.53 $' },
+            { id: 'case39', name: 'CS:GO Weapon Case 2', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_valve_2_png.png', price: '14.46 $' },
+            { id: 'case40', name: 'Operation Bravo Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_operation_ii_png.png', price: '58.49 $' },
+            { id: 'case41', name: 'eSports 2013 Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_esports_2013_png.png', price: '85.53 $' },
+            { id: 'case42', name: 'CS:GO Weapon Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_valve_1_png.png', price: '122.75 $' }
+        ];
+
+        // Function to create the case menu
+        function createCaseMenu() {
+            caseSelectionMenu.innerHTML = ''; // Clear previous cases
+            allCases.forEach(caseData => {
+                const gridCellDiv = document.createElement('div');
+                gridCellDiv.classList.add('case-item-container');
+                gridCellDiv.innerHTML = `
+                    <div class="case-item">
+                        <img src="${caseData.image}" alt="${caseData.name}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/555555/ffffff?text=Resim+Yok';">
+                        <div class="price-container">${caseData.price}</div>
+                    </div>
+                    <p class="case-name">${caseData.name}</p>
+                `;
+                // Add click event to each case item
+                gridCellDiv.addEventListener('click', () => {
+                    console.log(`[DEBUG] Click event registered for case: ${caseData.name}`);
+                    selectCase(caseData);
+                });
+                caseSelectionMenu.appendChild(gridCellDiv);
+            });
+            showSection('selection'); // Show the case selection menu
+        }
+
+        // Function to run when a case is selected
+function selectCase(caseData) {
+    currentlySelectedCase = caseData;
+    selectedCaseNameDisplay.textContent = caseData.name;
+
+    // Geri getirdiğimiz eski HTML elemanlarının içini dolduruyoruz
+    displayImage.src = caseData.image;
+    displayImage.alt = caseData.name;
+    resultText.textContent = '';
+
+    // Butonun metnini DOĞRU formatla ayarlıyoruz
+    openCaseButton.textContent = `Aç: ${caseData.name} (${caseData.price})`;
+    
+    // Ve kasa açma bölümünü gösteriyoruz
+    showSection('opening');
+    displayPossibleDrops(caseData.id);
+}
+
+        // Function to get a random skin based on rarity odds
+function getRandomSkin(caseId) {
+    const caseSpecificDrops = caseDrops[caseId];
+    let possibleSkins = [];
+    let cumulativeOdds = 0;
+    const rarityDistribution = [];
+    for (const rarityKey in skinRarities) {
+        if (rarityKey === 'Contraband') continue;
+        cumulativeOdds += skinRarities[rarityKey].odds;
+        rarityDistribution.push({ rarityKey, cumulativeOdds });
+    }
+    let rand = Math.random();
+    let chosenRarityKey = null;
+    for (let i = 0; i < rarityDistribution.length; i++) {
+        if (rand < rarityDistribution[i].cumulativeOdds) {
+            chosenRarityKey = rarityDistribution[i].rarityKey;
+            break;
+        }
+    }
+    if (!chosenRarityKey) {
+        chosenRarityKey = 'Mil-Spec Grade';
+    }
+    const chosenRarityInfo = skinRarities[chosenRarityKey];
+
+    if (caseSpecificDrops) {
+        const filteredByRarity = caseSpecificDrops.filter(skin => skin.rarity === chosenRarityKey);
+        if (filteredByRarity.length > 0) {
+            possibleSkins = filteredByRarity;
+        }
+    }
+    if (possibleSkins.length === 0) {
+        const genericPattern = defaultPatterns.find(p => p.rarity === chosenRarityKey);
+        return {
+            name: `Genel Desen (${chosenRarityKey})`,
+            rarity: chosenRarityKey,
+            image: `https://placehold.co/200x200/555555/ffffff?text=Hata`,
+            color: chosenRarityInfo.color,
+            float: 0.5,
+            wear: getWearInfo(0.5)
+        };
+    }
+
+    const randomIndex = Math.floor(Math.random() * possibleSkins.length);
+    const selectedSkin = possibleSkins[randomIndex];
+
+    const minFloat = selectedSkin.minFloat || 0.00;
+    const maxFloat = selectedSkin.maxFloat || 1.00;
+    const randomFloat = minFloat + Math.random() * (maxFloat - minFloat);
+    const wearInfo = getWearInfo(randomFloat);
+
+    return {
+        name: selectedSkin.name,
+        rarity: selectedSkin.rarity,
+        image: selectedSkin.image,
+        color: chosenRarityInfo.color,
+        float: randomFloat,
+        wear: wearInfo
+    };
+};
+
+        // Function to display all possible drops for a given case
+        function displayPossibleDrops(caseId) {
+            possibleDropsContainer.innerHTML = '<h3 class="col-span-full text-xl font-bold text-yellow-300 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>'; // Clear and add title
+            possibleDropsContainer.classList.remove('hidden'); // Ensure it's visible
+
+            // Get drops either from specific caseDrops or generate default ones
+            let dropsToDisplay = [];
+            if (caseDrops[caseId]) {
+                dropsToDisplay = [...caseDrops[caseId]]; // Use spread to create a new array
+            } else {
+                // If no specific drops, use generic patterns as placeholders
+                dropsToDisplay = defaultPatterns.map(p => ({
+                    name: `${p.name} (${skinRarities[p.rarity].name.split(' ')[0]})`,
+                    rarity: p.rarity,
+                    image: `https://placehold.co/200x200/${skinRarities[p.rarity].imageColor}/ffffff?text=${encodeURIComponent(p.name.replace(/\s/g, '%20'))}%0A(${encodeURIComponent(skinRarities[p.rarity].name.split(' ')[0])})`
+                }));
+            }
+
+            // Sort by rarity for consistent display (Rare Special Item, Covert, Classified, Restricted, Mil-Spec Grade)
+            const rarityOrder = ['Contraband', 'Rare Special Item', 'Covert', 'Classified', 'Restricted', 'Mil-Spec Grade'];
+            dropsToDisplay.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+
+
+            dropsToDisplay.forEach(skin => {
+                const rarityInfo = skinRarities[skin.rarity];
+                const skinDiv = document.createElement('div');
+                skinDiv.classList.add('skin-item-preview'); // Use the new specific class
+                skinDiv.innerHTML = `
+                    <img src="${skin.image}" alt="${skin.name}" onerror="this.onerror=null; this.src='https://placehold.co/80x80/555555/ffffff?text=Resim+Yok';">
+                    <p class="text-white">${skin.name}</p>
+                    <div class="rarity-bar ${rarityInfo.barColor}"></div>
+                `;
+                possibleDropsContainer.appendChild(skinDiv);
+            });
+        }
+
+function openCase() {
+    // Eğer bir kasa seçilmemişse hiçbir şey yapma
+    if (!currentlySelectedCase) {
+        return;
+    }
+
+    // Kasa fiyatını al ve bakiyeden düş
+    const priceString = currentlySelectedCase.price;
+    const priceValue = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+
+    if (isNaN(priceValue)) {
+        alert('Kasa fiyatı geçerli değil!'); // Hata durumunda uyar
+        return;
+    }
+
+    userBalance -= priceValue;
+    updateBalanceDisplay();
+
+    // Kasa açma ekranındaki butonları gizle
+    openCaseButton.classList.add('hidden');
+    resetButton.classList.add('hidden');
+
+    // ESKİ GÖRSEL ALANLARI KULLANARAK "YÜKLENİYOR..." EFEKTİ VER
+    // Bu değişkenleri burada tekrar tanımlıyoruz ki hata vermesin.
+    const loadingText = document.getElementById('loadingText');
+    const displayImage = document.getElementById('displayImage');
+
+    loadingText.classList.remove('hidden'); // "Açılıyor..." yazısını göster
+    displayImage.classList.add('hidden'); // Kasa resmini gizle
+
+    // 2 saniye bekleme süresi
+    setTimeout(() => {
+        // Yükleme ekranını temizle
+        loadingText.classList.add('hidden');
+        displayImage.classList.remove('hidden'); // Resim alanını tekrar görünür yap, AMA İÇİNİ DOLDURMA!
+
+        // Float ve Wear bilgileriyle birlikte bir desen al
+        const droppedSkin = getRandomSkin(currentlySelectedCase.id); 
+        
+        // Kasa bilgisini de ekle (inceleme ekranı için önemli)
+        droppedSkin.caseOrigin = currentlySelectedCase.name;
+
+        // Kazanılan eşyayı envantere ekle
+        userInventory.push(droppedSkin);
+        console.log("Envantere Eklendi:", droppedSkin);
+        saveUserData();
+        
+        // -------- İSTEDİĞİN SİSTEM: MODALI GÖSTER --------
+        // "Kazandın" MODAL'ının içini doldur ve onu göster
+        modalItemImage.src = droppedSkin.image;
+        modalItemName.textContent = droppedSkin.name;
+        modalItemName.className = `text-2xl font-bold ${droppedSkin.color}`; // Rengi ata
+        modalItemWear.textContent = `${droppedSkin.wear.name} (${droppedSkin.wear.abbr})`;
+        modalItemFloat.textContent = `Float: ${droppedSkin.float.toFixed(8)}`;
+        
+        itemWonModal.classList.remove('hidden'); // POP-UP EKRANINI GÖSTER
+
+    }, 2000); 
+}
+
+
+// "Tekrar Dene" veya "Home" butonları bu fonksiyonu çağırır
+function resetToMenu() {
+    appState = 'IDLE'; // <-- DURUMU SIFIRLA
+    currentlySelectedCase = null; 
+
+    inventorySection.classList.add('hidden'); 
+    faqSection.classList.remove('hidden');    
+    
+    createCaseMenu(); 
+}
+
+        function filterCases() {
+
+            const searchTerm = searchBar.value.toLowerCase();
+            const caseContainers = caseSelectionMenu.querySelectorAll('.case-item-container');
+
+            caseContainers.forEach(container => {
+                const caseName = container.querySelector('.case-name').textContent.toLowerCase();
+                if (caseName.includes(searchTerm)) {
+                    container.style.display = 'flex';
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+        }
+
+        // Bu fonksiyon, envanter sayfasını gösterir ve içini doldurur
+function displayInventory() {
+// Bir eşya objesi alıp, bu objenin bilgileriyle inceleme modalını doldurur ve gösterir.
+
+    // 1. Adım: Diğer ana bölümleri gizle
+    mainContent.classList.add('hidden'); // Kasa menüsünü içeren ana kutuyu gizle
+    faqSection.classList.add('hidden');    // SSS bölümünü gizle
+
+    // 2. Adım: Envanter bölümünü görünür yap
+    inventorySection.classList.remove('hidden'); // Envanter kutusundaki 'hidden' sınıfını kaldırarak onu göster
+
+    // 3. Adım: Envanter kutusunun içindeki ızgarayı (grid) seç
+    const inventoryGrid = document.getElementById('inventoryGrid');
+
+    // 4. Adım: Izgaranın içini temizle. Bu ÇOK ÖNEMLİ!
+    // Eğer bunu yapmazsan, envanter butonuna her bastığında aynı eşyalar tekrar tekrar eklenir.
+    inventoryGrid.innerHTML = ''; 
+
+    // 5. Adım: Envanterde eşya olup olmadığını kontrol et
+    if (userInventory.length === 0) {
+        // Eğer envanter dizisinin uzunluğu 0 ise (yani boşsa), bir mesaj yazdır.
+        inventoryGrid.innerHTML = `<p class="col-span-full text-center text-gray-400 text-lg">Envanterin boş. Kasa açarak eşya kazanabilirsin!</p>`;
+    } else {
+        // Eğer envanter boş değilse, içindeki her bir eşya için döngü başlat
+        userInventory.forEach(item => {
+            // 'item' kelimesi, döngünün o anki turunda envanterdeki eşyayı temsil eder.
+
+            // A) Her eşya için bir dış kutu oluştur
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('case-item-container'); // Kasa menüsündeki kutularla aynı stile sahip olsun diye.
+
+            // B) Eşyanın nadirlik rengini bul
+            const rarityInfo = skinRarities[item.rarity] || { color: 'text-gray-400' };
+
+            // C) Kutunun içini (resim, isim, nadirlik) HTML olarak doldur
+            // Backtick (`) işareti kullanarak çok satırlı HTML yazıyoruz.
+            // ${item.image} gibi ifadeler, o anki eşyanın resmini, adını vb. buraya yerleştirir.
+            itemDiv.innerHTML = `
+                <div class="case-item border-2 ${rarityInfo.color.replace('text-', 'border-')}">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="price-container ${rarityInfo.color}">${item.rarity}</div>
+                </div>
+                <p class="case-name">${item.name}</p>
+            `;
+
+// ===============================================
+// ==== YENİ EKLENEN TIKLAMA OLAYI ====
+// Oluşturulan her bir eşya kutusuna bir tıklama dinleyicisi ekliyoruz.
+itemDiv.addEventListener('click', () => {
+    // Tıklandığında, o anki 'item' objesini yeni inceleme fonksiyonumuza gönderiyoruz.
+    inspectItem(item); 
+});
+// ===============================================
+            
+            // D) Oluşturduğun bu dolu kutuyu, ekrandaki ızgaranın içine ekle
+            inventoryGrid.appendChild(itemDiv);
+        });
+    }
+}
+// Float değerine göre dış görünüş adını ve kısaltmasını döndürür
+function getWearInfo(floatValue) {
+    if (floatValue >= 0.00 && floatValue < 0.07) {
+        return { name: 'Factory New', abbr: 'FN' };
+    } else if (floatValue >= 0.07 && floatValue < 0.15) {
+        return { name: 'Minimal Wear', abbr: 'MW' };
+    } else if (floatValue >= 0.15 && floatValue < 0.37) {
+        return { name: 'Field-Tested', abbr: 'FT' };
+    } else if (floatValue >= 0.37 && floatValue < 0.44) {
+        return { name: 'Well-Worn', abbr: 'WW' };
+    } else { // 0.44 - 1.00
+        return { name: 'Battle-Scarred', abbr: 'BS' };
+    }
+}        
+// ==========================================================
+// ===== BUTON TIKLAMA OLAYLARI (EVENT LISTENERS) =====
+// ==========================================================
+
+openCaseButton.addEventListener('click', openCase);
+resetButton.addEventListener('click', resetToMenu);
+homeButton.addEventListener('click', resetToMenu);
+inventoryButton.addEventListener('click', displayInventory);
+searchBar.addEventListener('input', filterCases);
+
+// "Kazandın!" modalındaki "Devam Et" butonu
+closeModalButton.addEventListener('click', () => {
+    itemWonModal.classList.add('hidden'); // Pop-up'ı gizle
+
+    // ==== YENİ EKLENEN SATIR ====
+    openCaseButton.textContent = `Yeniden Aç (${currentlySelectedCase.price})`;
+
+    // Butonları görünür yap
+    openCaseButton.classList.remove('hidden');
+    resetButton.classList.remove('hidden'); 
+})
+
+// İnceleme ekranındaki 'X' butonu
+inspectCloseButton.addEventListener('click', () => {
+    inspectionModal.classList.add('hidden'); 
+});
+
+
+// ==========================================================
+// ===== SAYFA YÜKLENDİĞİNDE ÇALIŞACAK KOD (ONLOAD) =====
+// ==========================================================
+
+window.onload = () => {
+    generateSkinImages();
+    createCaseMenu();
+    updateBalanceDisplay();
+};
+// --- BU FONKSİYONU DİĞER FONKSİYONLARIN YANINA EKLE ---
+
+function saveUserData() {
+    const activeUser = sessionStorage.getItem('active_user');
+
+    // Misafir kullanıcının verilerini kaydetme, çünkü onlar geçici.
+    if (!activeUser || activeUser === 'guest') {
+        console.log("Misafir verisi kaydedilmiyor.");
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('simulator_users')) || {};
+
+    // Eğer kullanıcı veritabanında varsa, bilgilerini güncelle.
+    if (users[activeUser]) {
+        users[activeUser].balance = userBalance;
+        users[activeUser].inventory = userInventory;
+
+        // Güncellenmiş kullanıcı veritabanını localStorage'a geri kaydet.
+        localStorage.setItem('simulator_users', JSON.stringify(users));
+        console.log(activeUser + " için veriler kaydedildi.");
+    }
+}
+
+// --- FONKSİYONUN SONU ---
+function inspectItem(itemObject) {
+    // Sağ sütundaki bilgileri doldur
+    inspectItemName.textContent = itemObject.name;
+    inspectItemName.className = `text-5xl font-bold mb-4 ${itemObject.color}`; // Rengi de ata
+    inspectItemWear.textContent = `${itemObject.wear.name} (${itemObject.wear.abbr})`;
+    inspectItemFloat.textContent = itemObject.float.toFixed(8); // Float'ı uzun ve detaylı göster
+    inspectCaseOrigin.textContent = itemObject.caseOrigin; // 1. Adımda kaydettiğimiz kasa adı
+
+    // Fiyat için şimdilik bir yer tutucu
+    inspectItemPrice.textContent = 'Fiyat Bilgisi Yok';
+
+    // Sol sütundaki resmi doldur
+    inspectImage.src = itemObject.image;
+
+    // Her şey hazır, şimdi modalı göster!
+    inspectionModal.classList.remove('hidden');
+}       
+    </script>
+</body>
+</html>
