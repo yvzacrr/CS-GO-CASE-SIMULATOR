@@ -313,7 +313,7 @@
     </style>
 </head>
 <body class="bg-gray-900 text-white">
-
+    
     <!-- En üstteki panel -->
     <div id="topPanel">
         <div id="homeButton">Home</div>
@@ -428,7 +428,17 @@
 </div>
     
     <script>
+        // Tarayıcının oturum hafızasına bak, "active_user" diye bir not var mı?
+    // Senin kodun sessionStorage kullandığı için biz de onu kullanıyoruz.
+    const aktifKullanici = sessionStorage.getItem('active_user');
 
+    // Eğer böyle bir not YOKSA (yani kullanıcı giriş yapmamışsa)...
+    if (!aktifKullanici) {
+        // ...bir uyarı göster...
+        alert("Kasa açma sitemize bir hesap oluşturmadan giremezsiniz. Lütfen kayıt olun veya giriş yapın.");
+        // ...ve onu kayıt/giriş sayfasına geri yolla.
+        window.location.href = 'Geçiş.html';
+    }
     const caseSelectionMenu = document.getElementById('caseSelectionMenu');
     const caseOpeningSection = document.getElementById('caseOpeningSection');
     const selectedCaseNameDisplay = document.getElementById('selectedCaseName');
@@ -460,8 +470,30 @@
     const loadingText = document.getElementById('loadingText');    
         
         let currentlySelectedCase = null;
-        let userBalance = 30.00; // Başlangıç bakiyesi 0 olarak ayarlandı
-        let userInventory = [];
+// --- YUKARIDAKİ İKİ SATIRI SİLİP BUNU YAPIŞTIR ---
+
+// Aktif kullanıcının kim olduğunu oturum hafızasından alıyoruz.
+const activeUser = sessionStorage.getItem('active_user');
+
+// Kullanıcı veritabanını localStorage'dan çekiyoruz.
+const users = JSON.parse(localStorage.getItem('simulator_users')) || {};
+
+// Başlangıç için boş değişkenler tanımlıyoruz.
+let userBalance = 0;
+let userInventory = [];
+
+// Giriş yapan kullanıcı "guest" (misafir) DEĞİLSE, kayıtlı verilerini yüklüyoruz.
+if (activeUser && activeUser !== 'guest' && users[activeUser]) {
+    userBalance = users[activeUser].balance;
+    userInventory = users[activeUser].inventory;
+} 
+// Eğer misafir olarak girdiyse veya bir sorun varsa varsayılan değerleri kullan.
+else if (activeUser === 'guest') {
+    userBalance = 30.00; // Misafir bakiyesi
+    userInventory = [];
+}
+
+// --- DEĞİŞİMİN SONU ---
         // Nadirlik seviyeleri ve onlara karşılık gelen Tailwind CSS renk sınıfları ile düşme oranları
         const skinRarities = {
             'Mil-Spec Grade': { color: 'text-blue-400', odds: 0.7992, name: 'Efsanevi Desen (Mavi)', barColor: 'bg-blue-400', imageColor: '3498DB' }, // Mil-Spec (Mavi)
@@ -1336,7 +1368,7 @@
 
         // Tüm kasa çeşitlerinin listesi (42 adet)
         const allCases = [
-            { id: 'case1', name: 'Gallery Case', image: 'https://www.csgodatabase.com/images/containers/webp/Gallery_Case.webp', price: '1.85 $' },
+            { id: 'case1', name: 'Gallery Case', image: 'https://www.csgodatabase.com/images/containers/webp/Gallery_Case.webp', price: '0.87 $' },
             { id: 'case2', name: 'Fever Case', image: 'https://www.csgodatabase.com/images/containers/webp/Fever_Case.webp', price: '0.99 $' }, // Image updated to Horizon for variety, content is Fever
             { id: 'case3', name: 'Kilowatt Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_33_png.png', price: '0.60 $' },
             { id: 'case4', name: 'Revolution Case', image: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapon_cases/crate_community_32_png.png', price: '0.61 $' },
@@ -1562,6 +1594,7 @@ function openCase() {
         // Kazanılan eşyayı envantere ekle
         userInventory.push(droppedSkin);
         console.log("Envantere Eklendi:", droppedSkin);
+        saveUserData();
         
         // -------- İSTEDİĞİN SİSTEM: MODALI GÖSTER --------
         // "Kazandın" MODAL'ının içini doldur ve onu göster
@@ -1713,7 +1746,31 @@ window.onload = () => {
     createCaseMenu();
     updateBalanceDisplay();
 };
+// --- BU FONKSİYONU DİĞER FONKSİYONLARIN YANINA EKLE ---
 
+function saveUserData() {
+    const activeUser = sessionStorage.getItem('active_user');
+
+    // Misafir kullanıcının verilerini kaydetme, çünkü onlar geçici.
+    if (!activeUser || activeUser === 'guest') {
+        console.log("Misafir verisi kaydedilmiyor.");
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('simulator_users')) || {};
+
+    // Eğer kullanıcı veritabanında varsa, bilgilerini güncelle.
+    if (users[activeUser]) {
+        users[activeUser].balance = userBalance;
+        users[activeUser].inventory = userInventory;
+
+        // Güncellenmiş kullanıcı veritabanını localStorage'a geri kaydet.
+        localStorage.setItem('simulator_users', JSON.stringify(users));
+        console.log(activeUser + " için veriler kaydedildi.");
+    }
+}
+
+// --- FONKSİYONUN SONU ---
 function inspectItem(itemObject) {
     // Sağ sütundaki bilgileri doldur
     inspectItemName.textContent = itemObject.name;
