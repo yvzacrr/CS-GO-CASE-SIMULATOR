@@ -277,33 +277,61 @@
             padding: 1rem;
             margin-top: 1rem;
         }
-        #possibleDropsContainer .skin-item-preview {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            background-color: rgba(45, 55, 72, 0.7); /* Slightly darker, more opaque */
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-        #possibleDropsContainer .skin-item-preview img {
-            width: 80px; /* Smaller images for preview */
-            height: 80px;
-            object-fit: contain;
-            border-radius: 0.25rem;
-            margin-bottom: 0.5rem;
-        }
-        #possibleDropsContainer .skin-item-preview p {
-            font-size: 0.75rem; /* Smaller text for preview */
-            font-weight: 600;
-            color: #e2e8f0;
-            margin-bottom: 0.25rem;
-            line-height: 1.1;
-            white-space: normal; /* Allow text to wrap */
-            word-break: break-word; /* Break long words */
-            width: 100%;
-        }
+/* --- YUKARIDAKİ ESKİ KODU SİLİP BUNU YAPIŞTIR --- */
+
+/* Her bir desenin genel taşıyıcısı (Kutu + Altındaki İsim) */
+.skin-item-preview {
+    display: flex;
+    flex-direction: column; /* İçindekileri alt alta sırala (önce kutu, sonra isim) */
+    align-items: center;
+    width: 110px; /* Genel genişliği ayarla */
+}
+
+/* Sadece desenin resmini ve nadirlik çubuğunu içeren GÖRSEL KUTU */
+.skin-item-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Resmi ortala */
+    background-color: rgba(45, 55, 72, 0.7);
+    padding: 0.5rem; /* İç boşluğu biraz azalttık */
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    width: 110px; /* Kutunun genişliği */
+    height: 110px; /* Kutunun yüksekliği (kare yaptık) */
+    margin-bottom: 0.5rem; /* Altındaki isimle arasına boşluk koy */
+}
+
+/* Kutu içindeki DESEN RESMİ */
+.skin-item-box img {
+    width: 100px; /* Resmi büyüttük! */
+    height: 100px; /* Resmi büyüttük! */
+    object-fit: contain;
+    border-radius: 0.25rem;
+}
+
+/* Nadirlik çubuğu (bu zaten vardı, sadece burada da bulunsun) */
+#possibleDropsContainer .rarity-bar {
+    width: 80%;
+    height: 3px;
+    border-radius: 9999px;
+    margin-top: 0.25rem;
+}
+
+/* Kutunun ALTINDAKİ İSİM */
+.skin-item-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+    height: 32px; /* İsimlerin hepsini aynı yükseklikte tutarak hizalama sorununu çözer */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* --- YENİ KODUN SONU --- */
         #possibleDropsContainer .rarity-bar {
             width: 80%; /* Thin bar width */
             height: 3px; /* Thin bar height */
@@ -360,8 +388,11 @@
             </div>
         </div>
     </div>
+<div id="rareDropsContainer" class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 p-4 bg-gray-900 bg-opacity-60 rounded-lg w-full border-2 border-yellow-400">
+    <h3 class="col-span-full text-2xl font-bold text-yellow-300 mb-4 text-center">Kasadan Çıkabilecek Nadir Desenler</h3>
+    </div>
 
-<div id="inventorySection" class="main-content-wrapper hidden">
+    <div id="inventorySection" class="main-content-wrapper hidden">
     <h1 class="text-4xl font-bold mb-8 text-white text-center">Envanter</h1>
 
     <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-x-3 gap-y-6 justify-items-center">
@@ -504,6 +535,40 @@ else if (activeUser === 'guest') {
             'Contraband': { color: 'text-orange-500', odds: 0, name: 'Kaçak Mal (Turuncu)', barColor: 'bg-orange-500', imageColor: 'E67E22' } // Hata düzeltmesi için eklendi
         };
 
+// --- BU NADİR EŞYA LİSTESİNİ, 'const caseDrops' LİSTESİNİN HEMEN ÜSTÜNE YAPIŞTIR ---
+
+// NADİR EŞYA VERİTABANI
+// Burası, her kasadan hangi bıçakların/eldivenlerin çıkabileceğini tanımladığımız yer.
+// Kendi bıçak/eldiven resimlerini ve isimlerini buraya gireceksin.
+const rareItemPools = {
+    'case1': [ 
+        { name: 'Kukri Knife | Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aa_fade_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Slaughter', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_am_zebra_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Crimson Web', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_webs_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Case Hardened', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_oiled_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Vanilla', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fweapons%2Fbase_weapons%2Fweapon_knife_kukri_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Blue Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_blued_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Boreal Forest', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_forest_boreal_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Forest DDPAT', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_ddpat_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Night Stripe', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_nightstripe_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Safari Mesh', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_mesh_tan_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Scorched', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_dapple_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Stained', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_forced_light_png.png&w=160&h=120' },
+        { name: 'Kukri Knife | Urban Masked', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_tape_urban_light_png.png&w=160&h=120' },
+        // İstediğin kadar Kukri bıçağını bu şekilde ekleyebilirsin.
+    ],
+    'case2': [ // Örnek: Revolution Kasası (Eldivenler)
+        { name: 'Sport Gloves | Vice', image: 'RESIM_URLSI_BURAYA' },
+        { name: 'Sport Gloves | Pandora\'s Box', image: 'RESIM_URLSI_BURAYA' },
+        { name: 'Sport Gloves | Amphibious', image: 'RESIM_URLSI_BURAYA' },
+        { name: 'Sport Gloves | Omega', image: 'RESIM_URLSI_BURAYA' }
+         // İstediğin kadar eldiveni bu şekilde ekleyebilirsin.
+    ],
+    // Buraya diğer kasaların ID'lerini ve nadir eşyalarını ekleyebilirsin.
+    // Örnek: 'case21': [ { name: 'Bloodhound Gloves | Charred', image: '...' } ]
+};
+
+// --- YENİ LİSTENİN SONU ---
         // Kasa ID'sine göre düşebilecek skinlerin listesi
         // ÖNEMLİ: Kendi resimlerinizi eklemek için 'image' özelliğini kullanın.
         // Eğer 'image' özelliği boş bırakılırsa, yerine otomatik olarak bir placeholder resim oluşturulur.
@@ -548,7 +613,7 @@ else if (activeUser === 'guest') {
                 { name: 'SSG 08 | Memorial', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Memorial.webp' },
                 { name: 'USP-S | PC-GRN', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_PC-GRN.webp' },
                 { name: 'XM1014 | Mockingbird', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Mockingbird.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case3': [ // Kilowatt Case
                 { name: 'AK-47 | Inheritance', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Inheritance.webp' },
@@ -568,7 +633,7 @@ else if (activeUser === 'guest') {
                 { name: 'XM1014 | Irezumi', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Irezumi.webp' },
                 { name: 'Nova | Dark Sigil', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Dark_Sigil.webp' },
                 { name: 'Tec-9 | Slag', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Slag.webp' },
-                { name: 'Kukri Knife', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case4': [ // Revolution Case
                 { name: 'AK-47 | Head Shot', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Head_Shot.webp' },
@@ -588,7 +653,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAG-7 | Insomnia', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Insomnia.webp' },
                 { name: 'SG 553 | Cyberforce', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Cyberforce.webp' },
                 { name: 'Tec-9 | Rebel', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Rebel.webp' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case5': [ // Recoil Case
                 { name: 'USP-S | Printstream', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Printstream.webp' },
@@ -608,7 +673,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAC-10 | Monkeyflage', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Monkeyflage.webp' },
                 { name: 'Negev | Drop Me', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Drop_Me.webp' },
                 { name: 'UMP-45 | Roadblock', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Roadblock.webp' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case6': [ // Dreams & Nightmares Case
                 { name: 'AK-47 | Nightwish', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Nightwish.webp' },
@@ -628,7 +693,7 @@ else if (activeUser === 'guest') {
                 { name: 'MP5-SD | Necro Jr.', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Necro_Jr..webp' },
                 { name: 'MAG-7 | Foresight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Foresight.webp' },
                 { name: 'P2000 | Lifted Spirits', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Lifted_Spirits.webp' },
-                { name: 'Falchion Knife', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case7': [ // Operation Riptide Case
                 { name: 'AK-47 | Leet Museo', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Leet_Museo.webp' },
@@ -648,7 +713,7 @@ else if (activeUser === 'guest') {
                 { name: 'PP-Bizon | Lumen', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Lumen.webp' },
                 { name: 'USP-S | Black Lotus', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Black_Lotus.webp' },
                 { name: 'XM1014 | Watchdog', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Watchdog.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case8': [ // Snakebite Case
                 { name: 'M4A4 | In Living Color', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_In_Living_Color.webp' },
@@ -668,7 +733,7 @@ else if (activeUser === 'guest') {
                 { name: 'R8 Revolver | Junk Yard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Junk_Yard.webp' },
                 { name: 'SG 553 | Heavy Metal', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Heavy_Metal.webp' },
                 { name: 'UMP-45 | Oscillator', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Oscillator.webp' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case9': [ // Operation Broken Fang Case
                 { name: 'Glock-18 | Neo-Noir', rarity: 'Covert', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_glock_cu_glock_noir_light.png' },
@@ -688,7 +753,7 @@ else if (activeUser === 'guest') {
                 { name: 'MP5-SD | Condition Zero', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_mp5sd_gs_mp5_conditionzero_light.png' },
                 { name: 'P250 | Contaminant', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_p250_cu_p250_infect_light.png' },
                 { name: 'P90 | Cocoa Rampage', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_p90_hy_p90_dino_rampage_light.png' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case10': [ // Fracture Case
                 { name: 'Desert Eagle | Printstream', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Printstream.webp' },
@@ -708,7 +773,7 @@ else if (activeUser === 'guest') {
                 { name: 'P90 | Freight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Freight.webp' },
                 { name: 'SG 553 | Ol\' Rusty', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_sg556_gs_sg553_rusty_light.png' },
                 { name: 'Negev | Ultralight', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Ultralight.webp' },
-                { name: 'Nomad Knife', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case11': [ // Prisma 2 Case
                 { name: 'M4A1-S | Player Two', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Player_Two.webp' },
@@ -728,7 +793,7 @@ else if (activeUser === 'guest') {
                 { name: 'R8 Revolver | Bone Forged', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Bone_Forged.webp' },
                 { name: 'MP5-SD | Desert Strike', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP5-SD_Desert_Strike.webp' },
                 { name: 'CZ75-Auto | Distressed', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Distressed.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case12': [ // CS20 Case
                 { name: 'AWP | Wildfire', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Wildfire.webp' },
@@ -748,7 +813,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAG-7 | Popdog', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Popdog.webp' },
                 { name: 'SCAR-20 | Assault', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Assault.webp' },
                 { name: 'Tec-9 | Flash Out', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Flash_Out.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case13': [ // Shattered Web Case
                 { name: 'AWP | Containment Breach', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Containment_Breach.webp' },
@@ -768,7 +833,7 @@ else if (activeUser === 'guest') {
                 { name: 'R8 Revolver | Memento', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Memento.webp' },
                 { name: 'M249 | Warbird', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M249_Warbird.webp' },
                 { name: 'SCAR-20 | Torn', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Torn.webp' },
-                { name: 'Nomad Knife', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case14': [ // Prisma Case
                 { name: 'M4A4 | The Emperor', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_The_Emperor.webp' },
@@ -788,7 +853,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAC-10 | Whitefish', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Whitefish.webp' },
                 { name: 'MP7 | Mischief', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Mischief.webp' },
                 { name: 'P90 | Off World', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Off_World.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case15': [ // Danger Zone Case
                 { name: 'AWP | Neo-Noir', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Neo-Noir.webp' },
@@ -808,7 +873,7 @@ else if (activeUser === 'guest') {
                 { name: 'Nova | Wood Fired', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Wood_Fired.webp' },
                 { name: 'SG 553 | Danger Close', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Danger_Close.webp' },
                 { name: 'Sawed-Off | Black Sand', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Black_Sand.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case16': [ // Horizon Case
                 { name: 'AK-47 | Neon Rider', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Neon_Rider.webp' },
@@ -828,7 +893,7 @@ else if (activeUser === 'guest') {
                 { name: 'Dual Berettas | Shred', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Shred.webp' },
                 { name: 'AUG | Amber Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Amber_Slipstream.webp' },
                 { name: 'R8 Revolver | Survivalist', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Survivalist.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case17': [ // Clutch Case
                 { name: 'M4A4 | Neo-Noir', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Neo-Noir.webp' },
@@ -848,7 +913,7 @@ else if (activeUser === 'guest') {
                 { name: 'XM1014 | Oxide Blaze', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Oxide_Blaze.webp' },
                 { name: 'MP9 | Black Sand', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Black_Sand.webp' },
                 { name: 'PP-Bizon | Night Riot', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Night_Riot.webp' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case18': [ // Spectrum 2 Case
                 { name: 'AK-47 | The Empress', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_The_Empress.webp' },
@@ -868,7 +933,7 @@ else if (activeUser === 'guest') {
                 { name: 'SCAR-20 | Jungle Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Jungle_Slipstream.webp' },
                 { name: 'G3SG1 | Hunter', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Hunter.webp' },
                 { name: 'Sawed-Off | Morris', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Morris.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case19': [ // Operation Hydra Case
                 { name: 'AWP | Oni Taiji', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Oni_Taiji.webp' },
@@ -888,7 +953,7 @@ else if (activeUser === 'guest') {
                 { name: 'FAMAS | Macabre', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Macabre.webp' },
                 { name: 'Tec-9 | Cut Out', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Cut_Out.webp' },
                 { name: 'MAC-10 | Aloha', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Aloha.webp' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case20': [ // Spectrum Case
                 { name: 'AK-47 | Bloodsport', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Bloodsport.webp' },
@@ -908,7 +973,7 @@ else if (activeUser === 'guest') {
                 { name: 'PP-Bizon | Jungle Slipstream', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Jungle_Slipstream.webp' },
                 { name: 'MP7 | Akoben', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Akoben.webp' },
                 { name: 'Sawed-Off | Zander', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Zander.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case21': [ // Glove Case
                 { name: 'M4A4 | Buzz Kill', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Buzz_Kill.webp' },
@@ -928,7 +993,7 @@ else if (activeUser === 'guest') {
                 { name: 'CZ75-Auto | Polymer', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Polymer.webp' },
                 { name: 'MAG-7 | Sonar', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Sonar.webp' },
                 { name: 'MP9 | Sand Scale', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Sand_Scale.webp' },
-                { name: 'Eldiven', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case22': [ // Gamma 2 Case
                 { name: 'AK-47 | Neon Revolution', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Neon_Revolution.webp' },
@@ -948,7 +1013,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAG-7 | Petroglyph', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Petroglyph.webp' },
                 { name: 'Negev | Dazzle', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Dazzle.webp' },
                 { name: 'P250 | Iron Clad', rarity: 'Mil-Spec Grade', image: '' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case23': [ // Gamma Case
                 { name: 'M4A1-S | Mecha Industries', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Mecha_Industries.webp' },
@@ -968,7 +1033,7 @@ else if (activeUser === 'guest') {
                 { name: 'AUG | Aristocrat', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Aristocrat.webp' },
                 { name: 'M4A4 | Desolate Space', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Desolate_Space.webp' },
                 
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case24': [ // Chroma 3 Case
                 { name: 'M4A1-S | Chantico\'s Fire', rarity: 'Covert', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_m4a1_silencer_cu_m4a1s_soultaker_light.png' },
@@ -988,7 +1053,7 @@ else if (activeUser === 'guest') {
                 { name: 'G3SG1 | Orange Crash', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Orange_Crash.webp' },
                 { name: 'Sawed-Off | Fubar', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Fubar.webp' },
                 { name: 'AUG | Fleet Flock', rarity: 'Classified', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Fleet_Flock.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+ 
             ],
             'case25': [ // Operation Wildfire Case
                 { name: 'AK-47 | Fuel Injector', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Fuel_Injector.webp' },
@@ -1008,7 +1073,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAC-10 | Lapis Gator', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAC-10_Lapis_Gator.webp' },
                 
                 { name: 'SSG 08 | Necropos', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Necropos.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case26': [ // Revolver Case
                 { name: 'R8 Revolver | Fade', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Fade.webp' },
@@ -1028,7 +1093,7 @@ else if (activeUser === 'guest') {
                 { name: 'PP-Bizon | Fuel Rod', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Fuel_Rod.webp' },
                 { name: 'Sawed-Off | Yorick', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Yorick.webp' },
                 { name: 'R8 Revolver | Crimson Web', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/R8_Revolver_Crimson_Web.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case27': [ // Shadow Case
                 { name: 'USP-S | Kill Confirmed', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/USP-S_Kill_Confirmed.webp' },
@@ -1048,7 +1113,7 @@ else if (activeUser === 'guest') {
                 { name: 'XM1014 | Scumbria', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Scumbria.webp' },
                 { name: 'MAG-7 | Cobalt Core', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Cobalt_Core.webp' },
                 
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case28': [ // Falchion Case
                 { name: 'AK-47 | Aquamarine Revenge', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Aquamarine_Revenge.webp' },
@@ -1068,7 +1133,7 @@ else if (activeUser === 'guest') {
                 { name: 'Galil AR | Rocket Pop', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Rocket_Pop.webp' },
                 
                 { name: 'Nova | Ranger', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Ranger.webp' },
-                { name: 'Falchion Knife', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case29': [ // Chroma 2 Case
                 { name: 'M4A1-S | Hyper Beast', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Hyper_Beast.webp' },
@@ -1086,7 +1151,7 @@ else if (activeUser === 'guest') {
                 { name: 'Sawed-Off | Origami', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Origami.webp' },
                 { name: 'Negev | Man-o\'-war', rarity: 'Mil-Spec Grade', image: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/efe25483a04a03414dea9c61d4b0e958a373cdfd/public/images/econ/default_generated/weapon_negev_am_negev_glory_light.png' },
                 { name: 'MP7 | Armor Core', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Armor_Core.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case30': [ // Chroma Case
                 { name: 'Galil AR | Chatterbox', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Chatterbox.webp' },
@@ -1103,7 +1168,7 @@ else if (activeUser === 'guest') {
                 { name: 'MP9 | Deadly Poison', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Deadly_Poison.webp' },
                 { name: 'SCAR-20 | Grotto', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Grotto.webp' },
                 { name: 'XM1014 | Quicksilver', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/XM1014_Quicksilver.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case31': [ // Operation Vanguard Weapon Case
                 { name: 'AK-47 | Wasteland Rebel', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Wasteland_Rebel.webp' },
@@ -1120,7 +1185,7 @@ else if (activeUser === 'guest') {
                 { name: 'MAG-7 | Firestarter', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Firestarter.webp' },
                 { name: 'MP9 | Dart', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP9_Dart.webp' },
                 { name: 'Sawed-Off | Highwayman', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Sawed-Off_Highwayman.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case32': [ // eSports 2014 Summer Case
                 { name: 'AK-47 | Jaguar', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Jaguar.webp' },
@@ -1140,7 +1205,7 @@ else if (activeUser === 'guest') {
                 { name: 'Desert Eagle | Crimson Web', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/Desert_Eagle_Crimson_Web.webp' },
                 { name: 'Negev | Bratatat', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Bratatat.webp' },
                 { name: 'P90 | Virus', rarity: 'Restricted', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Virus.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case33': [ // Operation Breakout Weapon Case
                 { name: 'M4A1-S | Cyrex', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A1-S_Cyrex.webp' },
@@ -1158,7 +1223,7 @@ else if (activeUser === 'guest') {
                 { name: 'UMP-45 | Labyrinth', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/UMP-45_Labyrinth.webp' },
                 { name: 'Negev | Desert-Strike', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Desert-Strike.webp' },
                 
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case34': [ // Huntsman Weapon Case
                 { name: 'P90 | Desert Warfare', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Desert_Warfare.webp' }, 
@@ -1181,7 +1246,7 @@ else if (activeUser === 'guest') {
                 { name: 'SSG 08 | Slashed', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Slashed.webp' },
                 { name: 'CZ75-Auto | Poison Dart', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Poison_Dart.webp' },
                 { name: 'Galil AR | Kami', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Kami.webp' },
-                { name: 'Huntsman Knife', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case35': [ // Operation Phoenix Weapon Case
                 { name: 'AWP | Asiimov', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Asiimov.webp', minFloat: 0.18, maxFloat: 1.00 },
@@ -1197,7 +1262,7 @@ else if (activeUser === 'guest') {
                 { name: 'Tec-9 | Sandstorm', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Tec-9_Sandstorm.webp' },
                 { name: 'MAG-7 | Heaven Guard', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Heaven_Guard.webp' },
                 { name: 'Negev | Terrain', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Negev_Terrain.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case36': [ // CS:GO Weapon Case 3
                 { name: 'CZ75-Auto | Victoria', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Victoria.webp' },
@@ -1212,7 +1277,7 @@ else if (activeUser === 'guest') {
                 { name: 'CZ75-Auto | Crimson Web', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/CZ75-Auto_Crimson_Web.webp' },
                 { name: 'Dual Berettas | Panther', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Panther.webp' },
                 { name: 'P2000 | Red FragCam', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P2000_Red_FragCam.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case37': [ // Winter Offensive Weapon Case
                 { name: 'M4A4 | Asiimov', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Asiimov.webp' },
@@ -1228,7 +1293,7 @@ else if (activeUser === 'guest') {
                 { name: 'Five-SeveN | Kami', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Kami.webp' },
                 { name: 'Galil AR | Sandstorm', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Galil_AR_Sandstorm.webp' },
                 { name: 'PP-Bizon | Cobalt Halftone', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/PP-Bizon_Cobalt_Halftone.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case38': [ // eSports 2013 Winter Case
                 { name: 'M4A4 | X-Ray', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_X-Ray.webp' },
@@ -1243,7 +1308,7 @@ else if (activeUser === 'guest') {
                 { name: 'G3SG1 | Azure Zebra', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/G3SG1_Azure_Zebra.webp' },
                 { name: 'Five-SeveN | Nightshade', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Five-SeveN_Nightshade.webp' },
                 { name: 'Nova | Ghost Camo', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Ghost_Camo.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case39': [ // CS:GO Weapon Case 2
                 { name: 'SSG 08 | Blood in the Water', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/SSG_08_Blood_in_the_Water.webp' },
@@ -1258,7 +1323,7 @@ else if (activeUser === 'guest') {
                 { name: 'P250 | Hive', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/P250_Hive.webp' },
                 { name: 'FAMAS | Hexane', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Hexane.webp' },
                 { name: 'SCAR-20 | Crimson Web', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SCAR-20_Crimson_Web.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case40': [ // Operation Bravo Case
                 { name: 'AK-47 | Fire Serpent', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AK-47_Fire_Serpent.webp' },
@@ -1276,7 +1341,7 @@ else if (activeUser === 'guest') {
                 { name: 'SG 553 | Wave Spray', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Wave_Spray.webp' },
                 { name: 'Dual Berettas | Black Limba', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Dual_Berettas_Black_Limba.webp' },
                 { name: 'Nova | Tempest', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/Nova_Tempest.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case41': [ // eSports 2013 Case
                 { name: 'P90 | Death by Kitty', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/P90_Death_by_Kitty.webp' },
@@ -1288,7 +1353,7 @@ else if (activeUser === 'guest') {
                 { name: 'M4A4 | Faded Zebra', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/M4A4_Faded_Zebra.webp' },
                 { name: 'FAMAS | Doomkitty', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/FAMAS_Doomkitty.webp' },
                 { name: 'MAG-7 | Memento', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MAG-7_Memento.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ],
             'case42': [ // CS:GO Weapon Case
                 { name: 'AWP | Lightning Strike', rarity: 'Covert', image: 'https://www.csgodatabase.com/images/skins/webp/AWP_Lightning_Strike.webp' },
@@ -1300,7 +1365,7 @@ else if (activeUser === 'guest') {
                 { name: 'AUG | Wings', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/AUG_Wings.webp' },
                 { name: 'SG 553 | Ultraviolet', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/SG_553_Ultraviolet.webp' },
                 { name: 'MP7 | Skulls', rarity: 'Mil-Spec Grade', image: 'https://www.csgodatabase.com/images/skins/webp/MP7_Skulls.webp' },
-                { name: 'Bıçak', rarity: 'Rare Special Item', image: '' }
+
             ]
         };
         // *** BİTİŞ: DOĞRULANMIŞ VE DÜZELTİLMİŞ KASA VERİLERİ ***
@@ -1453,10 +1518,10 @@ function selectCase(caseData) {
     displayPossibleDrops(caseData.id);
 }
 
-        // Function to get a random skin based on rarity odds
+// --- ESKİ getRandomSkin FONKSİYONUNU SİL VE BUNU YAPIŞTIR ---
+
 function getRandomSkin(caseId) {
-    const caseSpecificDrops = caseDrops[caseId];
-    let possibleSkins = [];
+    // 1. ADIM: Hangi nadirlikte eşya düşeceğine karar ver. (Bu kısım aynı)
     let cumulativeOdds = 0;
     const rarityDistribution = [];
     for (const rarityKey in skinRarities) {
@@ -1464,40 +1529,53 @@ function getRandomSkin(caseId) {
         cumulativeOdds += skinRarities[rarityKey].odds;
         rarityDistribution.push({ rarityKey, cumulativeOdds });
     }
-    let rand = Math.random();
-    let chosenRarityKey = null;
+    const rand = Math.random();
+    let chosenRarityKey = 'Mil-Spec Grade'; // Varsayılan
     for (let i = 0; i < rarityDistribution.length; i++) {
         if (rand < rarityDistribution[i].cumulativeOdds) {
             chosenRarityKey = rarityDistribution[i].rarityKey;
             break;
         }
     }
-    if (!chosenRarityKey) {
-        chosenRarityKey = 'Mil-Spec Grade';
-    }
     const chosenRarityInfo = skinRarities[chosenRarityKey];
 
-    if (caseSpecificDrops) {
-        const filteredByRarity = caseSpecificDrops.filter(skin => skin.rarity === chosenRarityKey);
-        if (filteredByRarity.length > 0) {
-            possibleSkins = filteredByRarity;
+    // 2. ADIM: DÜŞEN NADİRLİĞE GÖRE DOĞRU LİSTEYİ SEÇME (YENİ MANTIK)
+    
+    // EĞER NADİR EŞYA (BIÇAK/ELDİVEN) DÜŞTÜYSE...
+    if (chosenRarityKey === 'Rare Special Item') {
+        const rareItems = rareItemPools[caseId]; // Yeni nadir eşya veritabanına bak
+        if (rareItems && rareItems.length > 0) {
+            // Eğer o kasa için nadir eşya tanımlıysa, bir tane rastgele seç
+            const randomIndex = Math.floor(Math.random() * rareItems.length);
+            const selectedRareItem = rareItems[randomIndex];
+            
+            // Seçilen bıçağın/eldivenin bilgilerini standart formata getirip gönder
+            const randomFloat = Math.random(); // 0.00 ile 1.00 arası rastgele float
+            const wearInfo = getWearInfo(randomFloat);
+
+            return {
+                name: selectedRareItem.name,
+                image: selectedRareItem.image,
+                rarity: 'Rare Special Item', // Nadirliği elle ekliyoruz
+                color: chosenRarityInfo.color,
+                float: randomFloat,
+                wear: wearInfo
+            };
         }
     }
+
+    // EĞER NORMAL BİR DESEN DÜŞTÜYSE... (Eski mantık burada devam ediyor)
+    const caseSpecificDrops = caseDrops[caseId] || [];
+    const possibleSkins = caseSpecificDrops.filter(skin => skin.rarity === chosenRarityKey);
+
     if (possibleSkins.length === 0) {
-        const genericPattern = defaultPatterns.find(p => p.rarity === chosenRarityKey);
-        return {
-            name: `Genel Desen (${chosenRarityKey})`,
-            rarity: chosenRarityKey,
-            image: `https://placehold.co/200x200/555555/ffffff?text=Hata`,
-            color: chosenRarityInfo.color,
-            float: 0.5,
-            wear: getWearInfo(0.5)
-        };
+        // Eğer o nadirlikte bir desen bulunamazsa, hata deseni oluştur (bu bir güvenlik önlemi)
+        return { name: `Hata: ${chosenRarityKey} bulunamadı`, rarity: chosenRarityKey, image: '', color: 'text-gray-400', float: 0.5, wear: getWearInfo(0.5) };
     }
 
+    // Normal desenlerden birini rastgele seç
     const randomIndex = Math.floor(Math.random() * possibleSkins.length);
     const selectedSkin = possibleSkins[randomIndex];
-
     const minFloat = selectedSkin.minFloat || 0.00;
     const maxFloat = selectedSkin.maxFloat || 1.00;
     const randomFloat = minFloat + Math.random() * (maxFloat - minFloat);
@@ -1511,43 +1589,66 @@ function getRandomSkin(caseId) {
         float: randomFloat,
         wear: wearInfo
     };
-};
+}
+// --- YENİ FONKSİYONUN SONU ---
 
-        // Function to display all possible drops for a given case
-        function displayPossibleDrops(caseId) {
-            possibleDropsContainer.innerHTML = '<h3 class="col-span-full text-xl font-bold text-yellow-300 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>'; // Clear and add title
-            possibleDropsContainer.classList.remove('hidden'); // Ensure it's visible
+// --- ESKİ displayPossibleDrops FONKSİYONUNU TEKRAR SİL VE BUNU YAPIŞTIR ---
 
-            // Get drops either from specific caseDrops or generate default ones
-            let dropsToDisplay = [];
-            if (caseDrops[caseId]) {
-                dropsToDisplay = [...caseDrops[caseId]]; // Use spread to create a new array
-            } else {
-                // If no specific drops, use generic patterns as placeholders
-                dropsToDisplay = defaultPatterns.map(p => ({
-                    name: `${p.name} (${skinRarities[p.rarity].name.split(' ')[0]})`,
-                    rarity: p.rarity,
-                    image: `https://placehold.co/200x200/${skinRarities[p.rarity].imageColor}/ffffff?text=${encodeURIComponent(p.name.replace(/\s/g, '%20'))}%0A(${encodeURIComponent(skinRarities[p.rarity].name.split(' ')[0])})`
-                }));
-            }
+function displayPossibleDrops(caseId) {
+    const normalDropsDiv = document.getElementById('possibleDropsContainer');
+    const rareDropsDiv = document.getElementById('rareDropsContainer');
+    normalDropsDiv.innerHTML = '<h3 class="col-span-full text-xl font-bold text-white-400 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>';
+    rareDropsDiv.innerHTML = '<h3 class="col-span-full text-2xl font-bold text-yellow-300 mb-4 text-center">Kasadan Çıkabilecek Nadir Desenler</h3>';
 
-            // Sort by rarity for consistent display (Rare Special Item, Covert, Classified, Restricted, Mil-Spec Grade)
-            const rarityOrder = ['Contraband', 'Rare Special Item', 'Covert', 'Classified', 'Restricted', 'Mil-Spec Grade'];
-            dropsToDisplay.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+    // 1. ADIM: NORMAL DESENLERİ YERLEŞTİRME
+    const allSkinsInCase = caseDrops[caseId] || [];
+    const normalSkins = allSkinsInCase.filter(skin => skin.rarity !== 'Rare Special Item');
+    const rarityOrder = ['Covert', 'Classified', 'Restricted', 'Mil-Spec Grade'];
+    normalSkins.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
 
+    normalSkins.forEach(skin => {
+        const rarityInfo = skinRarities[skin.rarity];
+        const skinDiv = document.createElement('div');
+        // Dış taşıyıcıya 'skin-item-preview' sınıfını veriyoruz.
+        skinDiv.classList.add('skin-item-preview'); 
 
-            dropsToDisplay.forEach(skin => {
-                const rarityInfo = skinRarities[skin.rarity];
-                const skinDiv = document.createElement('div');
-                skinDiv.classList.add('skin-item-preview'); // Use the new specific class
-                skinDiv.innerHTML = `
-                    <img src="${skin.image}" alt="${skin.name}" onerror="this.onerror=null; this.src='https://placehold.co/80x80/555555/ffffff?text=Resim+Yok';">
-                    <p class="text-white">${skin.name}</p>
-                    <div class="rarity-bar ${rarityInfo.barColor}"></div>
-                `;
-                possibleDropsContainer.appendChild(skinDiv);
-            });
-        }
+        // HTML'i yeni yapımıza göre oluşturuyoruz: Kutu ve isim ayrı.
+        skinDiv.innerHTML = `
+            <div class="skin-item-box">
+                <img src="${skin.image}" alt="${skin.name}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/555555/ffffff?text=Hata';">
+                <div class="rarity-bar ${rarityInfo.barColor}"></div>
+            </div>
+            <p class="skin-item-name text-white">${skin.name}</p>
+        `;
+        normalDropsDiv.appendChild(skinDiv);
+    });
+
+    // 2. ADIM: NADİR DESENLERİ YERLEŞTİRME
+    const rareSkinsInCase = rareItemPools[caseId] || [];
+    if (rareSkinsInCase.length > 0) {
+        rareDropsDiv.classList.remove('hidden');
+
+        rareSkinsInCase.forEach(rareItem => {
+            const skinDiv = document.createElement('div');
+            // Dış taşıyıcıya 'skin-item-preview' sınıfını veriyoruz.
+            skinDiv.classList.add('skin-item-preview');
+
+            // HTML'i yeni yapımıza göre oluşturuyoruz: Kutu ve isim ayrı.
+            skinDiv.innerHTML = `
+                <div class="skin-item-box border border-yellow-500 bg-yellow-500/10">
+                    <img src="${rareItem.image}" alt="${rareItem.name}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/555555/ffffff?text=Hata';">
+                    <div class="rarity-bar bg-yellow-400"></div>
+                </div>
+                <p class="skin-item-name text-yellow-200">${rareItem.name}</p>
+            `;
+            rareDropsDiv.appendChild(skinDiv);
+        });
+    } else {
+        rareDropsDiv.classList.add('hidden');
+    }
+}
+
+// --- YENİ FONKSİYONUN SONU ---
 
 function openCase() {
     // Eğer bir kasa seçilmemişse hiçbir şey yapma
