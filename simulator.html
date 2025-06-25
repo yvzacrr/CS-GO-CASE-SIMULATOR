@@ -279,12 +279,15 @@
         }
 /* --- YUKARIDAKİ ESKİ KODU SİLİP BUNU YAPIŞTIR --- */
 
+/* BULMAN GEREKEN ESKİ STİLLER: .skin-item-preview, .skin-item-preview img, .skin-item-preview p */
+/* BU ESKİ STİLLERİ SİLİP YERİNE AŞAĞIDAKİ YENİ GRUBU YAPIŞTIR */
+
 /* Her bir desenin genel taşıyıcısı (Kutu + Altındaki İsim) */
 .skin-item-preview {
     display: flex;
-    flex-direction: column; /* İçindekileri alt alta sırala (önce kutu, sonra isim) */
+    flex-direction: column;
     align-items: center;
-    width: 110px; /* Genel genişliği ayarla */
+    width: 120px; 
 }
 
 /* Sadece desenin resmini ve nadirlik çubuğunu içeren GÖRSEL KUTU */
@@ -292,30 +295,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Resmi ortala */
+    justify-content: center;
     background-color: rgba(45, 55, 72, 0.7);
-    padding: 0.5rem; /* İç boşluğu biraz azalttık */
+    padding: 0.25rem;
     border-radius: 0.5rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    width: 110px; /* Kutunun genişliği */
-    height: 110px; /* Kutunun yüksekliği (kare yaptık) */
-    margin-bottom: 0.5rem; /* Altındaki isimle arasına boşluk koy */
+    width: 120px;
+    height: 125px;
+    margin-bottom: 0.5rem;
 }
 
 /* Kutu içindeki DESEN RESMİ */
 .skin-item-box img {
-    width: 100px; /* Resmi büyüttük! */
-    height: 100px; /* Resmi büyüttük! */
+    width: 116px;
+    height: 121px;
     object-fit: contain;
     border-radius: 0.25rem;
-}
-
-/* Nadirlik çubuğu (bu zaten vardı, sadece burada da bulunsun) */
-#possibleDropsContainer .rarity-bar {
-    width: 80%;
-    height: 3px;
-    border-radius: 9999px;
-    margin-top: 0.25rem;
 }
 
 /* Kutunun ALTINDAKİ İSİM */
@@ -326,7 +321,7 @@
     text-align: center;
     white-space: normal;
     word-break: break-word;
-    height: 32px; /* İsimlerin hepsini aynı yükseklikte tutarak hizalama sorununu çözer */
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -357,7 +352,7 @@
         <input type="search" id="searchBar" placeholder="Kasa ara..." class="w-full max-w-md mx-auto p-2 rounded-lg mb-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 block">
 
         <!-- KASA SEÇİM MENÜSÜ -->
-        <div id="caseSelectionMenu" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-x-3 gap-y-6 justify-items-center">
+        <div id="caseSelectionMenu" class="grid grid-cols-7 gap-4 justify-items-center">
             <!-- KASALAR BURAYA JAVASCRIPT İLE EKLENECEK -->
         </div>
 
@@ -382,7 +377,7 @@
 </div>
 
             <!-- Bu kasadan çıkabilecekler listesi -->
-            <div id="possibleDropsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full">
+            <div id="possibleDropsContainer" class="mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full">
                 <h3 class="col-span-full text-xl font-bold text-white-400 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>
                 <!-- Skins will be loaded here by JavaScript -->
             </div>
@@ -395,7 +390,7 @@
     <div id="inventorySection" class="main-content-wrapper hidden">
     <h1 class="text-4xl font-bold mb-8 text-white text-center">Envanter</h1>
 
-    <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-x-3 gap-y-6 justify-items-center">
+    <div id="inventoryGrid" class="grid grid-cols-7 gap-4 justify-items-center">
         </div>
 </div>
     <!-- Sıkça Sorulan Sorular bölümü -->
@@ -542,31 +537,91 @@ else if (activeUser === 'guest') {
 // Kendi bıçak/eldiven resimlerini ve isimlerini buraya gireceksin.
 const rareItemPools = {
     'case1': [ 
-        { name: 'Kukri Knife | Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aa_fade_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Slaughter', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_am_zebra_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Crimson Web', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_webs_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Case Hardened', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_oiled_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Vanilla', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fweapons%2Fbase_weapons%2Fweapon_knife_kukri_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Blue Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_blued_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Boreal Forest', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_forest_boreal_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Forest DDPAT', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_ddpat_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Night Stripe', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_nightstripe_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Safari Mesh', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_mesh_tan_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Scorched', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_dapple_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Stained', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_forced_light_png.png&w=160&h=120' },
-        { name: 'Kukri Knife | Urban Masked', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_tape_urban_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aa_fade_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Slaughter', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_am_zebra_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Crimson Web', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_webs_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Case Hardened', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_oiled_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Vanilla', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fweapons%2Fbase_weapons%2Fweapon_knife_kukri_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Blue Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_blued_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Boreal Forest', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_forest_boreal_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Forest DDPAT', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_ddpat_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Night Stripe', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_nightstripe_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Safari Mesh', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_mesh_tan_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Scorched', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_dapple_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Stained', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_forced_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Urban Masked', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_tape_urban_light_png.png&w=160&h=120' },
         // İstediğin kadar Kukri bıçağını bu şekilde ekleyebilirsin.
     ],
-    'case2': [ // Örnek: Revolution Kasası (Eldivenler)
-        { name: 'Sport Gloves | Vice', image: 'RESIM_URLSI_BURAYA' },
-        { name: 'Sport Gloves | Pandora\'s Box', image: 'RESIM_URLSI_BURAYA' },
-        { name: 'Sport Gloves | Amphibious', image: 'RESIM_URLSI_BURAYA' },
-        { name: 'Sport Gloves | Omega', image: 'RESIM_URLSI_BURAYA' }
-         // İstediğin kadar eldiveni bu şekilde ekleyebilirsin.
+    'case2': [ 
+        { name: '★ Nomad Knife | Damascus Steel', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9vdXRkb29yX2FxX2RhbWFzY3VzX2xpZ2h0LmZkOGIxNWVlMWVjNzQ0MDRkZTU5ZTQyZDA5ZjViMmU1NWYyMWRmY2IucG5n/auto/auto/85/notrim/c95edc2c7e2e40e7431a691f23e9cb5d.webp' },
+        { name: '★ Nomad Knife | Doppler', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9vdXRkb29yX2FtX2RvcHBsZXJfcGhhc2UxX2xpZ2h0Ljg4MmQ1M2Y3ZGEyMDA3YTIyNDA0ZGI3N2E2NzFhNmZjODNjZjM0MmMucG5n/auto/auto/85/notrim/ca0ede976704bd1e4cbaa18cf821ff54.webp' },
+        { name: '★ Nomad Knife | Marble Fade', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9vdXRkb29yX2FtX21hcmJsZV9mYWRlX2xpZ2h0LjM1N2Y1ZWFlZTU5YzQwN2M2OGVjNjkzNjJjYjgxOGFjOWFlOTFiZDQucG5n/auto/auto/85/notrim/e52debdd0094dfe6124baa170e391e15.webp' },
+        { name: '★ Nomad Knife | Rust Coat', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9vdXRkb29yX2FxX3N0ZWVsX2tuaWZlX2xpZ2h0LmE5ZjUzYWQ0OWRlNWU3NTJlZDQ0YThjZjczMGVhZjg1YmViODZjMTYucG5n/auto/auto/85/notrim/87ee77766a1b6d720b6a863c8822f5ef.webp' },
+        { name: '★ Nomad Knife | Tiger Tooth', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9vdXRkb29yX2FuX3RpZ2VyX29yYW5nZV9saWdodC5mY2MzNDNkMjllNGI0YWJmZDZjZDZiNzkzZDZkYWZiNTk3NGIxM2M5LnBuZw--/auto/auto/85/notrim/908d9747e7c8158777aaab570ac2a586.webp' },
+        { name: '★ Nomad Knife | Ultraviolet', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9vdXRkb29yX3NvX3B1cnBsZV9saWdodC4xNjY0OWEyMjgyMjhjOTFmOTk0NDI2ZTcyMTNkNWIwMjEyZjZkOTJmLnBuZw--/auto/auto/85/notrim/c6514926f5ff263074172004373d9cca.webp' },
+        { name: '★ Paracord Knife | Ultraviolet', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jb3JkX3NvX3B1cnBsZV9mYWxjaGlvbl9saWdodC5jODYwOTE4ZWM1MzIyY2M5Yjk1YWNkOTllMTk2YTU3MDI0MGY5NmQxLnBuZw--/auto/auto/85/notrim/f822f6ea1e95a92e2c432a50e7884dcf.webp' },
+        { name: '★ Paracord Knife | Tiger Tooth', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jb3JkX2FuX3RpZ2VyX29yYW5nZV9saWdodC5mYzk0NmU4NTQ5ZjA0ZmM1MzdmYzQzNzlmNzM3MjkyODFjYTM4Y2MwLnBuZw--/auto/auto/85/notrim/38d973d2e4c5362cd5990b3b555f61e4.webp' },
+        { name: '★ Paracord Knife | Damascus Steel', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jb3JkX2FxX2RhbWFzY3VzX2xpZ2h0LmIzOGYyNzkwYjU4NzE0MzEyMWE5MmI4MzYxODIwNTE2NzUzM2NiMjgucG5n/auto/auto/85/notrim/a49e2e7c2ec18425030f283a55e8252d.webp' },
+        { name: '★ Paracord Knife | Rust Coat', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jb3JkX2FxX3N0ZWVsX2tuaWZlX2xpZ2h0Ljk0Y2NjZmNmYTFmMzA5YjAyMWZjODMyOTVjYjUyNDRlYWU4ZGNlZjgucG5n/auto/auto/85/notrim/f1ebfeeb0eae94b7f9282dabf2b908be.webp' },
+        { name: '★ Paracord Knife | Marble Fade', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jb3JkX2FtX21hcmJsZV9mYWRlX2xpZ2h0LjgzNDVhYmJlNzQ2ZTczOGEwODA5NDM3ODQ5NGZlNTVhODZmYTNmNTQucG5n/auto/auto/85/notrim/adfae261c127a0957e910a8bd5396388.webp' },
+        { name: '★ Paracord Knife | Doppler', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jb3JkX2FtX2RvcHBsZXJfcGhhc2UxX2xpZ2h0LmJhYzM5NzBlNDNlZmE2YjBhNTk4YjU3ZThmYmEwMTJkNWE2YTQyZDgucG5n/auto/auto/85/notrim/3d815ae94218741fcadb76d377232405.webp' },
+        { name: '★ Survival Knife | Doppler', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jYW5pc19hbV9kb3BwbGVyX3BoYXNlMV9saWdodC41NTE4YTA1MmI5OTc5N2QwZDNmMTc1ZDViNTk5NTFkNTBiZDkxZmM0LnBuZw--/auto/auto/85/notrim/da4f88907d356b92ba1f217fb9f86924.webp' },
+        { name: '★ Survival Knife | Damascus Steel', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jYW5pc19hcV9kYW1hc2N1c19saWdodC44ZjIzYzY2N2FkMGM3NWZjMTM4MGNkYWNlMGZkN2E4ZGY2NWEyNjhjLnBuZw--/auto/auto/85/notrim/2cc90da07bd2c7d28ebf1ed12bf3a9f9.webp' },
+        { name: '★ Survival Knife | Rust Coat', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jYW5pc19hcV9zdGVlbF9rbmlmZV9saWdodC5hMTk0ZTI1ZGI1OGI4ZWQ1ZTY0MjE5ZjQzOWE2NzhmNzk3NjMyYTAxLnBuZw--/auto/auto/85/notrim/96b8ed90b5191e850be19cd2adbd2caf.webp' },
+        { name: '★ Survival Knife | Tiger Tooth', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jYW5pc19hbl90aWdlcl9vcmFuZ2VfbGlnaHQuZDgyN2VjMzE1NmI3ZTE2OTA4YjVjZmEyMGUxNDA5MDdlMGFmMjMxYi5wbmc-/auto/auto/85/notrim/a0b8d42ecd2e5e2a6100e59a855ae71d.webp' },
+        { name: '★ Survival Knife | Ultraviolet', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jYW5pc19zb19wdXJwbGVfbGlnaHQuYWYwZjg1MGJlOWZhNTZkZGFjNzUzNmUzMjY3NGU3MWIzMjg3YmFiZC5wbmc-/auto/auto/85/notrim/e02ecb586e7cc472e8b8196abf8dc830.webp' },
+        { name: '★ Survival Knife | Marble Fade', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9jYW5pc19hbV9tYXJibGVfZmFkZV9saWdodC40OWE2YjBkMDEzNDkwZTllZjE5Nzk0OTQxNDg5OTc2ZTlmMjU0ZDQ3LnBuZw--/auto/auto/85/notrim/39b4f8e8c9bc9f85bbe5e9ff84afb814.webp' },
+        { name: '★ Skeleton Knife | Damascus Steel', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9za2VsZXRvbl9hcV9kYW1hc2N1c19saWdodC40OWYzZmY5NGUxNWJjNWIyYTQ1OWNiYzE0MDkwNGQ2NmQ3MDM0NzJjLnBuZw--/auto/auto/85/notrim/7e2c3bc7968959c1ecf7a2a21c1da777.webp' },
+        { name: '★ Skeleton Knife | Doppler', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9za2VsZXRvbl9hbV9kb3BwbGVyX3BoYXNlMV9saWdodC5iMDdhMGU0YTNjZTAxY2M2MzVhMzc2ZjY4YzQwYjdhNzE3YzE1ZTE0LnBuZw--/auto/auto/85/notrim/7d504f11595c3d45e28b17edc148615d.webp' },
+        { name: '★ Skeleton Knife | Marble Fade', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9za2VsZXRvbl9hbV9tYXJibGVfZmFkZV9saWdodC4wODZiYWE5YTA0Y2I1ZWEyYjQ4NWE2ZWIzNzUyN2M4MDcwZDcyZDJlLnBuZw--/auto/auto/85/notrim/0032468391f538b88c8a2bccfbe14f19.webp' },
+        { name: '★ Skeleton Knife | Rust Coat', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9za2VsZXRvbl9hcV9zdGVlbF9rbmlmZV9saWdodC44NDMwYTE3NDRmZDA3ZjhkOGZiOTZlYzIyYzZlM2MzYWRiOTJjYjZlLnBuZw--/auto/auto/85/notrim/261fb63a46f884dfa690fab73758c006.webp' },
+        { name: '★ Skeleton Knife | Tiger Tooth', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9za2VsZXRvbl9hbl90aWdlcl9vcmFuZ2VfbGlnaHQuMDcwZDk5M2IwMTZiMjM1MWYxODE1ZmYxMDY0ZGVmOTVjZGEyNDRlNy5wbmc-/auto/auto/85/notrim/2a04e097c32d3c621d7015833f5ebe35.webp' },
+        { name: '★ Skeleton Knife | Ultraviolet', image: 'https://cdn.csgoskins.gg/public/uih/items/aHR0cHM6Ly9jZG4uY3Nnb3NraW5zLmdnL3B1YmxpYy9pbWFnZXMvYnVja2V0cy9lY29uL2RlZmF1bHRfZ2VuZXJhdGVkL3dlYXBvbl9rbmlmZV9za2VsZXRvbl9zb19wdXJwbGVfbGlnaHQuZGFjOGJkYzJkM2Y3N2YyNzIxODU3NmE2Mzc5ZjQzYzI2NmFlNWFjMy5wbmc-/auto/auto/85/notrim/63f1bb69b6d187ad0e81aacfbf55e86e.webp' },  
     ],
-    // Buraya diğer kasaların ID'lerini ve nadir eşyalarını ekleyebilirsin.
-    // Örnek: 'case21': [ { name: 'Bloodhound Gloves | Charred', image: '...' } ]
-};
+        'case3': [ 
+        { name: '★ Kukri Knife | Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aa_fade_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Slaughter', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_am_zebra_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Crimson Web', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_webs_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Case Hardened', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_oiled_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Vanilla', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fweapons%2Fbase_weapons%2Fweapon_knife_kukri_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Blue Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_blued_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Boreal Forest', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_forest_boreal_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Forest DDPAT', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_hy_ddpat_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Night Stripe', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_nightstripe_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Safari Mesh', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_mesh_tan_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Scorched', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_dapple_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Stained', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_aq_forced_light_png.png&w=160&h=120' },
+        { name: '★ Kukri Knife | Urban Masked', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_kukri_sp_tape_urban_light_png.png&w=160&h=120' },
+        ],
+        
+        'case4': [ 
+        { name: '★ Driver Gloves | Imperial Plaid', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fslick_gloves_slick_plaid_purple_light_png.png&w=160&h=120' },
+        { name: '★ Driver Gloves | King Snake', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fslick_gloves_slick_snakeskin_white_light_png.png&w=160&h=120' },
+        { name: '★ Driver Gloves | Overtake', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fslick_gloves_slick_stitched_black_orange_light_png.png&w=160&h=120' },
+        { name: '★ Driver Gloves | Racing Green', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fslick_gloves_slick_stitched_green_grey_light_png.png&w=160&h=120' },
+        { name: '★ Hand Wraps | Arboreal', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fleather_handwraps_handwrap_leathery_fabric_green_camo_light_png.png&w=160&h=120' },
+        { name: '★ Hand Wraps | Cobalt Skulls', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fleather_handwraps_handwrap_leathery_fabric_blue_skulls_light_png.png&w=160&h=120' },
+        { name: '★ Hand Wraps | Duct Tape', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fleather_handwraps_handwrap_leathery_ducttape_light_png.png&w=160&h=120' },
+        { name: '★ Hand Wraps | Overprint', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fleather_handwraps_handwrap_leathery_fabric_geometric_blue_light_png.png&w=160&h=120' },
+        { name: '★ Hydra Gloves | Case Hardened', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fstudded_hydra_gloves_bloodhound_hydra_case_hardened_light_png.png&w=160&h=120' },
+        { name: '★ Hydra Gloves | Emerald', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fstudded_hydra_gloves_bloodhound_hydra_black_green_light_png.png&w=160&h=120' },
+        { name: '★ Hydra Gloves | Mangrove', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fstudded_hydra_gloves_bloodhound_hydra_green_leather_mesh_brass_light_png.png&w=160&h=120' },
+        { name: '★ Hydra Gloves | Rattler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fstudded_hydra_gloves_bloodhound_hydra_snakeskin_brass_light_png.png&w=160&h=120' },
+        { name: '★ Moto Gloves | Polygon', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fmotorcycle_gloves_motorcycle_trigrid_blue_light_png.png&w=160&h=120' },
+        { name: '★ Moto Gloves | POW!', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fmotorcycle_gloves_motorcycle_choco_boom_light_png.png&w=160&h=120' },
+        { name: '★ Moto Gloves | Transport', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fmotorcycle_gloves_motorcycle_yellow_camo_light_png.png&w=160&h=120' },
+        { name: '★ Moto Gloves | Turtle', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fmotorcycle_gloves_motorcycle_basic_green_orange_light_png.png&w=160&h=120' },
+        { name: '★ Specialist Gloves | Buckshot', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fspecialist_gloves_specialist_forest_brown_light_png.png&w=160&h=120' },
+        { name: '★ Specialist Gloves | Crimson Web', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fspecialist_gloves_specialist_webs_red_light_png.png&w=160&h=120' },
+        { name: '★ Specialist Gloves | Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fspecialist_gloves_specialist_fade_light_png.png&w=160&h=120' },
+        { name: '★ Specialist Gloves | Mogul', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fspecialist_gloves_specialist_winterhex_light_png.png&w=160&h=120' },
+        { name: '★ Sport Gloves | Amphibious', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fsporty_gloves_sporty_poison_frog_blue_white_light_png.png&w=160&h=120' },
+        { name: '★ Sport Gloves | Bronze Morph', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fsporty_gloves_sporty_poison_frog_red_green_light_png.png&w=160&h=120' },
+        { name: '★ Sport Gloves | Omega', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fsporty_gloves_sporty_black_webbing_yellow_light_png.png&w=160&h=120' },
+        { name: '★ Sport Gloves | Vice', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fsporty_gloves_sporty_blue_pink_light_png.png&w=160&h=120' },
+    
+    ],
+    };
 
 // --- YENİ LİSTENİN SONU ---
         // Kasa ID'sine göre düşebilecek skinlerin listesi
@@ -1594,46 +1649,67 @@ function getRandomSkin(caseId) {
 
 // --- ESKİ displayPossibleDrops FONKSİYONUNU TEKRAR SİL VE BUNU YAPIŞTIR ---
 
+// ===== ESKİ displayPossibleDrops FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
+
 function displayPossibleDrops(caseId) {
-    const normalDropsDiv = document.getElementById('possibleDropsContainer');
-    const rareDropsDiv = document.getElementById('rareDropsContainer');
-    normalDropsDiv.innerHTML = '<h3 class="col-span-full text-xl font-bold text-white-400 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>';
-    rareDropsDiv.innerHTML = '<h3 class="col-span-full text-2xl font-bold text-yellow-300 mb-4 text-center">Kasadan Çıkabilecek Nadir Desenler</h3>';
+    const dropsContainer = document.getElementById('possibleDropsContainer');
+    // Her seferinde vitrinin içini tamamen boşaltarak temiz bir başlangıç yapıyoruz.
+    dropsContainer.innerHTML = ''; 
 
-    // 1. ADIM: NORMAL DESENLERİ YERLEŞTİRME
-    const allSkinsInCase = caseDrops[caseId] || [];
-    const normalSkins = allSkinsInCase.filter(skin => skin.rarity !== 'Rare Special Item');
-    const rarityOrder = ['Covert', 'Classified', 'Restricted', 'Mil-Spec Grade'];
-    normalSkins.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+    // --- BÖLÜM 1: NORMAL DESENLERİ VİTRİNE YERLEŞTİRME ---
+    const normalSkins = (caseDrops[caseId] || []); // Sadece normal desenleri alıyoruz
 
-    normalSkins.forEach(skin => {
-        const rarityInfo = skinRarities[skin.rarity];
-        const skinDiv = document.createElement('div');
-        // Dış taşıyıcıya 'skin-item-preview' sınıfını veriyoruz.
-        skinDiv.classList.add('skin-item-preview'); 
+    // Eğer kasada normal desen varsa, bu bölümü oluştur
+    if (normalSkins.length > 0) {
+        // 1. Normal desenler için başlığı ekliyoruz.
+        const normalTitle = document.createElement('h3');
+        normalTitle.className = 'col-span-full text-xl font-bold text-white-400 mb-4 text-center';
+        normalTitle.textContent = 'Bu Kasadan Çıkabilecekler:';
+        dropsContainer.appendChild(normalTitle);
 
-        // HTML'i yeni yapımıza göre oluşturuyoruz: Kutu ve isim ayrı.
-        skinDiv.innerHTML = `
-            <div class="skin-item-box">
-                <img src="${skin.image}" alt="${skin.name}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/555555/ffffff?text=Hata';">
-                <div class="rarity-bar ${rarityInfo.barColor}"></div>
-            </div>
-            <p class="skin-item-name text-white">${skin.name}</p>
-        `;
-        normalDropsDiv.appendChild(skinDiv);
-    });
+        // 2. Normal desenleri yerleştireceğimiz grid'i oluşturuyoruz.
+        const normalItemsGrid = document.createElement('div');
+        normalItemsGrid.className = 'grid grid-cols-7 gap-3 mb-8'; // 7'li ve bitişik. Altına boşluk bıraktık.
 
-    // 2. ADIM: NADİR DESENLERİ YERLEŞTİRME
-    const rareSkinsInCase = rareItemPools[caseId] || [];
-    if (rareSkinsInCase.length > 0) {
-        rareDropsDiv.classList.remove('hidden');
-
-        rareSkinsInCase.forEach(rareItem => {
+        // 3. Her bir normal deseni oluşturduğumuz bu grid'in içine ekliyoruz.
+        normalSkins.forEach(skin => {
             const skinDiv = document.createElement('div');
-            // Dış taşıyıcıya 'skin-item-preview' sınıfını veriyoruz.
-            skinDiv.classList.add('skin-item-preview');
+            skinDiv.className = 'skin-item-preview';
+            skinDiv.innerHTML = `
+                <div class="skin-item-box">
+                    <img src="${skin.image}" alt="${skin.name}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/555555/ffffff?text=Hata';">
+                    <div class="rarity-bar ${skinRarities[skin.rarity].barColor}"></div>
+                </div>
+                <p class="skin-item-name text-white">${skin.name}</p>
+            `;
+            normalItemsGrid.appendChild(skinDiv);
+        });
 
-            // HTML'i yeni yapımıza göre oluşturuyoruz: Kutu ve isim ayrı.
+        // 4. Dolu grid'i ana vitrine ekliyoruz.
+        dropsContainer.appendChild(normalItemsGrid);
+    }
+
+
+    // --- BÖLÜM 2: NADİR DESENLERİ VİTRİNE YERLEŞTİRME ---
+    const rareSkins = rareItemPools[caseId] || [];
+
+    // Eğer kasada nadir desen varsa, bu ikinci bölümü oluştur
+    if (rareSkins.length > 0) {
+        // 1. Nadir desenler için özel başlığı ekliyoruz.
+        const rareTitle = document.createElement('h3');
+        rareTitle.className = 'col-span-full text-2xl font-bold text-yellow-300 mb-4 text-center';
+        rareTitle.textContent = 'Bu Kasadan Çıkabilecek Nadir Desenler';
+        dropsContainer.appendChild(rareTitle);
+
+        // 2. Nadir desenleri yerleştireceğimiz ikinci bir grid oluşturuyoruz.
+        const rareItemsGrid = document.createElement('div');
+        rareItemsGrid.className = 'grid grid-cols-7 gap-3'; // Bu da 7'li ve bitişik.
+
+        // 3. Her bir nadir deseni bu ikinci grid'in içine ekliyoruz.
+        rareSkins.forEach(rareItem => {
+            const skinDiv = document.createElement('div');
+            skinDiv.className = 'skin-item-preview';
+            // Nadir eşyalar için özel sarı çerçeveli stil
             skinDiv.innerHTML = `
                 <div class="skin-item-box border border-yellow-500 bg-yellow-500/10">
                     <img src="${rareItem.image}" alt="${rareItem.name}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/555555/ffffff?text=Hata';">
@@ -1641,10 +1717,11 @@ function displayPossibleDrops(caseId) {
                 </div>
                 <p class="skin-item-name text-yellow-200">${rareItem.name}</p>
             `;
-            rareDropsDiv.appendChild(skinDiv);
+            rareItemsGrid.appendChild(skinDiv);
         });
-    } else {
-        rareDropsDiv.classList.add('hidden');
+
+        // 4. Dolu nadir eşya grid'ini de ana vitrine ekliyoruz.
+        dropsContainer.appendChild(rareItemsGrid);
     }
 }
 
