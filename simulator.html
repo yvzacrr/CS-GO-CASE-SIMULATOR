@@ -2528,23 +2528,48 @@ function saveUserData() {
 }
 
 // --- FONKSİYONUN SONU ---
+// ===== ESKİ inspectItem FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
+
+// ===== ESKİ inspectItem FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
+
 function inspectItem(itemObject) {
-    // Sağ sütundaki bilgileri doldur
-    inspectItemName.textContent = itemObject.name;
-    inspectItemName.className = `text-5xl font-bold mb-4 ${itemObject.color} font-inspect-title`;
+    // 1. Modal'ı gösteriyoruz ama içindeki başlığı şimdilik boş bırakıyoruz.
+    // Bu, tarayıcının modalı ve kutuları doğru boyutlarda çizmesi için zaman tanır.
+    inspectItemName.textContent = ''; 
+    inspectionModal.classList.remove('hidden');
+
+    // 2. Diğer basit bilgileri dolduruyoruz.
     inspectItemWear.textContent = `${itemObject.wear.name} (${itemObject.wear.abbr})`;
-    inspectItemFloat.textContent = itemObject.float.toFixed(8); // Float'ı uzun ve detaylı göster
-    inspectCaseOrigin.textContent = itemObject.caseOrigin; // 1. Adımda kaydettiğimiz kasa adı
-
-    // Fiyat için şimdilik bir yer tutucu
+    inspectItemFloat.textContent = itemObject.float.toFixed(8);
+    inspectCaseOrigin.textContent = itemObject.caseOrigin;
     inspectItemPrice.textContent = 'Fiyat Bilgisi Yok';
-
-    // Sol sütundaki resmi doldur
     inspectImage.src = itemObject.image;
 
-    // Her şey hazır, şimdi modalı göster!
-    inspectionModal.classList.remove('hidden');
-}       
+    // 3. TERZİYE "BEKLE" KOMUTUNU VERİYORUZ
+    // Tarayıcı ekranı çizmeye hazır olduğunda, aşağıdaki kod bloğunu çalıştır.
+    requestAnimationFrame(() => {
+        // --- TERZİ KODU ARTIK BURADA GÜVENLE ÇALIŞACAK ---
+
+        // a. Gerekli sınıfları ve stilleri ayarlıyoruz.
+        inspectItemName.className = `font-bold mb-4 ${itemObject.color} font-inspect-title`;
+        inspectItemName.style.whiteSpace = 'nowrap'; // Asla alt satıra düşme
+
+        // b. Yazıyı yerine koyuyoruz.
+        inspectItemName.textContent = itemObject.name;
+
+        // c. En büyük bedenden denemeye başlıyoruz.
+        let currentFontSize = 60; 
+        inspectItemName.style.fontSize = currentFontSize + 'px';
+
+        // d. Yazı kutusuna sığana kadar küçültüyoruz.
+        // Artık inspectItemName.clientWidth doğru değeri verecek!
+        while (inspectItemName.scrollWidth > inspectItemName.clientWidth && currentFontSize > 24) {
+            currentFontSize--; 
+            inspectItemName.style.fontSize = currentFontSize + 'px';
+        }
+        // --- TERZİ KODU BİTTİ ---
+    });
+}  
     
 // ===== BU YENİ YARDIMCI FONKSİYONU EKLE =====
 
