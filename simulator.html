@@ -393,19 +393,6 @@
 }    
     
 /* ===== YENİ KASA AÇMA EKRANI İÇİN BU STİLLERİ EKLE ===== */
-
-/* Yeni başlığın ana kutusu */
-.case-open-header {
-    background-color: rgba(30, 41, 59, 0.6); /* Yarı saydam koyu mavi */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem; /* Yuvarlak köşeler */
-    padding: 1rem;
-    margin-bottom: 2rem; /* Altındaki desen listesiyle arasına boşluk koy */
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; /* Üst ve alt satır arasına boşluk koy */
-}
-
 /* Üst satırdaki sol taraf (küçük resim ve isim) */
 .case-open-header-info {
     display: flex;
@@ -422,16 +409,19 @@
 
 /* Başlıktaki kasa adı */
 .case-open-header-title {
-    font-size: 1.875rem; /* 3xl */
+    font-size: 1.5rem; /* 3xl */
     font-weight: bold;
     color: #fff;
 }
 
-/* Üst satırdaki sağ taraf (butonlar ve fiyat) */
 .case-open-header-actions {
-    display: flex;
+    display: inline-flex; /* Kutunun içindeki elemanlara göre daralmasını sağlar */
     align-items: center;
-    gap: 0.75rem; /* Butonlar arasına boşluk */
+    gap: 1rem; /* Butonlar arasındaki boşluğu biraz artırdık (0.75rem'den 1rem'e) */
+    background-color: rgba(0, 0, 0, 0.2); /* Hafif koyu bir kutu arka planı */
+    padding: 0.75rem; /* Kutunun içine boşluk verdik ki elemanlar kenara yapışmasın */
+    border-radius: 0.75rem; /* Kutunun köşelerini yuvarladık */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Belli belirsiz bir çerçeve */
 }
 
 /* Geri ve Aç butonları için ortak stil */
@@ -2258,18 +2248,26 @@ function showSection(sectionName) {
 
 // ===== ESKİ selectCase FONKSİYONUNU TEKRAR SİL VE BUNU YAPIŞTIR =====
 
+// ===== ESKİ selectCase FONKSİYONUNU TAMAMEN SİL VE BUNU YAPIŞTIR =====
+
+// ===== ESKİ selectCase FONKSİYONUNU TAMAMEN SİL VE BUNU YAPIŞTIR =====
+
 function selectCase(caseData) {
     // 1. Önce ekranı tamamen temizliyoruz.
     caseOpeningSection.innerHTML = '';
     currentlySelectedCase = caseData;
 
-    // --- Yeni Tasarımı İnşa Etme ---
+    // Ana bölümü sola ve üste yaslıyoruz.
+    caseOpeningSection.className = 'flex flex-col items-start justify-start p-4';
 
-    // 2. Ana Başlık (Header) kutusunu oluşturuyoruz.
-    const header = document.createElement('div');
-    header.className = 'case-open-header';
+    // --- DÜZELTME BURADA BAŞLIYOR ---
 
-    // 3. Kasanın Resim ve İsim bölümü
+    // 2. Tüm kontrolleri bir arada tutacak ana "kontrol paneli" kutusunu oluşturuyoruz.
+    // YENİ: Ona CSS'in tanıdığı 'case-open-header' ismini veriyoruz.
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'case-open-header flex flex-col items-start gap-4 w-full mb-8';
+
+    // 3. Kasanın Resim ve İsim bölümü (Bu kısım artık doğru çalışacak)
     const infoSide = document.createElement('div');
     infoSide.className = 'case-open-header-info';
     infoSide.innerHTML = `
@@ -2277,9 +2275,11 @@ function selectCase(caseData) {
         <h2 class="case-open-header-title">${caseData.name}</h2>
     `;
 
-    // 4. Butonları ve kontrolleri taşıyacak ana aksiyon kutusu
+    // 4. Butonları ve kontrolleri taşıyacak olan ana aksiyon kutusu
+    // YENİ: Ona da CSS'in tanıdığı 'case-open-header-actions' ismini veriyoruz.
+    // Ayrıca aradaki boşluğu artırmak için gap-3'ü gap-4 yaptık.
     const actionsAndControls = document.createElement('div');
-    actionsAndControls.className = 'flex flex-row items-start gap-3 mt-4';
+    actionsAndControls.className = 'case-open-header-actions flex flex-row items-start gap-4';
 
     // 5. "Geri" butonu
     const backButton = document.createElement('button');
@@ -2288,28 +2288,27 @@ function selectCase(caseData) {
     backButton.onclick = resetToMenu;
     actionsAndControls.appendChild(backButton);
 
-    // 6. "Kasayı Aç", Fiyat ve Adet Seçimini bir arada tutacak dikey kutu
+    // 6. "Kasayı Aç" ve diğerlerini tutan dikey kutu
     const unlockArea = document.createElement('div');
     unlockArea.className = 'flex flex-col items-start gap-3';
 
-    //    a. Dikey kutunun İLK SATIRI (Kasayı Aç + Fiyat)
+    //    a. İlk satır (Kasayı Aç + Fiyat)
     const unlockAndPriceRow = document.createElement('div');
     unlockAndPriceRow.className = 'flex flex-row items-center gap-3';
     
     const unlockButton = document.createElement('button');
     unlockButton.className = 'btn unlock-btn';
     unlockButton.textContent = 'Kasayı Aç';
-    // DİKKAT: Yeni openCase fonksiyonuna butonu direkt olarak gönderiyoruz.
     unlockButton.onclick = () => openCase(unlockButton); 
 
     const priceText = document.createElement('span');
     priceText.className = 'price-text';
     const baseCasePrice = parseFloat(caseData.price.replace(/[^0-9.]/g, ''));
-    priceText.textContent = `${baseCasePrice.toFixed(2)} $`; // Başlangıç fiyatını ayarla
+    priceText.textContent = `${baseCasePrice.toFixed(2)} $`;
     
     unlockAndPriceRow.append(unlockButton, priceText);
     
-    //    b. Dikey kutunun İKİNCİ SATIRI (Adet Seçimi)
+    //    b. İkinci satır (Adet Seçimi)
     const caseCountSelector = document.createElement('div');
     caseCountSelector.id = 'caseCountSelector';
     caseCountSelector.className = 'flex items-center justify-start gap-2';
@@ -2322,36 +2321,34 @@ function selectCase(caseData) {
         <button data-count="5" class="case-count-button">5</button>
     `;
     
-    // Adet seçimi butonlarına görevlerini veriyoruz
     const newCountButtons = caseCountSelector.querySelectorAll('.case-count-button');
     newCountButtons.forEach(button => {
         button.addEventListener('click', () => {
             newCountButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             numberOfCasesToOpen = parseInt(button.dataset.count);
-
-            // ----- YENİ EKLENEN HESAP MAKİNESİ KODU -----
             const totalDynamicPrice = baseCasePrice * numberOfCasesToOpen;
-            priceText.textContent = `${totalDynamicPrice.toFixed(2)} $`; // Fiyatı anında güncelle!
-            // ---------------------------------------------
+            priceText.textContent = `${totalDynamicPrice.toFixed(2)} $`;
         });
     });
     numberOfCasesToOpen = 1;
 
-    // Oluşturulan parçaları birleştirme
+    // Parçaları birleştirme
     unlockArea.append(unlockAndPriceRow, caseCountSelector);
     actionsAndControls.appendChild(unlockArea);
-    header.append(infoSide, actionsAndControls);
+    
+    // 7. Oluşturduğumuz tüm parçaları ana kontrol paneline ekliyoruz
+    controlsContainer.append(infoSide, actionsAndControls);
 
     // 8. Desenlerin listeleneceği kutu
     const dropsContainer = document.createElement('div');
     dropsContainer.id = 'possibleDropsContainer';
-    dropsContainer.className = 'mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full';
+    dropsContainer.className = 'p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full';
 
-    // 9. Son olarak, her şeyi ana ekrana yerleştirme
-    caseOpeningSection.append(header, dropsContainer);
+    // 9. Son olarak, kontrol panelini ve desen kutusunu ana ekrana yerleştiriyoruz
+    caseOpeningSection.append(controlsContainer, dropsContainer);
 
-    // 10. Ekranı gösterip, desenleri doldurma
+    // 10. Şimdi ekranı gösterip, desenleri doldurabiliriz
     showSection('opening');
     displayPossibleDrops(caseData.id);
 }
