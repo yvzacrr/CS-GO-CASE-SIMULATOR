@@ -2596,39 +2596,51 @@ function showMultiItemModal(skins) {
 
     // Ana konteyner. Bütün desenler bunun içine girecek.
     const itemsContainer = document.createElement('div');
+    
+    // "Devam Et" butonunu en başta bir kere oluşturalım.
+    const continueButton = document.createElement('button');
+    continueButton.id = 'closeModalButton';
+    continueButton.textContent = 'Devam Et';
+    continueButton.className = 'custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl shadow-lg';
+    continueButton.onclick = () => {
+        itemWonModal.classList.add('hidden');
+    };
 
     // ========== ASIL MANTIK DEĞİŞİKLİĞİ ==========
     // EĞER KAZANILAN DESEN SAYISI TAM OLARAK 5 İSE...
     if (skins.length === 5) {
-        // Ana konteynerimiz yatay bir flex kutusu olacak (Sol Sütun, Orta, Sağ Sütun)
-        itemsContainer.className = 'flex flex-row justify-center items-center gap-6 w-full';
+        // [DEĞİŞİKLİK 1]: justify-center'ı justify-between ile değiştirdik.
+        // Bu, sol ve sağ sütunları ekranın kenarlarına yaslayacak.
+        itemsContainer.className = 'flex flex-row justify-center items-center w-full'; // Kenarlara boşluk için padding ekledik (px-8)
 
         // Sütunlarımızı oluşturalım
         const leftColumn = document.createElement('div');
-        leftColumn.className = 'flex flex-col gap-4'; // Dikey flex kutusu
+        leftColumn.className = 'flex flex-col gap-4';
 
         const centerItemContainer = document.createElement('div');
-        centerItemContainer.className = 'center-item-container'; // Ortadaki elemana özel stil için class
+        // Ortadaki sütun artık dikey bir flex kutusu olacak, çünkü deseni ve butonu alt alta dizeceğiz.
+        centerItemContainer.className = 'flex flex-col items-center gap-4 mx-12'; // gap-4 ile desen ve buton arasına boşluk koyduk.
 
         const rightColumn = document.createElement('div');
-        rightColumn.className = 'flex flex-col gap-4'; // Dikey flex kutusu
+        rightColumn.className = 'flex flex-col gap-4'; 
 
         // Gelen 5 deseni döngüye alıp doğru sütuna yerleştirelim
         skins.forEach((skin, index) => {
-            // Yardımcı fonksiyonu kullanarak desen kutusunu oluştur
             const itemWrapper = createItemElementForModal(skin, skins.length);
             
-            if (index < 2) { // İlk iki desen (index 0 ve 1)
+            if (index < 2) { 
                 leftColumn.appendChild(itemWrapper);
-            } else if (index === 2) { // Ortadaki desen (index 2)
-                 // Ortadaki resmi biraz daha büyük yapalım
+            } else if (index === 2) { 
                 itemWrapper.querySelector('.item-image').style.maxWidth = '350px';
                 itemWrapper.querySelector('.item-image').style.maxHeight = '350px';
-                centerItemContainer.appendChild(itemWrapper);
-            } else { // Son iki desen (index 3 ve 4)
+                centerItemContainer.appendChild(itemWrapper); // Önce deseni ekle
+            } else { 
                 rightColumn.appendChild(itemWrapper);
             }
         });
+
+        // [DEĞİŞİKLİK 2]: Butonu, döngüden sonra ortadaki sütunun içine ekliyoruz.
+        centerItemContainer.appendChild(continueButton);
 
         // Oluşturulan 3 sütunu ana konteynere ekle
         itemsContainer.append(leftColumn, centerItemContainer, rightColumn);
@@ -2638,28 +2650,30 @@ function showMultiItemModal(skins) {
         itemsContainer.className = 'flex flex-row flex-wrap justify-center items-center gap-6';
 
         skins.forEach(skin => {
-            // Yardımcı fonksiyonu kullanarak desen kutusunu oluştur ve direk konteynere ekle
             const itemWrapper = createItemElementForModal(skin, skins.length);
             itemsContainer.appendChild(itemWrapper);
         });
+        
+        // [DEĞİŞİKLİK 3]: Buton, bu durumda tüm desenlerden sonra en alta ekleniyor.
+         continueButton.classList.add('mt-6'); // Üstten boşluk verelim
+         modalContent.appendChild(itemsContainer);
+         modalContent.appendChild(continueButton);
+    }
+    
+    // 5'li açılış dışında buton modalContent'e direkt eklenmediyse, buraya eklenir.
+    // Bu kontrol, kodun her iki durumda da doğru çalışmasını sağlar.
+    if (skins.length !== 5) {
+        // Bu blok aslında yukarıdaki else içinde zaten var, ama netlik için burada bırakabiliriz.
+        // Eğer yukarıdaki kod yapısını takip ettiysek bu if bloğuna aslında gerek yok.
+        // Netlik için düzenleyelim:
+    } else {
+        modalContent.appendChild(itemsContainer);
     }
 
-    // Modal içeriğini oluştur
-    modalContent.appendChild(itemsContainer);
-
-    // "Devam Et" butonunu oluştur ve sona ekle (Bu kısım aynı)
-    const continueButton = document.createElement('button');
-    continueButton.id = 'closeModalButton';
-    continueButton.textContent = 'Devam Et';
-    continueButton.className = 'mt-6 custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl shadow-lg';
-    continueButton.onclick = () => {
-        itemWonModal.classList.add('hidden');
-    };
-    modalContent.appendChild(continueButton);
 
     // Her şey hazır, şimdi modal'ı göster!
     itemWonModal.classList.remove('hidden');
-}    
+}   
     
     </script>
 </body>
