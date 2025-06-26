@@ -392,6 +392,84 @@
     height: 90px;
 }    
     
+/* ===== YENİ KASA AÇMA EKRANI İÇİN BU STİLLERİ EKLE ===== */
+
+/* Yeni başlığın ana kutusu */
+.case-open-header {
+    background-color: rgba(30, 41, 59, 0.6); /* Yarı saydam koyu mavi */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem; /* Yuvarlak köşeler */
+    padding: 1rem;
+    margin-bottom: 2rem; /* Altındaki desen listesiyle arasına boşluk koy */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Üst ve alt satır arasına boşluk koy */
+}
+
+/* Üst satırdaki sol taraf (küçük resim ve isim) */
+.case-open-header-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Resim ve isim arasına boşluk */
+}
+
+/* Başlıktaki küçük kasa resmi */
+.case-open-header img {
+    width: 64px;  /* 4rem */
+    height: 64px; /* 4rem */
+    object-fit: contain;
+}
+
+/* Başlıktaki kasa adı */
+.case-open-header-title {
+    font-size: 1.875rem; /* 3xl */
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Üst satırdaki sağ taraf (butonlar ve fiyat) */
+.case-open-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Butonlar arasına boşluk */
+}
+
+/* Geri ve Aç butonları için ortak stil */
+.case-open-header .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    border: 1px solid transparent;
+}
+
+/* Geri Butonu */
+.case-open-header .back-btn {
+    background-color: rgba(71, 85, 105, 0.5); /* Soluk renk */
+    color: #e2e8f0;
+    border-color: rgba(100, 116, 139, 0.8);
+}
+.case-open-header .back-btn:hover {
+    background-color: rgba(71, 85, 105, 0.8);
+}
+
+/* Kasayı Aç Butonu */
+.case-open-header .unlock-btn {
+    background-color: #16a34a; /* Canlı Yeşil */
+    color: #fff;
+}
+.case-open-header .unlock-btn:hover {
+    background-color: #15803d;
+}
+
+/* Kasa Fiyatı Yazısı */
+.case-open-header .price-text {
+    font-size: 1.125rem; /* xl */
+    font-weight: bold;
+    color: #a3e635; /* Açık yeşil, dikkat çekici */
+    margin-left: 0.5rem;
+}    
+    
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -405,7 +483,7 @@
 
     <!-- Ana içerik kutusu (Kasa Seçim veya Kasa Açma) -->
     <div id="mainContent" class="main-content-wrapper">
-        <h1 class="text-4xl font-bold mb-4 text-white text-center">Counter Strike 2 Case Opening Simulator</h1>
+        <h1 id="mainTitle" class="text-4xl font-bold mb-4 text-white text-center">Counter Strike 2 Case Opening Simulator</h1>
         
         <!-- Arama Çubuğu -->
         <input type="search" id="searchBar" placeholder="Kasa ara..." class="w-full max-w-md mx-auto p-2 rounded-lg mb-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 block">
@@ -561,8 +639,8 @@
     const inspectItemPrice = document.getElementById('inspectItemPrice');
     const displayImage = document.getElementById('displayImage');
     const resultText = document.getElementById('resultText');
-    const loadingText = document.getElementById('loadingText');    
-    const originalCaseOpeningHTML = caseOpeningSection.innerHTML;    
+    const loadingText = document.getElementById('loadingText');     
+    const mainTitle = document.getElementById('mainTitle');    
         
         let currentlySelectedCase = null;
         let numberOfCasesToOpen = 1; // Başlangıçta her zaman 1 kasa açılacak
@@ -2064,22 +2142,45 @@ const rareItemPools = {
     }
 
         // Function to control which section is displayed
-        function showSection(sectionName) {
-            // Ana içerik bölümlerini yönet
-            if (sectionName === 'selection') {
-                mainContent.classList.remove('hidden');
-                caseSelectionMenu.classList.remove('hidden');
-                caseOpeningSection.classList.add('hidden');
-                faqSection.classList.remove('hidden'); // SSS'yi göster
-            } else if (sectionName === 'opening') {
-                mainContent.classList.remove('hidden');
-                caseSelectionMenu.classList.add('hidden');
-                caseOpeningSection.classList.remove('hidden');
-                openCaseButton.classList.remove('hidden');
-                resetButton.classList.add('hidden');
-                faqSection.classList.remove('hidden'); // SSS'yi göstermeye devam et
-            }
-        }
+        // ===== ESKİ showSection FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
+
+function showSection(sectionName) {
+    // Ana içerik bölümlerini yönet
+    if (sectionName === 'selection') {
+        // --- ANA MENÜYE DÖNERKEN ---
+        mainTitle.classList.remove('hidden');       // Başlığı GÖSTER
+        searchBar.classList.remove('hidden');       // Arama çubuğunu GÖSTER
+        caseSelectionMenu.classList.remove('hidden'); // Kasa listesini GÖSTER
+
+        caseOpeningSection.classList.add('hidden');   // Kasa açma ekranını GİZLE
+        inventorySection.classList.add('hidden');     // Envanteri GİZLE
+
+        faqSection.classList.remove('hidden');        // SSS'yi GÖSTER
+        mainContent.classList.remove('hidden');
+
+    } else if (sectionName === 'opening') {
+        // --- KASA AÇMA EKRANINA GEÇERKEN ---
+        mainTitle.classList.add('hidden');          // Başlığı GİZLE
+        searchBar.classList.add('hidden');          // Arama çubuğunu GİZLE
+        caseSelectionMenu.classList.add('hidden');    // Kasa listesini GİZLE
+
+        caseOpeningSection.classList.remove('hidden');// Kasa açma ekranını GÖSTER
+        
+        // Bu iki satırı temizlik amacıyla ekledim, başka bir yerden kalmış olabilirler.
+        // openCaseButton.classList.remove('hidden');
+        // resetButton.classList.add('hidden');
+        
+        faqSection.classList.remove('hidden');        // SSS'yi GÖSTER
+        mainContent.classList.remove('hidden');
+
+    } else if (sectionName === 'inventory') {
+        // --- ENVANTERE GEÇERKEN ---
+        mainContent.classList.add('hidden');          // Kasa menüsü ve açma ekranını GİZLE
+        faqSection.classList.add('hidden');           // SSS'yi GİZLE
+        
+        inventorySection.classList.remove('hidden');  // Envanteri GÖSTER
+    }
+}
 
         // Tüm kasa çeşitlerinin listesi (42 adet)
         const allCases = [
@@ -2151,48 +2252,106 @@ const rareItemPools = {
         }
 
         // Function to run when a case is selected
+// ===== ESKİ selectCase FONKSİYONUNU TAMAMEN SİL VE BUNU YAPIŞTIR =====
+
+// ===== ESKİ selectCase FONKSİYONUNU TAMAMEN SİL VE BUNU YAPIŞTIR =====
+
+// ===== ESKİ selectCase FONKSİYONUNU TEKRAR SİL VE BUNU YAPIŞTIR =====
+
 function selectCase(caseData) {
-    // 1. ADIM: Kasa açma bölümünü orijinal, temiz haline geri döndür.
-    caseOpeningSection.innerHTML = originalCaseOpeningHTML;
-    
-    // Şu anki seçilen kasayı güncelle
+    // 1. Önce ekranı tamamen temizliyoruz.
+    caseOpeningSection.innerHTML = '';
     currentlySelectedCase = caseData;
+
+    // --- Yeni Tasarımı İnşa Etme ---
+
+    // 2. Ana Başlık (Header) kutusunu oluşturuyoruz.
+    const header = document.createElement('div');
+    header.className = 'case-open-header';
+
+    // 3. Kasanın Resim ve İsim bölümü
+    const infoSide = document.createElement('div');
+    infoSide.className = 'case-open-header-info';
+    infoSide.innerHTML = `
+        <img src="${caseData.image}" alt="${caseData.name}">
+        <h2 class="case-open-header-title">${caseData.name}</h2>
+    `;
+
+    // 4. Butonları ve kontrolleri taşıyacak ana aksiyon kutusu
+    const actionsAndControls = document.createElement('div');
+    actionsAndControls.className = 'flex flex-row items-start gap-3 mt-4';
+
+    // 5. "Geri" butonu
+    const backButton = document.createElement('button');
+    backButton.className = 'btn back-btn';
+    backButton.textContent = '← Geri';
+    backButton.onclick = resetToMenu;
+    actionsAndControls.appendChild(backButton);
+
+    // 6. "Kasayı Aç", Fiyat ve Adet Seçimini bir arada tutacak dikey kutu
+    const unlockArea = document.createElement('div');
+    unlockArea.className = 'flex flex-col items-start gap-3';
+
+    //    a. Dikey kutunun İLK SATIRI (Kasayı Aç + Fiyat)
+    const unlockAndPriceRow = document.createElement('div');
+    unlockAndPriceRow.className = 'flex flex-row items-center gap-3';
     
-    // 2. ADIM: HTML sıfırlandığı için butonları ve diğer elementleri yeniden bulmalıyız.
-    const newSelectedCaseName = document.getElementById('selectedCaseName');
-    const newDisplayImage = document.getElementById('displayImage');
-    const newOpenCaseButton = document.getElementById('openCaseButton');
-    const newResetButton = document.getElementById('resetButton');
-    const newCountButtons = document.querySelectorAll('.case-count-button');
-    const newResultText = document.getElementById('resultText');
+    const unlockButton = document.createElement('button');
+    unlockButton.className = 'btn unlock-btn';
+    unlockButton.textContent = 'Kasayı Aç';
+    // DİKKAT: Yeni openCase fonksiyonuna butonu direkt olarak gönderiyoruz.
+    unlockButton.onclick = () => openCase(unlockButton); 
 
-    // 3. ADIM: Elementlerin içeriğini yeni kasa bilgileriyle doldur.
-    newSelectedCaseName.textContent = caseData.name;
-    newDisplayImage.src = caseData.image;
-    newDisplayImage.alt = caseData.name;
-    newResultText.textContent = ''; // Eski sonuç yazısını temizle
-    newOpenCaseButton.textContent = `Aç: ${caseData.name} (${caseData.price})`;
-
-    // 4. ADIM: HTML sıfırlanınca silinen tıklama olaylarını (event listener) YENİDEN BAĞLA.
-    newOpenCaseButton.addEventListener('click', openCase);
-    newResetButton.addEventListener('click', resetToMenu);
-
+    const priceText = document.createElement('span');
+    priceText.className = 'price-text';
+    const baseCasePrice = parseFloat(caseData.price.replace(/[^0-9.]/g, ''));
+    priceText.textContent = `${baseCasePrice.toFixed(2)} $`; // Başlangıç fiyatını ayarla
+    
+    unlockAndPriceRow.append(unlockButton, priceText);
+    
+    //    b. Dikey kutunun İKİNCİ SATIRI (Adet Seçimi)
+    const caseCountSelector = document.createElement('div');
+    caseCountSelector.id = 'caseCountSelector';
+    caseCountSelector.className = 'flex items-center justify-start gap-2';
+    caseCountSelector.innerHTML = `
+        <span class="text-sm text-slate-400">Tek seferde:</span>
+        <button data-count="1" class="case-count-button active">1</button>
+        <button data-count="2" class="case-count-button">2</button>
+        <button data-count="3" class="case-count-button">3</button>
+        <button data-count="4" class="case-count-button">4</button>
+        <button data-count="5" class="case-count-button">5</button>
+    `;
+    
+    // Adet seçimi butonlarına görevlerini veriyoruz
+    const newCountButtons = caseCountSelector.querySelectorAll('.case-count-button');
     newCountButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Önce hepsinden 'active' sınıfını kaldır
             newCountButtons.forEach(btn => btn.classList.remove('active'));
-            // Sadece tıklanana 'active' sınıfını ekle
             button.classList.add('active');
-            // Kaç kasa açılacağını hafızaya al
             numberOfCasesToOpen = parseInt(button.dataset.count);
+
+            // ----- YENİ EKLENEN HESAP MAKİNESİ KODU -----
+            const totalDynamicPrice = baseCasePrice * numberOfCasesToOpen;
+            priceText.textContent = `${totalDynamicPrice.toFixed(2)} $`; // Fiyatı anında güncelle!
+            // ---------------------------------------------
         });
     });
-    
-    // Başlangıçta 1 adet seçili olsun
-    newCountButtons[0].classList.add('active');
     numberOfCasesToOpen = 1;
 
-    // 5. ADIM: Son olarak, Kasa Açma bölümünü göster ve içindeki desenleri listele.
+    // Oluşturulan parçaları birleştirme
+    unlockArea.append(unlockAndPriceRow, caseCountSelector);
+    actionsAndControls.appendChild(unlockArea);
+    header.append(infoSide, actionsAndControls);
+
+    // 8. Desenlerin listeleneceği kutu
+    const dropsContainer = document.createElement('div');
+    dropsContainer.id = 'possibleDropsContainer';
+    dropsContainer.className = 'mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full';
+
+    // 9. Son olarak, her şeyi ana ekrana yerleştirme
+    caseOpeningSection.append(header, dropsContainer);
+
+    // 10. Ekranı gösterip, desenleri doldurma
     showSection('opening');
     displayPossibleDrops(caseData.id);
 }
@@ -2356,12 +2515,20 @@ function displayPossibleDrops(caseId) {
 // --- YENİ FONKSİYONUN SONU ---
 
 // ===== ESKİ openCase FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
-function openCase() {
+// ===== ESKİ openCase FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
+
+function openCase(unlockButtonElement) { // Artık butonu direkt olarak alıyor
     if (!currentlySelectedCase) return;
+
+    // Butonu "Açılıyor..." durumuna getiriyoruz
+    unlockButtonElement.disabled = true;
+    unlockButtonElement.textContent = 'Açılıyor...';
 
     const casePrice = parseFloat(currentlySelectedCase.price.replace(/[^0-9.]/g, ''));
     if (isNaN(casePrice)) {
         alert('Kasa fiyatı geçersiz!');
+        unlockButtonElement.disabled = false;
+        unlockButtonElement.textContent = 'Kasayı Aç';
         return;
     }
 
@@ -2369,18 +2536,7 @@ function openCase() {
     userBalance -= totalCost;
     updateBalanceDisplay();
 
-    // Butonları ve arayüzü "Açılıyor" durumuna getir
-    const openBtn = document.getElementById('openCaseButton');
-    const resetBtn = document.getElementById('resetButton');
-    const displayImg = document.getElementById('displayImage');
-    const loadingTxt = document.getElementById('loadingText');
-    
-    openBtn.disabled = true;
-    resetBtn.disabled = true;
-    openBtn.textContent = 'Açılıyor...';
-    displayImg.style.filter = 'blur(10px)'; // Resmi bulanıklaştır
-    loadingTxt.classList.remove('hidden'); // "Açılıyor..." yazısını göster
-
+    // Simülasyon için bekletme
     setTimeout(() => {
         let droppedSkins = [];
         for (let i = 0; i < numberOfCasesToOpen; i++) {
@@ -2392,18 +2548,12 @@ function openCase() {
         userInventory.push(...droppedSkins);
         saveUserData();
 
-        // Arayüzü temizle
-        displayImg.style.filter = 'none';
-        loadingTxt.classList.add('hidden');
-
-        // YENİ MANTIK: Sonuçları göstermek için modal'ı çağır
+        // Sonuçları göster
         showMultiItemModal(droppedSkins);
         
-        // Butonları tekrar aktif et
-        openBtn.disabled = false;
-        resetBtn.disabled = false;
-        openBtn.textContent = `Aç: ${currentlySelectedCase.name} (${currentlySelectedCase.price})`;
-
+        // Butonu tekrar eski haline getir
+        unlockButtonElement.disabled = false;
+        unlockButtonElement.textContent = 'Kasayı Aç';
 
     }, 1500); // 1.5 saniye bekleme süresi
 }
@@ -2513,12 +2663,7 @@ function getWearInfo(floatValue) {
 // ===== BUTON TIKLAMA OLAYLARI (EVENT LISTENERS) =====
 // ==========================================================
 
-openCaseButton.addEventListener('click', openCase);
-resetButton.addEventListener('click', resetToMenu);
-homeButton.addEventListener('click', resetToMenu);
-inventoryButton.addEventListener('click', displayInventory);
-searchBar.addEventListener('input', filterCases);
-inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
+
 
 
 // ==========================================================
@@ -2526,9 +2671,19 @@ inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add
 // ==========================================================
 
 window.onload = () => {
+    // Sayfa ilk yüklendiğinde çalışacak temel fonksiyonlar
     generateSkinImages();
     createCaseMenu();
     updateBalanceDisplay();
+
+    // Sadece sayfa ilk açıldığında kesin olarak var olan butonlara görev veriyoruz.
+    // Bu, "hayalet buton" hatasını engeller.
+    homeButton.addEventListener('click', resetToMenu);
+    inventoryButton.addEventListener('click', displayInventory);
+    searchBar.addEventListener('input', filterCases);
+    inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
+
+
 };
 // --- BU FONKSİYONU DİĞER FONKSİYONLARIN YANINA EKLE ---
 
