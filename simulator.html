@@ -105,6 +105,29 @@
         #topPanel > div:hover {
             background-color: rgba(30, 41, 59, 0.9);
         }
+        
+        /* ===== BU YENİ STİLLERİ #topPanel > div:hover'ın ALTINA EKLE ===== */
+
+/* Top Paneldeki 3 ana bölüm (sol, orta, sağ) için */
+.top-panel-section {
+    flex: 1; /* Eşit yer kaplamalarını sağlar */
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+/* Sol bölümü sola yasla */
+.top-panel-section:first-child {
+    justify-content: flex-start;
+}
+/* Orta bölümü ortala */
+.top-panel-section.justify-center {
+    justify-content: center;
+}
+/* Sağ bölümü sağa yasla */
+.top-panel-section.justify-end {
+    justify-content: flex-end;
+}
+        
         #topPanel .balance-text {
             background-color: transparent; /* Balance yazısı için arka plan yok */
             cursor: default; /* İmleç değişmesin */
@@ -146,6 +169,7 @@
         }
         
         .case-item {
+            position: relative; /* YENİ EKLENEN SATIR */
             background-color: rgba(30, 41, 59, 0.7); /* Kasa kutusu arka planı saydamlığı artırıldı */
             border-radius: 0.75rem; /* Köşeleri yuvarla */
             padding: 5px; /* Padding'i daha da küçült */
@@ -173,17 +197,18 @@
             border-radius: 0.5rem;
         }
 
-        /* Fiyat kutusu */
-        .price-container {
-            background-color: rgba(0, 0, 0, 0.75); /* Kasa kutusundan hafif daha az saydam */
-            color: #fff;
-            padding: 2px 8px; /* Sağdaki boşluğu artır */
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            width: 100%;
-            text-align: right; /* Metni sağa hizala */
-        }
+        /* ===== ESKİ .price-container'ı SİLİP BUNU YAPIŞTIR ===== */
+.case-price-overlay {
+    position: absolute; /* Ana kutuya göre konumlan */
+    bottom: 10px;        /* Alttan 10px yukarıda */
+    right: 10px;         /* Sağdan 10px solda */
+    background-color: rgba(0, 0, 0, 0.3); /* Hafif saydam siyah arkaplan */
+    color: #fff;
+    padding: 2px 8px; /* İç boşluk */
+    border-radius: 0.375rem; /* Köşeleri yuvarla */
+    font-size: 0.75rem; /* Küçük font */
+    font-weight: bold;
+}
 
         .case-name {
             font-size: 0.85rem;
@@ -460,65 +485,76 @@
     margin-left: 0.5rem;
 }    
     
+/* ===== YENİ PROFİL VE ÇIKIŞ BUTONLARI İÇİN STİLLER ===== */
+
+/* Profil Butonu (resim + isim) */
+.profile-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Resim ve isim arası boşluk */
+    background-color: rgba(30, 41, 59, 0.6);
+    padding: 8px 15px;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.profile-button:hover {
+    background-color: rgba(30, 41, 59, 0.9);
+}
+
+/* Profil Butonundaki küçük ikon */
+.profile-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; /* Tam yuvarlak yapar */
+}
+
+/* Çıkış Yap Butonu */
+.logout-btn {
+    background-color: #dc2626; /* Kırmızı */
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.logout-btn:hover {
+    background-color: #b91c1c; /* Koyu Kırmızı */
+}    
+    
     </style>
 </head>
 <body class="bg-gray-900 text-white">
     
-    <!-- En üstteki panel -->
-    <div id="topPanel">
-        <div id="homeButton">Home</div>
-        <div class="balance-text">Balance:  <span id="balanceDisplay">0.00</span> $</div>
-        <div id="inventoryButton">Inventory</div>
-    </div>
+<div id="topPanel">
+    <div id="homeButton">Home</div>
 
-    <!-- Ana içerik kutusu (Kasa Seçim veya Kasa Açma) -->
-    <div id="mainContent" class="main-content-wrapper">
-        <h1 id="mainTitle" class="text-4xl font-bold mb-4 text-white text-center">Counter Strike 2 Case Opening Simulator</h1>
+    <div class="balance-text">Balance: <span id="balanceDisplay">0.00</span> $</div>
+
+    <div id="inventoryButton">Inventory</div>
+</div>
+
+<div id="mainContent" class="main-content-wrapper">
+    <div class="relative text-center mb-8" id="title-wrapper">
+        <div id="profileButtonContainer" class="absolute left-0 top-1/2 -translate-y-1/2"></div>
         
-        <!-- Arama Çubuğu -->
-        <input type="search" id="searchBar" placeholder="Kasa ara..." class="w-full max-w-md mx-auto p-2 rounded-lg mb-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 block">
-
-        <!-- KASA SEÇİM MENÜSÜ -->
-        <div id="caseSelectionMenu" class="grid grid-cols-7 gap-4 justify-items-center">
-            <!-- KASALAR BURAYA JAVASCRIPT İLE EKLENECEK -->
-        </div>
-
-        <!-- KASA AÇMA BÖLÜMÜ (Başlangıçta gizli) -->
-        <div id="caseOpeningSection" class="hidden flex flex-col items-center justify-center p-4">
-            <h2 id="selectedCaseName" class="text-3xl font-bold mb-6 text-indigo-400"></h2>
-
-<div class="large-case-display-container mx-auto mb-8 relative">
-    <img id="displayImage" src="" alt="Seçilen Kasa Resmi" class="case-image">
-    <div id="loadingText" class="hidden absolute text-3xl font-bold text-white">Açılıyor...</div>
-</div>
-
-<div id="caseCountSelector" class="flex items-center justify-center gap-2 my-4">
-    <span class="text-sm text-slate-400">Tek seferde açılacak adet:</span>
-    <button data-count="1" class="case-count-button active">1</button>
-    <button data-count="2" class="case-count-button">2</button>
-    <button data-count="3" class="case-count-button">3</button>
-    <button data-count="4" class="case-count-button">4</button>
-    <button data-count="5" class="case-count-button">5</button>
-</div>
-
-<p id="resultText" class="text-2xl font-bold mt-4 mb-8 h-8"></p>
-
-<div class="flex flex-col items-center gap-4 w-full">
-    <button id="openCaseButton" class="custom-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg w-1/2">
-        Kasa Aç
-    </button>
-    <button id="resetButton" class="custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg w-1/3">
-        Menüye Dön
-    </button>
-</div>
-
-            <!-- Bu kasadan çıkabilecekler listesi -->
-            <div id="possibleDropsContainer" class="mt-8 p-4 bg-gray-800 bg-opacity-50 rounded-lg w-full">
-                <h3 class="col-span-full text-xl font-bold text-white-400 mb-4 text-center">Bu Kasadan Çıkabilecekler:</h3>
-                <!-- Skins will be loaded here by JavaScript -->
-            </div>
-        </div>
+        <h1 id="mainTitle" class="text-4xl font-bold text-white">Counter Strike 2 Cases</h1>
+        
+        <div id="logoutButtonContainer" class="absolute right-0 top-1/2 -translate-y-1/2"></div>
     </div>
+
+    <input type="search" id="searchBar" placeholder="Kasa ara..." class="w-full max-w-md mx-auto p-2 rounded-lg mb-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 block">
+
+    <div id="caseSelectionMenu" class="grid grid-cols-7 gap-4 justify-items-center">
+        </div>
+
+    <div id="caseOpeningSection" class="hidden flex flex-col items-center justify-center p-4">
+        </div>
+</div>
+
 <div id="rareDropsContainer" class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 p-4 bg-gray-900 bg-opacity-60 rounded-lg w-full border-2 border-yellow-400">
     <h3 class="col-span-full text-2xl font-bold text-yellow-300 mb-4 text-center">Kasadan Çıkabilecek Nadir Desenler</h3>
     </div>
@@ -529,7 +565,13 @@
     <div id="inventoryGrid" class="grid grid-cols-7 gap-4 justify-items-center">
         </div>
 </div>
-    <!-- Sıkça Sorulan Sorular bölümü -->
+    
+<div id="statsSection" class="main-content-wrapper hidden">
+    <h1 class="text-4xl font-bold mb-8 text-white text-center">Kullanıcı İstatistikleri</h1>
+    <p class="text-center text-gray-400">İstatistiklerin bu ekranda gösterilecek.</p>
+    </div>
+
+<!-- Sıkça Sorulan Sorular bölümü -->
     <div id="faqSection">
         <h2 class="text-3xl font-bold mb-6 text-white-400 text-center">Sıkça Sorulan Sorular</h2>
 
@@ -589,6 +631,8 @@
     </div>
 </div>
     
+    
+    
     <script>
         // Tarayıcının oturum hafızasına bak, "active_user" diye bir not var mı?
     // Senin kodun sessionStorage kullandığı için biz de onu kullanıyoruz.
@@ -631,6 +675,11 @@
     const resultText = document.getElementById('resultText');
     const loadingText = document.getElementById('loadingText');     
     const mainTitle = document.getElementById('mainTitle');    
+    // ===== BU YENİ DEĞİŞKENLERİ DİĞER const'LARIN YANINA EKLE =====
+    const profileContainer = document.getElementById('profileContainer');
+    const logoutButton = document.getElementById('logoutButton');
+    const statsSection = document.getElementById('statsSection');    
+        
         
         let currentlySelectedCase = null;
         let numberOfCasesToOpen = 1; // Başlangıçta her zaman 1 kasa açılacak
@@ -1380,6 +1429,72 @@ const rareItemPools = {
         { name: '★ M9 Bayonet | Freehand', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_am_marked_up_90_light_png.png&w=160&h=120' },
         { name: '★ M9 Bayonet | Gamma Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_am_gamma_doppler_phase3_light_png.png&w=160&h=120' },
         { name: '★ M9 Bayonet | Lore', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_cu_m9_bay_lore_light_png.png&w=160&h=120' },  
+    
+    ],
+    'case23': [ 
+        { name: '★ Bayonet | Autotronic', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_gs_bayonet_autotronic_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Black Laminate', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_cu_bayonet_stonewash_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Bright Water', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_hy_ocean_knife_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Freehand', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_am_marked_up_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Gamma Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_am_gamma_doppler_phase1_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Lore', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_cu_bayonet_lore_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Autotronic', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_gs_flip_autotronic_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Black Laminate', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_cu_flip_stonewash_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Bright Water', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_hy_ocean_knife_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Freehand', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_am_marked_up_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Gamma Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_am_gamma_doppler_phase1_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Lore', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_cu_flip_lore_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Autotronic', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_gs_gut_autotronic_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Black Laminate', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_cu_gut_stonewash_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Bright Water', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_hy_ocean_knife_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Freehand', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_am_marked_up_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Gamma Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_am_emerald_marbleized_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Lore', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_cu_gut_lore_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Autotronic', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_gs_karam_autotronic_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Black Laminate', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_cu_karam_stonewash_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Bright Water', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_hy_ocean_knife_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Freehand', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_am_marked_up_fine_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Gamma Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_am_gamma_doppler_phase1_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Lore', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_cu_karam_lore_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Autotronic', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_gs_m9_bay_autotronic_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Black Laminate', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_cu_m9_bay_stonewash_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Bright Water', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_hy_ocean_knife_90_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Freehand', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_am_marked_up_90_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Gamma Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_am_gamma_doppler_phase3_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Lore', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_cu_m9_bay_lore_light_png.png&w=160&h=120' },  
+    
+    ],
+    'case24': [ 
+        { name: '★ Bayonet | Damascus Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_aq_damascus_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_am_doppler_phase1_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Marble Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_am_marble_fade_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Rust Coat', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_aq_steel_knife_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Tiger Tooth', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_an_tiger_orange_light_png.png&w=160&h=120' },
+        { name: '★ Bayonet | Ultraviolet', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_bayonet_so_purple_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Damascus Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_aq_damascus_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_am_doppler_phase1_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Marble Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_am_marble_fade_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Rust Coat', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_aq_steel_knife_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Tiger Tooth', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_an_tiger_orange_light_png.png&w=160&h=120' },
+        { name: '★ Flip Knife | Ultraviolet', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_flip_so_purple_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Damascus Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_aq_damascus_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_am_sapphire_marbleized_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Marble Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_am_marble_fade_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Rust Coat', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_aq_steel_knife_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Tiger Tooth', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_an_tiger_orange_light_png.png&w=160&h=120' },
+        { name: '★ Gut Knife | Ultraviolet', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_gut_so_purple_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Damascus Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_aq_damascus_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_am_doppler_phase2_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Marble Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_am_marble_fade_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Rust Coat', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_aq_steel_knife_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Tiger Tooth', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_an_tiger_orange_light_png.png&w=160&h=120' },
+        { name: '★ Karambit | Ultraviolet', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_karambit_so_purple_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Damascus Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_aq_damascus_90_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Doppler', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_am_sapphire_marbleized_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Marble Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_am_marble_fade_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Rust Coat', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_aq_steel_knife_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Tiger Tooth', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_an_tiger_orange_light_png.png&w=160&h=120' },
+        { name: '★ M9 Bayonet | Ultraviolet', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_so_purple_light_png.png&w=160&h=120' },
     
     
     ],
@@ -2233,43 +2348,38 @@ const rareItemPools = {
         // Function to control which section is displayed
         // ===== ESKİ showSection FONKSİYONUNU SİL VE BUNU YAPIŞTIR =====
 
+// ===== ESKİ ve DAĞINIK TÜM showSection, onload ve addEventListener KODLARINI SİLİP BUNU YAPIŞTIR =====
+
 function showSection(sectionName) {
-    // Ana içerik bölümlerini yönet
-    if (sectionName === 'selection') {
-        // --- ANA MENÜYE DÖNERKEN ---
-        mainTitle.classList.remove('hidden');       // Başlığı GÖSTER
-        searchBar.classList.remove('hidden');       // Arama çubuğunu GÖSTER
-        caseSelectionMenu.classList.remove('hidden'); // Kasa listesini GÖSTER
+    // Önce TÜM ana bölümleri gizleyerek temiz bir başlangıç yapalım.
+    mainContent.classList.add('hidden');
+    inventorySection.classList.add('hidden');
+    statsSection.classList.add('hidden');
+    faqSection.classList.add('hidden');
 
-        caseOpeningSection.classList.add('hidden');   // Kasa açma ekranını GİZLE
-        inventorySection.classList.add('hidden');     // Envanteri GİZLE
-
-        faqSection.classList.remove('hidden');        // SSS'yi GÖSTER
+    // Şimdi sadece istenen bölümü gösterelim
+    if (sectionName === 'selection' || sectionName === 'opening') {
         mainContent.classList.remove('hidden');
+        faqSection.classList.remove('hidden');
 
-    } else if (sectionName === 'opening') {
-        // --- KASA AÇMA EKRANINA GEÇERKEN ---
-        mainTitle.classList.add('hidden');          // Başlığı GİZLE
-        searchBar.classList.add('hidden');          // Arama çubuğunu GİZLE
-        caseSelectionMenu.classList.add('hidden');    // Kasa listesini GİZLE
-
-        caseOpeningSection.classList.remove('hidden');// Kasa açma ekranını GÖSTER
-        
-        // Bu iki satırı temizlik amacıyla ekledim, başka bir yerden kalmış olabilirler.
-        // openCaseButton.classList.remove('hidden');
-        // resetButton.classList.add('hidden');
-        
-        faqSection.classList.remove('hidden');        // SSS'yi GÖSTER
-        mainContent.classList.remove('hidden');
-
+        if (sectionName === 'selection') {
+            document.getElementById('title-wrapper').classList.remove('hidden');
+            searchBar.classList.remove('hidden');
+            caseSelectionMenu.classList.remove('hidden');
+            caseOpeningSection.classList.add('hidden');
+        } else { // 'opening' durumu
+            document.getElementById('title-wrapper').classList.add('hidden');
+            searchBar.classList.add('hidden');
+            caseSelectionMenu.classList.add('hidden');
+            caseOpeningSection.classList.remove('hidden');
+        }
     } else if (sectionName === 'inventory') {
-        // --- ENVANTERE GEÇERKEN ---
-        mainContent.classList.add('hidden');          // Kasa menüsü ve açma ekranını GİZLE
-        faqSection.classList.add('hidden');           // SSS'yi GİZLE
-        
-        inventorySection.classList.remove('hidden');  // Envanteri GÖSTER
+        inventorySection.classList.remove('hidden');
+    } else if (sectionName === 'stats') {
+        statsSection.classList.remove('hidden');
     }
 }
+
 
         // Tüm kasa çeşitlerinin listesi (42 adet)
         const allCases = [
@@ -2323,13 +2433,14 @@ function showSection(sectionName) {
             allCases.forEach(caseData => {
                 const gridCellDiv = document.createElement('div');
                 gridCellDiv.classList.add('case-item-container');
-                gridCellDiv.innerHTML = `
-                    <div class="case-item">
-                        <img src="${caseData.image}" alt="${caseData.name}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/555555/ffffff?text=Resim+Yok';">
-                        <div class="price-container">${caseData.price}</div>
-                    </div>
-                    <p class="case-name">${caseData.name}</p>
-                `;
+               // ===== YUKARIDAKİ ESKİ KODU SİLİP BUNU YAPIŞTIR =====
+gridCellDiv.innerHTML = `
+    <div class="case-item">
+        <img src="${caseData.image}" alt="${caseData.name}" onerror="this.onerror=null; this.src='https://placehold.co/90x90/555555/ffffff?text=Resim+Yok';">
+        <div class="case-price-overlay">${caseData.price}</div>
+    </div>
+    <p class="case-name">${caseData.name}</p>
+`;
                 // Add click event to each case item
                 gridCellDiv.addEventListener('click', () => {
                     console.log(`[DEBUG] Click event registered for case: ${caseData.name}`);
@@ -2767,20 +2878,65 @@ function getWearInfo(floatValue) {
 // ==========================================================
 
 window.onload = () => {
-    // Sayfa ilk yüklendiğinde çalışacak temel fonksiyonlar
+    // Yeni butonlar için görünmez cepleri seçiyoruz
+    const profileBtnContainer = document.getElementById('profileButtonContainer');
+    const logoutBtnContainer = document.getElementById('logoutButtonContainer');
+    const username = sessionStorage.getItem('active_user') || 'Kullanıcı';
+    
+    // --- Profil Butonunu Oluşturma ve Sol Cebe Koyma ---
+    if (profileBtnContainer) {
+        const profileButton = document.createElement('div');
+        profileButton.className = 'profile-button';
+        profileButton.innerHTML = `
+            <img src="Ekran görüntüsü 2025-06-26 223622.png" class="profile-icon">
+            <span>${username}</span>
+        `;
+        profileButton.addEventListener('click', () => showSection('stats'));
+        profileBtnContainer.appendChild(profileButton);
+    }
+
+    // --- Çıkış Butonunu Oluşturma ve Sağ Cebe Koyma ---
+    if (logoutBtnContainer) {
+        const logoutButton = document.createElement('button');
+        logoutButton.className = 'logout-btn';
+        logoutButton.textContent = 'Çıkış Yap';
+        logoutButton.addEventListener('click', () => {
+            alert(username + ' hesabından çıkış yapılıyor...');
+            sessionStorage.removeItem('active_user');
+            window.location.href = 'Geçiş.html';
+        });
+        logoutBtnContainer.appendChild(logoutButton);
+    }
+
+    // --- Sayfanın Geri Kalanını Yükleme ve Diğer Buton Görevleri ---
     generateSkinImages();
     createCaseMenu();
     updateBalanceDisplay();
 
-    // Sadece sayfa ilk açıldığında kesin olarak var olan butonlara görev veriyoruz.
-    // Bu, "hayalet buton" hatasını engeller.
-    homeButton.addEventListener('click', resetToMenu);
+    // Üst paneldeki ve diğer sabit butonlara görevlerini veriyoruz
+    const homeButton = document.getElementById('homeButton');
+    if(homeButton) {
+        homeButton.addEventListener('click', createCaseMenu);
+    }
+    
+    const inventoryButton = document.getElementById('inventoryButton');
+    if(inventoryButton) {
+        inventoryButton.addEventListener('click', () => showSection('inventory'));
+    }
+    
+    if(searchBar) {
+        searchBar.addEventListener('input', filterCases);
+    }
+    
+    if(inspectCloseButton) {
+        inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
+    }
+};
+
+    // Eski buton görevleri
     inventoryButton.addEventListener('click', displayInventory);
     searchBar.addEventListener('input', filterCases);
     inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
-
-
-};
 // --- BU FONKSİYONU DİĞER FONKSİYONLARIN YANINA EKLE ---
 
 function saveUserData() {
