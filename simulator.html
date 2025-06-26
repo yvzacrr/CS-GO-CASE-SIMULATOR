@@ -2537,60 +2537,119 @@ function inspectItem(itemObject) {
     inspectionModal.classList.remove('hidden');
 }       
     
-// ===== BU YENİ FONKSİYONU KODUNUN SONLARINA DOĞRU EKLE =====
+// ===== BU YENİ YARDIMCI FONKSİYONU EKLE =====
+
+function createItemElementForModal(skin, totalItems) {
+    const rarityInfo = skinRarities[skin.rarity];
+    
+    // Her bir eşya için kendi kutusunu oluştur
+    const itemWrapper = document.createElement('div');
+    itemWrapper.className = 'text-center p-2'; // Padding'i biraz azalttık
+    
+    // Eşya sayısına göre küçülecek resim
+    const itemImage = document.createElement('img');
+    itemImage.src = skin.image;
+    itemImage.alt = skin.name;
+    
+    // GÖRSEL AYAR: 5'li düzende resimler biraz daha küçük olsun, ortadaki daha büyük olsun
+    let imageSize = '400px';
+    if (totalItems > 1) {
+        if (totalItems === 5) {
+            imageSize = '280px'; // 5'li düzende yanlardakilerin boyutu
+        } else if (totalItems > 3) {
+            imageSize = '250px';
+        } else {
+            imageSize = '300px';
+        }
+    }
+
+    itemImage.style.maxWidth = imageSize;
+    itemImage.style.maxHeight = imageSize;
+    itemImage.className = 'mx-auto mb-3 item-image'; // Resimlere bir class ekledik
+
+    // Eşyanın bilgi kutusu
+    const infoPlaque = document.createElement('div');
+    infoPlaque.className = 'info-plaque bg-gray-800 bg-opacity-70 border border-gray-600 rounded-lg p-3 inline-block';
+    
+    // Eşya sayısına göre küçülecek fontlar
+    const nameSize = totalItems > 2 ? 'text-xl' : 'text-2xl';
+    const wearSize = totalItems > 2 ? 'text-md' : 'text-lg';
+    const floatSize = totalItems > 2 ? 'text-xs' : 'text-sm';
+
+    infoPlaque.innerHTML = `
+        <h3 class="${nameSize} font-bold ${rarityInfo.color}">${skin.name}</h3>
+        <p class="${wearSize} text-gray-300">${skin.wear.name} (${skin.wear.abbr})</p>
+        <p class="${floatSize} text-gray-400 font-mono">${skin.float.toFixed(8)}</p>
+    `;
+
+    itemWrapper.appendChild(itemImage);
+    itemWrapper.appendChild(infoPlaque);
+    
+    return itemWrapper; // Oluşturulan tam kutuyu geri döndür
+}
+
+// ===== ESKİ showMultiItemModal FONKSİYONUNU KOMPLE SİL VE BUNU YAPIŞTIR =====
+
 function showMultiItemModal(skins) {
     const modalContent = itemWonModal.querySelector('.modal-content');
     modalContent.innerHTML = ''; // Modalın içini her seferinde temizle!
 
-    // Kazanılan eşyaları yerleştireceğimiz bir konteyner oluştur
+    // Ana konteyner. Bütün desenler bunun içine girecek.
     const itemsContainer = document.createElement('div');
-    // Flexbox kullanarak eşyaları yan yana dizeceğiz
-    itemsContainer.className = 'flex flex-row flex-wrap justify-center items-center gap-6'; 
 
-    // Gelen her bir skin için döngü oluştur
-    skins.forEach(skin => {
-        const rarityInfo = skinRarities[skin.rarity];
-        
-        // Her bir eşya için kendi kutusunu oluştur
-        const itemWrapper = document.createElement('div');
-        itemWrapper.className = 'text-center p-4';
-        
-        // Eşya sayısına göre küçülecek resim
-        const itemImage = document.createElement('img');
-        itemImage.src = skin.image;
-        itemImage.alt = skin.name;
-        // Eşya sayısına göre resim boyutunu ayarla
-        const imageSize = skins.length > 1 ? (skins.length > 3 ? '250px' : '300px') : '400px';
-        itemImage.style.maxWidth = imageSize;
-        itemImage.style.maxHeight = imageSize;
-        itemImage.className = 'mx-auto mb-3';
+    // ========== ASIL MANTIK DEĞİŞİKLİĞİ ==========
+    // EĞER KAZANILAN DESEN SAYISI TAM OLARAK 5 İSE...
+    if (skins.length === 5) {
+        // Ana konteynerimiz yatay bir flex kutusu olacak (Sol Sütun, Orta, Sağ Sütun)
+        itemsContainer.className = 'flex flex-row justify-center items-center gap-6 w-full';
 
-        // Eşyanın bilgi kutusu
-        const infoPlaque = document.createElement('div');
-        infoPlaque.className = 'info-plaque bg-gray-800 bg-opacity-70 border border-gray-600 rounded-lg p-3 inline-block';
-        
-        // Eşya sayısına göre küçülecek fontlar
-        const nameSize = skins.length > 2 ? 'text-xl' : 'text-2xl';
-        const wearSize = skins.length > 2 ? 'text-md' : 'text-lg';
-        const floatSize = skins.length > 2 ? 'text-xs' : 'text-sm';
+        // Sütunlarımızı oluşturalım
+        const leftColumn = document.createElement('div');
+        leftColumn.className = 'flex flex-col gap-4'; // Dikey flex kutusu
 
-        infoPlaque.innerHTML = `
-            <h3 class="${nameSize} font-bold ${rarityInfo.color}">${skin.name}</h3>
-            <p class="${wearSize} text-gray-300">${skin.wear.name} (${skin.wear.abbr})</p>
-            <p class="${floatSize} text-gray-400 font-mono">${skin.float.toFixed(8)}</p>
-        `;
+        const centerItemContainer = document.createElement('div');
+        centerItemContainer.className = 'center-item-container'; // Ortadaki elemana özel stil için class
 
-        itemWrapper.appendChild(itemImage);
-        itemWrapper.appendChild(infoPlaque);
-        itemsContainer.appendChild(itemWrapper);
-    });
-    
-    // Tüm eşyaları içeren konteyneri modal'a ekle
+        const rightColumn = document.createElement('div');
+        rightColumn.className = 'flex flex-col gap-4'; // Dikey flex kutusu
+
+        // Gelen 5 deseni döngüye alıp doğru sütuna yerleştirelim
+        skins.forEach((skin, index) => {
+            // Yardımcı fonksiyonu kullanarak desen kutusunu oluştur
+            const itemWrapper = createItemElementForModal(skin, skins.length);
+            
+            if (index < 2) { // İlk iki desen (index 0 ve 1)
+                leftColumn.appendChild(itemWrapper);
+            } else if (index === 2) { // Ortadaki desen (index 2)
+                 // Ortadaki resmi biraz daha büyük yapalım
+                itemWrapper.querySelector('.item-image').style.maxWidth = '350px';
+                itemWrapper.querySelector('.item-image').style.maxHeight = '350px';
+                centerItemContainer.appendChild(itemWrapper);
+            } else { // Son iki desen (index 3 ve 4)
+                rightColumn.appendChild(itemWrapper);
+            }
+        });
+
+        // Oluşturulan 3 sütunu ana konteynere ekle
+        itemsContainer.append(leftColumn, centerItemContainer, rightColumn);
+
+    } else {
+        // EĞER DESEN SAYISI 5 DEĞİLSE (1, 2, 3, 4 ise), ESKİ MANTIK DEVAM ETSİN
+        itemsContainer.className = 'flex flex-row flex-wrap justify-center items-center gap-6';
+
+        skins.forEach(skin => {
+            // Yardımcı fonksiyonu kullanarak desen kutusunu oluştur ve direk konteynere ekle
+            const itemWrapper = createItemElementForModal(skin, skins.length);
+            itemsContainer.appendChild(itemWrapper);
+        });
+    }
+
+    // Modal içeriğini oluştur
     modalContent.appendChild(itemsContainer);
 
-    // "Devam Et" butonunu oluştur ve sona ekle
+    // "Devam Et" butonunu oluştur ve sona ekle (Bu kısım aynı)
     const continueButton = document.createElement('button');
-    continueButton.id = 'closeModalButton'; // ID'sini verelim ki eski stiller çalışsın
+    continueButton.id = 'closeModalButton';
     continueButton.textContent = 'Devam Et';
     continueButton.className = 'mt-6 custom-button bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-xl shadow-lg';
     continueButton.onclick = () => {
