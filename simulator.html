@@ -366,6 +366,32 @@
     font-family: "Noto Sans JP", sans-serif;
 }    
     
+/* ===== BU YENİ STİLLERİ <style> BÖLÜMÜNÜN SONUNA EKLE ===== */
+
+/* 1. İstek: Nadirlik yazısının siyah arka planını kaldıran yeni sınıf */
+.inventory-rarity-text {
+    color: #fff; /* Yazı rengi beyaz olsun */
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    width: 100%;
+    text-align: right; /* Metni sağa hizala */
+    white-space: nowrap; /* Asla alt satıra düşme! */
+    background-color: transparent !important; /* Arka planı kaldır ve başka bir stilin bunu ezmediğinden emin ol! */
+}
+
+/* 2. İstek: Sadece "Mil-Spec Grade" için yazıyı küçülten özel sınıf */
+.rarity-mil-spec {
+    font-size: 0.65rem !important; /* Yazıyı biraz küçült ki tek satıra sığsın */
+}
+
+/* ============================================================== */    
+    
+#inventoryGrid .case-item img {
+    width: 110px;
+    height: 90px;
+}    
+    
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -2446,13 +2472,14 @@ function displayInventory() {
             // C) Kutunun içini (resim, isim, nadirlik) HTML olarak doldur
             // Backtick (`) işareti kullanarak çok satırlı HTML yazıyoruz.
             // ${item.image} gibi ifadeler, o anki eşyanın resmini, adını vb. buraya yerleştirir.
-            itemDiv.innerHTML = `
-                <div class="case-item border-2 ${rarityInfo.color.replace('text-', 'border-')}">
-                    <img src="${item.image}" alt="${item.name}">
-                    <div class="price-container ${rarityInfo.color}">${item.rarity}</div>
-                </div>
-                <p class="case-name">${item.name}</p>
-            `;
+const rarityClass = item.rarity === 'Mil-Spec Grade' ? 'rarity-mil-spec' : '';
+itemDiv.innerHTML = `
+    <div class="case-item border-2 ${rarityInfo.color.replace('text-', 'border-')}">
+        <img src="${item.image}" alt="${item.name}">
+        <div class="inventory-rarity-text ${rarityInfo.color} ${rarityClass}">${item.rarity}</div>
+    </div>
+    <p class="case-name">${item.name}</p>
+`;
 
 // ===============================================
 // ==== YENİ EKLENEN TIKLAMA OLAYI ====
