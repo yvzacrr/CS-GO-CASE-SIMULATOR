@@ -8,6 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter yazı tipini Google Fonts'tan yüklüyoruz -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
     <style>   
 
 /* İnceleme ekranındaki sütunlar için */
@@ -357,6 +360,11 @@
 /* 4 veya 5 sonuç olduğunda kutuları ve isimleri küçült */
 .grid-cols-4 .skin-item-box, .grid-cols-5 .skin-item-box { width: 110px; height: 110px; }
 .grid-cols-4 .skin-item-name, .grid-cols-5 .skin-item-name { width: 110px; font-size: 0.75rem; }    
+    
+/* ===== BU YENİ STİLİ <style> BÖLÜMÜNÜN SONUNA EKLE ===== */
+.font-inspect-title {
+    font-family: "Noto Sans JP", sans-serif;
+}    
     
     </style>
 </head>
@@ -2483,6 +2491,7 @@ resetButton.addEventListener('click', resetToMenu);
 homeButton.addEventListener('click', resetToMenu);
 inventoryButton.addEventListener('click', displayInventory);
 searchBar.addEventListener('input', filterCases);
+inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
 
 
 // ==========================================================
@@ -2522,7 +2531,7 @@ function saveUserData() {
 function inspectItem(itemObject) {
     // Sağ sütundaki bilgileri doldur
     inspectItemName.textContent = itemObject.name;
-    inspectItemName.className = `text-5xl font-bold mb-4 ${itemObject.color}`; // Rengi de ata
+    inspectItemName.className = `text-5xl font-bold mb-4 ${itemObject.color} font-inspect-title`;
     inspectItemWear.textContent = `${itemObject.wear.name} (${itemObject.wear.abbr})`;
     inspectItemFloat.textContent = itemObject.float.toFixed(8); // Float'ı uzun ve detaylı göster
     inspectCaseOrigin.textContent = itemObject.caseOrigin; // 1. Adımda kaydettiğimiz kasa adı
