@@ -691,7 +691,7 @@ const activeUser = sessionStorage.getItem('active_user');
 // Kullanıcı veritabanını localStorage'dan çekiyoruz.
 const users = JSON.parse(localStorage.getItem('simulator_users')) || {};
 
-// YENİ KOD - İSTATİSTİKLERİ DE YÜKLÜYOR
+// YENİ VE DOĞRU ÇALIŞAN KOD
 let userBalance = 0;
 let userInventory = [];
 // Kullanıcının istatistiklerini tutacak olan yeni değişkenimiz
@@ -701,17 +701,24 @@ if (activeUser && activeUser !== 'guest' && users[activeUser]) {
     userBalance = users[activeUser].balance;
     userInventory = users[activeUser].inventory;
     
-    // İstatistik verisini de yükle, eğer yoksa varsayılan değerlerle oluştur.
-    userStats = users[activeUser].stats || {
-        openedCases: {},
-        rarityCounts: {},
-        lowestBalance: userBalance,
-        highestBalance: userBalance
-    };
+    // İstatistik objesini yükle, eğer hiç yoksa boş bir obje oluştur.
+    userStats = users[activeUser].stats || { openedCases: {}, rarityCounts: {} };
+
+    // ŞİMDİ KONTROLLÜ ATAMA YAPIYORUZ:
+    // Eğer 'lowestBalance' değeri daha önce hiç atanmamışsa, o anki bakiyeyi ata.
+    if (userStats.lowestBalance === undefined) {
+        userStats.lowestBalance = userBalance;
+    }
+    // Eğer 'highestBalance' değeri daha önce hiç atanmamışsa, o anki bakiyeyi ata.
+    if (userStats.highestBalance === undefined) {
+        userStats.highestBalance = userBalance;
+    }
+    // Bu sayede bu değerler bir kere atandıktan sonra bir daha yanlışlıkla sıfırlanmaz.
+
 } else if (activeUser === 'guest') {
     userBalance = 30.00;
     userInventory = [];
-    userStats = { // Misafir için de boş bir yapı oluşturalım
+    userStats = {
         openedCases: {},
         rarityCounts: {},
         lowestBalance: 30.00,
@@ -2981,33 +2988,18 @@ profileButton.addEventListener('click', () => {
     inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
 // --- BU FONKSİYONU DİĞER FONKSİYONLARIN YANINA EKLE ---
 
-// YENİ VE GÜÇLENDİRİLMİŞ KAYDETME FONKSİYONU
+// YENİ, TEMİZ VE DOĞRU KAYDETME FONKSİYONU
 function saveUserData() {
     const activeUser = sessionStorage.getItem('active_user');
-
     if (!activeUser || activeUser === 'guest') {
-        console.log("Misafir verisi kaydedilmiyor.");
-        return;
+        return; // Misafir ise kaydetme
     }
-
     const users = JSON.parse(localStorage.getItem('simulator_users')) || {};
-
     if (users[activeUser]) {
-        // Stats objesinin var olduğundan emin ol, yoksa oluştur
-        if (!users[activeUser].stats) {
-            users[activeUser].stats = {
-                openedCases: {},
-                rarityCounts: {},
-                lowestBalance: userBalance,
-                highestBalance: userBalance
-            };
-        }
-
-        // Ana verileri güncelle
+        // Doğrudan mevcut verileri kaydet, fazladan kontrol yapma.
         users[activeUser].balance = userBalance;
         users[activeUser].inventory = userInventory;
-        // Stats verilerini de güncelle (bu değişkeni birazdan dolduracağız)
-        users[activeUser].stats = userStats; 
+        users[activeUser].stats = userStats; // userStats değişkeni zaten her zaman güncel
 
         localStorage.setItem('simulator_users', JSON.stringify(users));
         console.log(activeUser + " için tüm veriler (bakiye, envanter, istatistikler) kaydedildi.");
