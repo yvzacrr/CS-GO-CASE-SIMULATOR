@@ -108,7 +108,48 @@
         
         /* ===== BU YENİ STİLLERİ #topPanel > div:hover'ın ALTINA EKLE ===== */
 
-/* Top Paneldeki 3 ana bölüm (sol, orta, sağ) için */
+/* ===== EASTER EGG İÇİN YENİ STİLLER ===== */
+
+/* Sağ alttaki gizli, görünmez buton */
+#easterEggButton {
+    position: fixed; /* Sayfa kaysa bile yerinde kalır */
+    bottom: 10px;    /* Alttan 10 piksel yukarıda */
+    right: 10px;     /* Sağdan 10 piksel solda */
+    width: 25px;     /* Küçücük bir alan */
+    height: 25px;    /* Küçücük bir alan */
+    z-index: 2000;   /* Diğer şeylerin üstünde kalsın */
+    cursor: pointer; /* Üzerine gelince tıklama imleci çıksın */
+    /* İstersen fareyle üzerine gelince belli olması için bu satırı ekleyebilirsin: */
+    /* transition: background-color 0.2s; */
+}
+/* #easterEggButton:hover { background-color: rgba(255,255,255,0.1); } */
+
+
+/* Tıklayınca açılacak kutunun içindeki yazıların ortalanması */
+#easterEggContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px; /* Kutunun çok yassı durmasını engeller */
+}
+
+/* Ekranın içindeki yazıların stili */
+#easterEggContent p {
+    font-size: 2rem; /* Yazı boyutu */
+    color: white;
+    text-align: center;
+    opacity: 0.15; /* İSTEDİĞİN SAYDAMLIK! %15 görünürlükte */
+    transition: opacity 0.3s ease; /* Üzerine gelince yavaşça görünsün */
+}
+
+/* Fareyle ekranın üzerine gelince yazılar netleşsin */
+#easterEggScreen:hover #easterEggContent p {
+    opacity: 1;
+}
+
+
+        /* Top Paneldeki 3 ana bölüm (sol, orta, sağ) için */
 .top-panel-section {
     flex: 1; /* Eşit yer kaplamalarını sağlar */
     display: flex;
@@ -525,6 +566,7 @@
 .logout-btn:hover {
     background-color: #b91c1c; /* Koyu Kırmızı */
 }    
+       
     
     </style>
 </head>
@@ -631,8 +673,7 @@
         </div>
     </div>
 </div>
-    
-    
+        
     
     <script>
         // Tarayıcının oturum hafızasına bak, "active_user" diye bir not var mı?
@@ -646,42 +687,9 @@
         // ...ve onu kayıt/giriş sayfasına geri yolla.
         window.location.href = 'Geçiş.html';
     }
-    const caseSelectionMenu = document.getElementById('caseSelectionMenu');
-    const caseOpeningSection = document.getElementById('caseOpeningSection');
-    const selectedCaseNameDisplay = document.getElementById('selectedCaseName');
-    const openCaseButton = document.getElementById('openCaseButton');
-    const resetButton = document.getElementById('resetButton');
-    const homeButton = document.getElementById('homeButton');
-    const inventoryButton = document.getElementById('inventoryButton');
-    const balanceDisplay = document.getElementById('balanceDisplay');
-    const faqSection = document.getElementById('faqSection');
-    const possibleDropsContainer = document.getElementById('possibleDropsContainer');
-    const searchBar = document.getElementById('searchBar');
-    const inventorySection = document.getElementById('inventorySection');
-    const itemWonModal = document.getElementById('itemWonModal');
-    const modalItemImage = document.getElementById('modalItemImage');
-    const modalItemName = document.getElementById('modalItemName');
-    const modalItemWear = document.getElementById('modalItemWear');
-    const modalItemFloat = document.getElementById('modalItemFloat');
-    const closeModalButton = document.getElementById('closeModalButton');
-    const inspectionModal = document.getElementById('inspectionModal');
-    const inspectCloseButton = document.getElementById('inspectCloseButton');
-    const inspectImage = document.getElementById('inspectImage');
-    const inspectItemName = document.getElementById('inspectItemName');
-    const inspectItemWear = document.getElementById('inspectItemWear');
-    const inspectItemFloat = document.getElementById('inspectItemFloat');
-    const inspectCaseOrigin = document.getElementById('inspectCaseOrigin');
-    const inspectItemPrice = document.getElementById('inspectItemPrice');
-    const displayImage = document.getElementById('displayImage');
-    const resultText = document.getElementById('resultText');
-    const loadingText = document.getElementById('loadingText');     
-    const mainTitle = document.getElementById('mainTitle');    
-    // ===== BU YENİ DEĞİŞKENLERİ DİĞER const'LARIN YANINA EKLE =====
-    const profileContainer = document.getElementById('profileContainer');
-    const logoutButton = document.getElementById('logoutButton');
-    const statsSection = document.getElementById('statsSection');    
-        
-        
+       
+     
+    
         let currentlySelectedCase = null;
         let numberOfCasesToOpen = 1; // Başlangıçta her zaman 1 kasa açılacak
 
@@ -1516,6 +1524,22 @@ const rareItemPools = {
         { name: '★ M9 Bayonet | Rust Coat', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_aq_steel_knife_light_png.png&w=160&h=120' },
         { name: '★ M9 Bayonet | Tiger Tooth', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_an_tiger_orange_light_png.png&w=160&h=120' },
         { name: '★ M9 Bayonet | Ultraviolet', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_m9_bayonet_so_purple_light_png.png&w=160&h=120' },
+    
+        ],
+        'case25': [ 
+        { name: '★ Bowie Knife | Vanilla', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fweapons%2Fbase_weapons%2Fweapon_knife_survival_bowie_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Blue Steel', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_aq_blued_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Boreal Forest', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_hy_forest_boreal_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Case Hardened', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_aq_oiled_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Crimson Web', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_hy_webs_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Fade', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_aa_fade_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Forest DDPAT', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_hy_ddpat_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Night', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_so_night_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Safari Mesh', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_sp_mesh_tan_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Scorched', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_sp_dapple_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Slaughter', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_am_zebra_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Stained', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_aq_forced_light_png.png&w=160&h=120' },
+        { name: '★ Bowie Knife | Urban Masked', image: 'https://images.oki.gg/?url=https%3A%2F%2Fraw.githubusercontent.com%2FByMykel%2Fcounter-strike-image-tracker%2Fmain%2Fstatic%2Fpanorama%2Fimages%2Fecon%2Fdefault_generated%2Fweapon_knife_survival_bowie_sp_tape_urban_light_png.png&w=160&h=120' },
     
     
     ],
@@ -2376,13 +2400,10 @@ function showSection(sectionName) {
     mainContent.classList.add('hidden');
     inventorySection.classList.add('hidden');
     statsSection.classList.add('hidden');
-    faqSection.classList.add('hidden');
 
     // Şimdi sadece istenen bölümü gösterelim
     if (sectionName === 'selection' || sectionName === 'opening') {
         mainContent.classList.remove('hidden');
-        faqSection.classList.remove('hidden');
-
         if (sectionName === 'selection') {
             document.getElementById('title-wrapper').classList.remove('hidden');
             searchBar.classList.remove('hidden');
@@ -2914,78 +2935,6 @@ function getWearInfo(floatValue) {
 // ===== BUTON TIKLAMA OLAYLARI (EVENT LISTENERS) =====
 // ==========================================================
 
-
-
-
-// ==========================================================
-// ===== SAYFA YÜKLENDİĞİNDE ÇALIŞACAK KOD (ONLOAD) =====
-// ==========================================================
-
-window.onload = () => {
-    // Yeni butonlar için görünmez cepleri seçiyoruz
-    const profileBtnContainer = document.getElementById('profileButtonContainer');
-    const logoutBtnContainer = document.getElementById('logoutButtonContainer');
-    const username = sessionStorage.getItem('active_user') || 'Kullanıcı';
-    
-
-    if (profileBtnContainer) {
-        const profileButton = document.createElement('div');
-        profileButton.className = 'profile-button';
-        // DOĞRU VE TAM HTML KODU BURADA
-        profileButton.innerHTML = `
-            <img class="profile-icon" src="data:image/png;base64,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">
-            <span>${username}</span>
-        `;
-        // YENİ SATIR
-profileButton.addEventListener('click', () => {
-    showSection('stats'); // İstatistikler bölümünü göster
-    displayStats();       // Ve içini doldur
-});
-        profileBtnContainer.appendChild(profileButton);
-    }
-
-    // --- Çıkış Butonunu Oluşturma ve Sağ Cebe Koyma ---
-    if (logoutBtnContainer) {
-        const logoutButton = document.createElement('button');
-        logoutButton.className = 'logout-btn';
-        logoutButton.textContent = 'Çıkış Yap';
-        logoutButton.addEventListener('click', () => {
-            alert(username + ' hesabından çıkış yapılıyor...');
-            sessionStorage.removeItem('active_user');
-            window.location.href = 'Geçiş.html';
-        });
-        logoutBtnContainer.appendChild(logoutButton);
-    }
-
-    // --- Sayfanın Geri Kalanını Yükleme ve Diğer Buton Görevleri ---
-    generateSkinImages();
-    createCaseMenu();
-    updateBalanceDisplay();
-
-    // Üst paneldeki ve diğer sabit butonlara görevlerini veriyoruz
-    const homeButton = document.getElementById('homeButton');
-    if(homeButton) {
-        homeButton.addEventListener('click', createCaseMenu);
-    }
-    
-    const inventoryButton = document.getElementById('inventoryButton');
-    if(inventoryButton) {
-        inventoryButton.addEventListener('click', () => showSection('inventory'));
-    }
-    
-    if(searchBar) {
-        searchBar.addEventListener('input', filterCases);
-    }
-    
-    if(inspectCloseButton) {
-        inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
-    }
-};
-
-    // Eski buton görevleri
-    inventoryButton.addEventListener('click', displayInventory);
-    searchBar.addEventListener('input', filterCases);
-    inspectCloseButton.addEventListener('click', () => inspectionModal.classList.add('hidden'));
 // --- BU FONKSİYONU DİĞER FONKSİYONLARIN YANINA EKLE ---
 
 // YENİ, TEMİZ VE DOĞRU KAYDETME FONKSİYONU
@@ -3250,8 +3199,94 @@ function displayStats() {
     statsContainer.innerHTML += otherStatsHTML;
 
     statsSection.appendChild(statsContainer);
-}    
+}
+
+
+// ==========================================================
+// ===== SAYFA YÜKLENDİĞİNDE ÇALIŞACAK KOD (ONLOAD) =====
+// ==========================================================
+window.onload = () => {
+    // --- GİRİŞ KONTROLÜ ---
+    if (!activeUser) {
+        alert("Bu sayfaya erişim için giriş yapmalısınız.");
+        window.location.href = 'Geçiş.html';
+        return; 
+    }
+
+    // --- VERİLERİ YÜKLE ---
+    // Bu kısım, dosyanın en başındaki veri yükleme mantığıyla aynıdır.
+    // Burada tekrar ederek her şeyin doğru yüklendiğinden emin oluyoruz.
+    if (users[activeUser]) {
+        userBalance = users[activeUser].balance;
+        userInventory = users[activeUser].inventory || [];
+        userStats = users[activeUser].stats || { openedCases: {}, rarityCounts: {}, lowestBalance: userBalance, highestBalance: userBalance };
+        if (userStats.lowestBalance === undefined) userStats.lowestBalance = userBalance;
+        if (userStats.highestBalance === undefined) userStats.highestBalance = userBalance;
+    }
+
+    // --- BUTONLARA GÖREV ATA (EVENT LISTENERS) ---
+    // Bütün buton görev atamaları artık tek bir güvenli yerde.
+    homeButton.addEventListener('click', createCaseMenu);
+    inventoryButton.addEventListener('click', displayInventory);
+    searchBar.addEventListener('input', filterCases);
+    inspectCloseButton.addEventListener('click', () => { inspectionModal.classList.add('hidden'); });
     
+    // Profil ve Çıkış Butonları
+    const profileBtnContainer = document.getElementById('profileButtonContainer');
+    const logoutBtnContainer = document.getElementById('logoutButtonContainer');
+    const username = sessionStorage.getItem('active_user') || 'Kullanıcı';
+    if (profileBtnContainer) { 
+        const profileButton = document.createElement('div');
+        profileButton.className = 'profile-button';
+        profileButton.innerHTML = `<img class="profile-icon" src="data:image/png;base64,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"><span>${username}</span>`;
+            profileButton.addEventListener('click', () => { showSection('stats'); displayStats(); });
+            profileBtnContainer.appendChild(profileButton);
+        }
+        if (logoutBtnContainer) {
+            const logoutButton = document.createElement('button');
+            logoutButton.className = 'logout-btn';
+            logoutButton.textContent = 'Çıkış Yap';
+            logoutButton.addEventListener('click', () => { 
+                alert(username + ' hesabından çıkış yapılıyor...'); 
+                sessionStorage.removeItem('active_user'); 
+                window.location.href = 'Geçiş.html'; 
+            });
+            logoutBtnContainer.appendChild(logoutButton);
+        }
+        
+        
+        // --- SAYFAYI BAŞLAT ---
+        updateBalanceDisplay();
+        createCaseMenu();
+    };
+    
+        // ==========================================================
+    // ===== BÖLÜM 1: ELEMENT TANIMLAMALARI (HTML KÖPRÜSÜ) =====
+    // ==========================================================
+    // Bu blok, JavaScript'in HTML'deki tüm önemli elementleri tanımasını sağlar.
+    const topPanel = document.getElementById('topPanel');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const mainContent = document.getElementById('mainContent');
+    const caseSelectionMenu = document.getElementById('caseSelectionMenu');
+    const caseOpeningSection = document.getElementById('caseOpeningSection');
+    const searchBar = document.getElementById('searchBar');
+    const inventorySection = document.getElementById('inventorySection');
+    const inventoryGrid = document.getElementById('inventoryGrid');
+    const statsSection = document.getElementById('statsSection');
+    const faqSection = document.getElementById('faqSection');
+    const homeButton = document.getElementById('homeButton');
+    const inventoryButton = document.getElementById('inventoryButton');
+    
+    // Modallar ve İçerikleri
+    const itemWonModal = document.getElementById('itemWonModal');
+    const inspectionModal = document.getElementById('inspectionModal');
+    const inspectCloseButton = document.getElementById('inspectCloseButton');
+    const inspectImage = document.getElementById('inspectImage');
+    const inspectItemName = document.getElementById('inspectItemName');
+    const inspectItemWear = document.getElementById('inspectItemWear');
+    const inspectItemFloat = document.getElementById('inspectItemFloat');
+    const inspectCaseOrigin = document.getElementById('inspectCaseOrigin');
+    const inspectItemPrice = document.getElementById('inspectItemPrice');
     
     </script>
 </body>
