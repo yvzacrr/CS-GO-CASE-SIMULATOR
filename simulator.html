@@ -585,6 +585,20 @@
     font-size: 1.25rem; /* Yazı boyutu */
 }    
     
+#active-user-container {
+    border: 2px solid #4CAF50; /* Yeşil çerçeve */
+    background-color: rgba(20, 20, 30, 0.5); /* Yarı saydam koyu arka plan */
+    padding: 8px 16px;
+    border-radius: 8px; /* Köşeleri yuvarlatma */
+    color: #EAEAEA;
+    font-weight: bold;
+    margin: 0 20px; /* Diğer elemanlarla arasına boşluk bırakır */
+}
+
+#active-user-count {
+    margin-left: 8px; /* Yazı ile sayı arasına boşluk */
+}    
+    
     
     </style>
 </head>
@@ -610,6 +624,10 @@
     <div class="balance-text">Balance: <span id="balanceDisplay">0.00</span> $</div>
 
     <div id="inventoryButton">Inventory</div>
+</div>
+
+<div id="active-user-container">
+    Aktif Kullanıcı: <span id="active-user-count">...</span>
 </div>
 
 <div id="mainContent" class="main-content-wrapper">
@@ -3365,5 +3383,8 @@ closeEasterEggButton.addEventListener('click', () => {
     
     
     </script>
+
+<script src="simulator-script.js" defer></script>
+
 </body>
 </html>
