@@ -586,6 +586,7 @@
 }    
     
 #active-user-container {
+    width: fit-content; /* Bu satırı ekleyin */
     border: 2px solid #4CAF50; /* Yeşil çerçeve */
     background-color: rgba(20, 20, 30, 0.5); /* Yarı saydam koyu arka plan */
     padding: 8px 16px;
@@ -593,10 +594,21 @@
     color: #EAEAEA;
     font-weight: bold;
     margin: 0 20px; /* Diğer elemanlarla arasına boşluk bırakır */
+    /* --- YENİ EKLENECEK ORTALAMA KODLARI --- */
+    margin-left: auto;                      /* Sol boşluğu otomatik olarak doldur */
+    margin-right: auto;                     /* Sağ boşluğu otomatik olarak doldur */
+    margin-top: 1rem;                       /* Üstten 16px kadar boşluk bırak (isteğe bağlı) */
 }
 
 #active-user-count {
     margin-left: 8px; /* Yazı ile sayı arasına boşluk */
+}    
+    
+/* Başlık, sayaç ve butonu içeren ana kutuyu hedefler */
+.header-content {
+display: flex; /* Elemanları yan yana dizer */
+align-items: center; /* Dikey olarak hepsini ortalar */
+justify-content: space-between; /* Elemanların arasına boşluk dağıtır */
 }    
     
     
@@ -626,15 +638,16 @@
     <div id="inventoryButton">Inventory</div>
 </div>
 
-<div id="active-user-container">
-    Aktif Kullanıcı: <span id="active-user-count">...</span>
-</div>
 
 <div id="mainContent" class="main-content-wrapper">
     <div class="relative text-center mb-8" id="title-wrapper">
         <div id="profileButtonContainer" class="absolute left-0 top-1/2 -translate-y-1/2"></div>
         
         <h1 id="mainTitle" class="text-4xl font-bold text-white">Counter Strike 2 Cases</h1>
+        
+        <div id="active-user-container">
+    Aktif Kullanıcı: <span id="active-user-count">...</span>
+        </div> 
         
         <div id="logoutButtonContainer" class="absolute right-0 top-1/2 -translate-y-1/2"></div>
     </div>
