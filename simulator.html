@@ -567,12 +567,44 @@
     background-color: #b91c1c; /* Koyu Kırmızı */
 }    
        
+/* ===== EASTER EGG İÇİN YENİ STİLLER ===== */
+
+/* Sağ alttaki "Egg" butonu */
+#easterEggButton {
+    position: fixed; /* Sayfa kaysa bile yerinde kalır */
+    bottom: 20px;    /* Alttan 20 piksel yukarıda */
+    right: 20px;     /* Sağdan 20 piksel solda */
+    z-index: 4000;   /* Diğer her şeyin üstünde kalması için yüksek bir değer */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Tıklayınca açılacak olan kutunun içindeki yazıların stilleri */
+#easterEggContent p {
+    color: #e2e8f0; /* Açık gri tonunda yazı rengi */
+    font-size: 1.25rem; /* Yazı boyutu */
+}    
+    
     
     </style>
 </head>
 <body class="bg-gray-900 text-white">
     
-<div id="topPanel">
+<button id="easterEggButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">
+</button>
+
+<div id="easterEggScreen" class="hidden fixed inset-0 bg-gray-900 w-full h-full flex justify-center items-center z-[5000]">
+    <div id="easterEggContent" class="bg-gray-800 p-8 rounded-2xl shadow-lg text-center w-full max-w-lg">
+        <p class="text-white text-xl mb-4">-Bu sitede ilk bıçak çıkaran kişi: TheChefMami.</p>
+        <p class="text-white text-xl mb-8">-Bu sitede ilk eldiven çıkaran kişi: Gorut.</p>
+        <button id="closeEasterEggButton" class="custom-button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-xl">
+            Kapat
+        </button>
+    </div>
+</div>
+
+
+    <div id="topPanel">
     <div id="homeButton">Home</div>
 
     <div class="balance-text">Balance: <span id="balanceDisplay">0.00</span> $</div>
@@ -3287,6 +3319,50 @@ window.onload = () => {
     const inspectItemFloat = document.getElementById('inspectItemFloat');
     const inspectCaseOrigin = document.getElementById('inspectCaseOrigin');
     const inspectItemPrice = document.getElementById('inspectItemPrice');
+    
+    // ==========================================================
+// ===== BÖLÜM 2: ELEMENT TANIMLAMALARI (EASTER EGG İÇİN) =====
+// ==========================================================
+const easterEggButton = document.getElementById('easterEggButton');
+const easterEggScreen = document.getElementById('easterEggScreen');
+const closeEasterEggButton = document.getElementById('closeEasterEggButton');
+
+// Gizlenecek tüm ana elementleri bir diziye toplayalım
+const mainPageElements = [
+    topPanel,
+    mainContent,
+    inventorySection,
+    statsSection,
+    faqSection
+];
+
+// ==========================================================
+// ===== BUTON TIKLAMA OLAYLARI (EASTER EGG İÇİN) =====
+// ==========================================================
+
+// "Egg" butonuna tıklandığında...
+easterEggButton.addEventListener('click', () => {
+    // 1. Sayfadaki diğer tüm ana bölümleri gizle
+    mainPageElements.forEach(element => {
+        if (element) element.classList.add('hidden');
+    });
+    
+    // 2. Easter Egg ekranını göster
+    easterEggScreen.classList.remove('hidden');
+});
+
+// "Kapat" butonuna tıklandığında...
+closeEasterEggButton.addEventListener('click', () => {
+    // 1. Easter Egg ekranını gizle
+    easterEggScreen.classList.add('hidden');
+    
+    // 2. Ana menüyü tekrar göstererek siteyi normale döndür
+    // Not: Tüm elementleri göstermek yerine sadece ana menüyü
+    // gösteren fonksiyonu çağırmak daha güvenlidir.
+    createCaseMenu(); // Bu fonksiyon zaten kasa menüsünü gösterip diğerlerini gizliyor.
+    faqSection.classList.remove('hidden'); // SSS bölümünü de tekrar görünür yapalım.
+});
+    
     
     </script>
 </body>
